@@ -36,9 +36,53 @@ Track when a home power generator is started and stopped, calculate running hour
 - **Minimal Dependencies**: Prefer generated code over external libraries
 - **Code Quality**: Concise, self-documenting code to minimize token usage and comments
 
+### Deployment Architecture (Decided)
+
+**Database**: PostgreSQL (see ADR 0002)
+- **Cloud deployment**: Neon PostgreSQL free tier (beta) → Azure Database for PostgreSQL B1ms (production)
+- **Local deployment**: User-provided PostgreSQL server (self-hosted or Docker Compose)
+- **Reason**: Multi-user concurrent access, cloud reliability, cost optimization
+
+**Container Strategy**: Single container
+- Backend API (TypeScript/Node.js + Fastify)
+- No separate database container in cloud (use managed PostgreSQL)
+- Local development uses Docker Compose with PostgreSQL
+
+**Deployment Targets**:
+1. **Cloud (Beta)**: Azure App Service F1 Free + Neon PostgreSQL Free ($0/month)
+2. **Cloud (Production)**: Azure App Service B1 + Neon/Azure PostgreSQL ($13-30/month)
+3. **Local Server**: Docker container + user-provided PostgreSQL (self-hosted)
+
+### Environment Configuration
+
+**Required Environment Variables**:
+```bash
+# Database connection
+DATABASE_URL=postgresql://user:password@host:5432/dbname?sslmode=require
+
+# API configuration
+API_RATE_LIMIT=1  # requests per second
+NODE_ENV=production
+
+# Email configuration (for maintenance reminders)
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USER=user@example.com
+SMTP_PASSWORD=password
+SMTP_FROM=noreply@generatorlog.com
+
+# OAuth2 configuration (for web interface)
+OAUTH_CLIENT_ID=your-client-id
+OAUTH_CLIENT_SECRET=your-client-secret
+OAUTH_REDIRECT_URI=https://your-domain.com/auth/callback
+
+# Session secrets
+SESSION_SECRET=random-secret-key
+```
+
 ### Key Technical Questions to Address
-- Database persistence strategy outside Docker containers
-- Single vs multi-container Docker architecture
+- ~~Database persistence strategy outside Docker containers~~ ✅ RESOLVED (PostgreSQL, see ADR 0002)
+- ~~Single vs multi-container Docker architecture~~ ✅ RESOLVED (Single container + managed DB)
 - iOS Shortcuts file generation and import methods (QR code?)
 - OAuth2 implementation approach
 
@@ -76,12 +120,15 @@ If using **.NET/C#**:
 - Built-in dependency injection
 - **Only external packages**: Npgsql, Dapper (optional)
 
-If using **TypeScript/Node.js**:
+If using **TypeScript/Node.js** (SELECTED):
+- Node.js 25.2.1
 - Fastify (not Express or Next.js)
-- Raw `pg` client (not Prisma)
+- `pg` client for PostgreSQL
+- Drizzle ORM (lightweight, type-safe, minimal abstraction)
+- Zod for runtime validation
 - Custom auth/rate limiting utilities
 - TypeScript strict mode enabled
-- **Only external packages**: fastify, pg, typescript, nodemailer (maybe)
+- **External packages**: fastify, pg, drizzle-orm, zod, typescript, nodemailer (maybe)
 
 If using **Go**:
 - Standard library for HTTP, JSON, SMTP

@@ -2,30 +2,90 @@
 
 A web service for tracking home power generator usage with automated maintenance reminders.
 
+**Open Source** | **Self-Hostable** | **Cloud-Ready**
+
+---
+
+## 🚀 Quick Start
+
+Choose your deployment method:
+
+- **☁️ Cloud (Azure)**: [Cloud Deployment Guide](docs/deployment/cloud-deployment.md) - Free beta ($0/month), Production ($9-30/month)
+- **🏠 Local Server**: [Local Deployment Guide](docs/deployment/local-deployment.md) - Self-hosted with Docker
+- **💻 Development**: See "Getting Started" section below
+
+---
+
 ## Technology Stack
 
-- **Backend**: TypeScript + Fastify + PostgreSQL
+- **Backend**: TypeScript + Node.js 25.2.1 + Fastify
 - **Frontend**: React + TypeScript + Vite
-- **Database**: PostgreSQL 16
-- **Deployment**: Docker + docker-compose
+- **Database**: PostgreSQL 16 (cloud or self-hosted)
+- **ORM**: Drizzle ORM + Zod validation
+- **Deployment**: Docker containers
 
-See [ADR 0001](docs/adr/0001-typescript-nodejs-react-stack.md) for technology stack decision details.
+**Architecture Decisions**:
+- [ADR 0001](docs/adr/0001-typescript-nodejs-react-stack.md) - Technology Stack
+- [ADR 0002](docs/adr/0002-postgresql-database-choice.md) - PostgreSQL Database Choice
+
+---
 
 ## Features
 
-- API endpoint for starting/stopping generator tracking (API key authenticated)
-- iOS Shortcuts integration for quick access
-- Web dashboard for configuration and usage tracking
-- Multi-user support
-- Automated email maintenance reminders
-- Rate limiting (1 req/sec)
-- OWASP Top 10 security compliance
+- ✅ API endpoint for starting/stopping generator tracking (API key authenticated)
+- ✅ iOS Shortcuts integration for quick access via iPhone
+- ✅ Web dashboard for configuration and usage tracking
+- ✅ Multi-user support (multiple users, each with their own generator)
+- ✅ Automated email maintenance reminders
+- ✅ Rate limiting (1 req/sec)
+- ✅ OWASP Top 10 security compliance
+- ✅ Cloud deployment (Azure) or self-hosted options
+
+---
+
+## 🌐 Deployment Options
+
+### Cloud Deployment (Azure)
+
+**Beta Testing** (FREE):
+- Azure App Service F1 (Free tier)
+- Neon PostgreSQL (Free tier)
+- **Cost**: $0/month
+- [Full Cloud Deployment Guide →](docs/deployment/cloud-deployment.md)
+
+**Production**:
+- Azure App Service B1 or Container Instances
+- PostgreSQL (Neon Free or Azure managed)
+- **Cost**: $9-30/month
+- [Full Cloud Deployment Guide →](docs/deployment/cloud-deployment.md)
+
+### Local Server Deployment
+
+Run on your own hardware with Docker:
+- Single Docker container (backend)
+- User-provided PostgreSQL database
+- Nginx reverse proxy for HTTPS
+- [Full Local Deployment Guide →](docs/deployment/local-deployment.md)
+
+---
 
 ## Prerequisites
 
-- Node.js 24+ (use fnm: `fnm use 24`)
-- Docker and docker-compose
-- PostgreSQL 16 (if running locally without Docker)
+### For Development
+- **Node.js 25.2.1** (use nvm: `nvm install 25.2.1`)
+- **Docker** and **docker-compose**
+- **Git**
+
+### For Cloud Deployment
+- **Azure account** (free tier available)
+- **Azure CLI** (for deployment)
+- Optional: **Neon account** (free PostgreSQL)
+
+### For Local Deployment
+- **Docker** and **docker-compose**
+- **PostgreSQL 16+** (or use included Docker PostgreSQL)
+
+---
 
 ## Getting Started
 
@@ -145,9 +205,18 @@ See [CLAUDE.md](CLAUDE.md) for detailed coding guidelines.
 
 ## Database
 
-### PostgreSQL Setup
+### PostgreSQL Configuration
 
-The project uses PostgreSQL 16. With Docker, the database is automatically set up.
+GeneratorLog uses **PostgreSQL 16** as its database. See [ADR 0002](docs/adr/0002-postgresql-database-choice.md) for why PostgreSQL was chosen over SQLite.
+
+#### Docker (Automatic Setup)
+
+With Docker Compose, PostgreSQL is automatically configured:
+```bash
+docker compose up
+```
+
+#### Manual PostgreSQL Setup
 
 For local development without Docker:
 
@@ -155,13 +224,24 @@ For local development without Docker:
 # Create database
 createdb generatorlog
 
-# Set environment variables in backend/.env
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=generatorlog
-DB_USER=postgres
-DB_PASSWORD=postgres
+# Create user
+psql postgres -c "CREATE USER generatorlog WITH ENCRYPTED PASSWORD 'password';"
+psql postgres -c "GRANT ALL PRIVILEGES ON DATABASE generatorlog TO generatorlog;"
 ```
+
+Update `backend/.env`:
+```bash
+DATABASE_URL=postgresql://generatorlog:password@localhost:5432/generatorlog
+```
+
+#### Cloud PostgreSQL
+
+For production, use a managed PostgreSQL service:
+- **Neon** (free tier): [console.neon.tech](https://console.neon.tech)
+- **Azure Database for PostgreSQL**: See [Cloud Deployment Guide](docs/deployment/cloud-deployment.md)
+- **AWS RDS**, **Google Cloud SQL**, **Supabase**, etc.
+
+---
 
 ## API Documentation
 
@@ -183,60 +263,137 @@ Response:
 
 ## Environment Variables
 
-### Backend
+### Backend Configuration
 
 Create `backend/.env` from `backend/.env.example`:
 
-- `PORT`: Server port (default: 3000)
-- `HOST`: Server host (default: 0.0.0.0)
-- `NODE_ENV`: Environment (development/production)
+**Required**:
+- `DATABASE_URL`: PostgreSQL connection string (recommended)
+  - Format: `postgresql://user:password@host:5432/dbname?sslmode=prefer`
+- `NODE_ENV`: Environment (`development` or `production`)
+- `SESSION_SECRET`: Random secret for sessions (generate with `openssl rand -base64 32`)
+- `API_RATE_LIMIT`: API rate limit in requests per second (default: `1`)
+
+**Optional**:
+- `PORT`: Server port (default: `3000`)
+- `HOST`: Server host (default: `0.0.0.0`)
+- `LOG_LEVEL`: Logging level (`info`, `debug`, `error`)
+
+**Individual Database Components** (alternative to DATABASE_URL):
 - `DB_HOST`: PostgreSQL host
-- `DB_PORT`: PostgreSQL port
+- `DB_PORT`: PostgreSQL port (default: `5432`)
 - `DB_NAME`: Database name
 - `DB_USER`: Database user
 - `DB_PASSWORD`: Database password
+- `DB_SSL`: Enable SSL (`true` or `false`)
 
-### Frontend
+**Email Configuration** (for maintenance reminders):
+- `SMTP_HOST`: SMTP server hostname
+- `SMTP_PORT`: SMTP server port
+- `SMTP_USER`: SMTP username
+- `SMTP_PASSWORD`: SMTP password
+- `SMTP_FROM`: From address for emails
 
-- `VITE_API_URL`: Backend API URL (default: http://localhost:3000)
+**OAuth2 Configuration** (for web UI authentication):
+- `OAUTH_CLIENT_ID`: OAuth provider client ID
+- `OAUTH_CLIENT_SECRET`: OAuth provider client secret
+- `OAUTH_REDIRECT_URI`: OAuth callback URL
+
+### Frontend Configuration
+
+- `VITE_API_URL`: Backend API URL (default: `http://localhost:3000`)
+
+See `backend/.env.example` for full configuration template.
+
+---
 
 ## Docker Commands
 
 ```bash
 # Start all services
-docker-compose up
+docker compose up
 
 # Start in background
-docker-compose up -d
+docker compose up -d
 
 # Stop all services
-docker-compose down
+docker compose down
 
 # Rebuild containers
-docker-compose up --build
+docker compose up --build
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
 # Remove volumes (WARNING: deletes data)
-docker-compose down -v
+docker compose down -v
 ```
+
+---
+
+## Contributing
+
+This is an open source project. **Contributions are welcome!**
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+See [CLAUDE.md](CLAUDE.md) for coding guidelines and philosophy.
+
+---
 
 ## License
 
 MIT - see [LICENSE](LICENSE) file for details
 
+---
+
 ## Author
 
 Ray Pabonnie
 
-## Next Steps
+---
 
-- [ ] Implement database schema and migrations
-- [ ] Add API key authentication
-- [ ] Implement rate limiting
-- [ ] Create generator toggle endpoint
-- [ ] Build dashboard UI
-- [ ] Add email notification service
+## Documentation
+
+### Deployment Guides
+- [☁️ Cloud Deployment (Azure)](docs/deployment/cloud-deployment.md)
+- [🏠 Local Server Deployment](docs/deployment/local-deployment.md)
+
+### Architecture Decision Records
+- [ADR 0001: Technology Stack](docs/adr/0001-typescript-nodejs-react-stack.md)
+- [ADR 0002: PostgreSQL Database Choice](docs/adr/0002-postgresql-database-choice.md)
+
+### Research Documents
+- [Technology Stack Research](docs/00001-technology-stack-research.md)
+- [Embedded Database Research](docs/00002-embedded-database-research.md)
+- [Azure Cloud Deployment Research](docs/00003-azure-cloud-deployment-research.md)
+
+---
+
+## Development Roadmap
+
+### ✅ Completed
+- [x] Technology stack selection (TypeScript + Fastify + PostgreSQL)
+- [x] Docker containerization
+- [x] Database architecture decision
+- [x] Environment configuration
+- [x] Cloud and local deployment guides
+
+### 🚧 In Progress
+- [ ] Database schema and migrations (Drizzle ORM)
+- [ ] API key authentication
+- [ ] Rate limiting middleware
+- [ ] Generator toggle endpoint
+
+### 📋 Planned
+- [ ] Web dashboard UI
+- [ ] Email notification service
 - [ ] iOS Shortcuts integration
 - [ ] OAuth2 for web interface
+- [ ] User management
+- [ ] Generator usage analytics
+- [ ] Maintenance scheduling
