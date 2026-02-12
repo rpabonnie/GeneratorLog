@@ -1,0 +1,24 @@
+{
+  "name": "generatorlog",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GeneratorLog - Home power generator usage tracking",
+  "scripts": {
+    "dev": "pnpm --parallel -r dev",
+    "dev:backend": "pnpm --filter backend dev",
+    "dev:frontend": "pnpm --filter frontend dev",
+    "build": "pnpm -r build",
+    "build:backend": "pnpm --filter backend build",
+    "build:frontend": "pnpm --filter frontend build",
+    "clean": "pnpm -r clean && rm -rf node_modules",
+    "install:all": "pnpm install"
+  },
+  "keywords": ["generator", "tracking", "monitoring"],
+  "author": "Ray Pabonnie",
+  "license": "MIT",
+  "packageManager": "pnpm@10.29.3",
+  "engines": {
+    "node": ">=25.2.1",
+    "pnpm": ">=10.0.0"
+  }
+}

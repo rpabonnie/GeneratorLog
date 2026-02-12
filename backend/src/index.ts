@@ -1,23 +1,42 @@
 import Fastify from 'fastify';
-import { config } from './config.js';
+import config from './config.js';
 
-const fastify = Fastify({
-  logger: true
+const server = Fastify({
+  logger: {
+    level: config.logLevel,
+  },
 });
 
-fastify.get('/health', async () => {
-  return { status: 'ok', timestamp: new Date().toISOString() };
+// Health check endpoint
+server.get('/health', async () => {
+  return {
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    environment: config.nodeEnv,
+  };
+});
+
+// Root endpoint
+server.get('/', async () => {
+  return {
+    name: 'GeneratorLog API',
+    version: '1.0.0',
+    status: 'running',
+  };
 });
 
 const start = async () => {
   try {
-    await fastify.listen({ 
-      port: config.port, 
-      host: config.host 
+    await server.listen({
+      port: config.port,
+      host: config.host,
     });
-    console.log(`Server listening on ${config.host}:${config.port}`);
+    
+    server.log.info(`Server started successfully`);
+    server.log.info(`Environment: ${config.nodeEnv}`);
+    server.log.info(`Listening on ${config.host}:${config.port}`);
   } catch (err) {
-    fastify.log.error(err);
+    server.log.error(err);
     process.exit(1);
   }
 };

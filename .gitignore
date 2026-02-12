@@ -14,7 +14,7 @@ dist/
 build/
 
 # IDE
-.vscode/
+# .vscode/ - Include for consistent debugging experience
 .idea/
 *.swp
 *.swo
