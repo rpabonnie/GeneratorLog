@@ -108,6 +108,7 @@ This is a new repository with minimal structure. As the project develops, this f
 - **Minimize comments**: Code should be obvious. Comments only for complex business logic
 - **Token efficiency**: Concise code reduces AI context window usage
 - **Type safety first**: Leverage compiler for correctness (C# records, nullable reference types, TypeScript strict mode)
+- **TDD preferred**: Start with a failing test, make it pass, and keep the suite green
 - **KISS principle**: Simple solutions over clever abstractions
 - **No premature abstraction**: Write it once, refactor when you need it twice
 
@@ -135,6 +136,13 @@ If using **Go**:
 - `pgx` for PostgreSQL
 - Write middleware from scratch
 - **Only external packages**: pgx, golang-jwt (optional)
+
+## Testing
+
+- Backend unit tests (Vitest): `pnpm --filter generatorlog-backend test` (watch: `pnpm --filter generatorlog-backend test:watch`)
+- Frontend end-to-end (Playwright): `pnpm --filter frontend test:e2e` (UI runner: `pnpm --filter frontend test:e2e:ui`)
+- Install Playwright browsers once per machine: `pnpm --filter frontend exec playwright install chromium`
+- Keep tests passing on every change; add/adjust tests before implementing features.
 
 ## Research instructions
 - When the user asks for a research, look for at least 4 ideas/products/libraries/etc.
