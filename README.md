@@ -160,6 +160,13 @@ Run on your own hardware with Docker:
    npm run preview
    ```
 
+### Testing & TDD
+
+- **Unit tests (Vitest, backend)**: `pnpm test:watch` for red/green/refactor, `pnpm test:unit` in CI.
+- **Coverage**: `pnpm test:coverage`.
+- **End-to-end (Playwright)**: `pnpm test:e2e` (starts the Vite dev server on `http://localhost:4173` automatically).
+- Keep the TDD loop tight: write a failing test, make it pass, then refactor with tests green.
+
 ## Project Structure
 
 ```

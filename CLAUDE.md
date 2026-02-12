@@ -86,6 +86,12 @@ SESSION_SECRET=random-secret-key
 - iOS Shortcuts file generation and import methods (QR code?)
 - OAuth2 implementation approach
 
+## Testing & TDD
+
+- Use TDD: add a failing test first, make it pass, then refactor with tests green.
+- Unit/integration: Vitest in the backend (`pnpm test:watch` locally, `pnpm test:unit`, `pnpm test:coverage`).
+- End-to-end: Playwright runs against the Vite dev server on http://localhost:4173 (`pnpm test:e2e` spins it up automatically).
+
 ## Repository Status
 
 This is a new repository with minimal structure. As the project develops, this file should be updated with:

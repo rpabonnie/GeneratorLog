@@ -12,6 +12,9 @@ yarn-error.log*
 # Build outputs
 dist/
 build/
+playwright-report/
+test-results/
+blob-report/
 
 # IDE
 # .vscode/ - Include for consistent debugging experience
