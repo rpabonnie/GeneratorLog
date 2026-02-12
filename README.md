@@ -160,6 +160,13 @@ Run on your own hardware with Docker:
    npm run preview
    ```
 
+## Testing & TDD
+
+- Follow a TDD loop: write a failing test, implement the smallest change, then refactor with tests green.
+- Backend unit tests (Vitest): `pnpm --filter generatorlog-backend test` (watch mode: `pnpm --filter generatorlog-backend test:watch`)
+- Frontend end-to-end tests (Playwright): `pnpm --filter frontend test:e2e` (UI mode: `pnpm --filter frontend test:e2e:ui`)
+- Install Playwright browsers once per machine: `pnpm --filter frontend exec playwright install chromium`
+
 ## Project Structure
 
 ```
@@ -199,6 +206,7 @@ This project follows a **minimal dependencies** approach:
 - **Self-documenting code**: Strong typing, descriptive names, clear structure
 - **Minimal comments**: Code should be obvious
 - **Type safety first**: Strict TypeScript mode enabled
+- **TDD by default**: write or update tests first, keep the suite green
 - **KISS principle**: Simple solutions over clever abstractions
 
 See [CLAUDE.md](CLAUDE.md) for detailed coding guidelines.
