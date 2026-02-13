@@ -1,5 +1,6 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { z } from 'zod';
+import { getGeneratorByApiKey, toggleGenerator } from '../services/generator.js';
 
 const toggleSchema = z.object({
   generatorId: z.number().int().positive(),
@@ -15,7 +16,7 @@ interface GeneratorState {
 export function registerGeneratorRoutes(app: FastifyInstance) {
   app.post('/api/generator/toggle', async (request: FastifyRequest, reply: FastifyReply) => {
     // Check API key
-    const apiKey = request.headers['x-api-key'];
+    const apiKey = request.headers['x-api-key'] as string;
     if (!apiKey) {
       return reply.code(401).send({ error: 'API key required' });
     }
@@ -45,16 +46,12 @@ export function registerGeneratorRoutes(app: FastifyInstance) {
 
     const { generatorId } = parseResult.data;
 
-    // Get mock database (for testing) or real database
-    const db = (app as any).db;
+    // Get mock database (for testing) or use real database
+    const mockDb = (app as any).db;
     
-    if (!db) {
-      return reply.code(500).send({ error: 'Database not configured' });
-    }
-
     // For testing with mock database
-    if (db.generators instanceof Map) {
-      let generator = db.generators.get(generatorId);
+    if (mockDb && mockDb.generators instanceof Map) {
+      let generator = mockDb.generators.get(generatorId);
       
       if (!generator && generatorId !== 1) {
         return reply.code(404).send({ error: 'Generator not found' });
@@ -67,7 +64,7 @@ export function registerGeneratorRoutes(app: FastifyInstance) {
           currentStartTime: null,
           totalHours: 0,
         };
-        db.generators.set(generatorId, generator);
+        mockDb.generators.set(generatorId, generator);
       }
 
       const now = new Date();
@@ -94,7 +91,7 @@ export function registerGeneratorRoutes(app: FastifyInstance) {
         generator.currentStartTime = null;
 
         // Add to usage logs
-        db.usageLogs.push({
+        mockDb.usageLogs.push({
           generatorId,
           startTime,
           endTime: now,
@@ -110,7 +107,30 @@ export function registerGeneratorRoutes(app: FastifyInstance) {
       }
     }
 
-    // Real database implementation would go here
-    return reply.code(500).send({ error: 'Database implementation not complete' });
+    // Real database implementation
+    try {
+      // Validate API key and get generator
+      const generator = await getGeneratorByApiKey(apiKey);
+      
+      if (!generator) {
+        return reply.code(401).send({ error: 'Invalid API key' });
+      }
+
+      if (generator.id !== generatorId) {
+        return reply.code(403).send({ error: 'Generator access denied' });
+      }
+
+      // Toggle the generator
+      const result = await toggleGenerator(generatorId);
+      
+      return reply.send(result);
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Generator not found') {
+        return reply.code(404).send({ error: 'Generator not found' });
+      }
+      
+      app.log.error(error);
+      return reply.code(500).send({ error: 'Internal server error' });
+    }
   });
 }
