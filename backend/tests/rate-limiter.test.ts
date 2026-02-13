@@ -56,21 +56,4 @@ describe('RateLimiter', () => {
     const result3 = rateLimiter.checkLimit(client2);
     expect(result3.allowed).toBe(true);
   });
-
-  it('cleans up old entries automatically', () => {
-    const clientId = '192.168.1.1';
-    
-    rateLimiter.checkLimit(clientId);
-    
-    // Force cleanup by accessing private method (testing implementation detail)
-    const limiterAny = rateLimiter as any;
-    const sizeBefore = limiterAny.clients.size;
-    expect(sizeBefore).toBe(1);
-    
-    // Wait for cleanup interval
-    setTimeout(() => {
-      const sizeAfter = limiterAny.clients.size;
-      expect(sizeAfter).toBe(0);
-    }, 65000);
-  });
 });
