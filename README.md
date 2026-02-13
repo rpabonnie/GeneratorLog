@@ -253,6 +253,50 @@ For production, use a managed PostgreSQL service:
 
 ## API Documentation
 
+### Generator Toggle
+
+```bash
+POST /api/generator/toggle
+```
+
+Start or stop generator tracking. Requires API key authentication and respects rate limiting (1 req/sec).
+
+**Headers:**
+- `x-api-key`: Your API key (required)
+
+**Request Body:**
+```json
+{
+  "generatorId": 1
+}
+```
+
+**Response (Start):**
+```json
+{
+  "status": "started",
+  "isRunning": true,
+  "startTime": "2026-02-13T16:00:00.000Z",
+  "totalHours": 125.5
+}
+```
+
+**Response (Stop):**
+```json
+{
+  "status": "stopped",
+  "isRunning": false,
+  "durationHours": 2.5,
+  "totalHours": 128.0
+}
+```
+
+**Error Responses:**
+- `401`: Missing or invalid API key
+- `400`: Invalid request body
+- `404`: Generator not found
+- `429`: Rate limit exceeded (retry after X seconds)
+
 ### Health Check
 
 ```bash
@@ -265,9 +309,12 @@ Response:
 ```json
 {
   "status": "ok",
-  "timestamp": "2026-02-08T21:22:00.000Z"
+  "timestamp": "2026-02-08T21:22:00.000Z",
+  "environment": "development"
 }
 ```
+
+For detailed API documentation, see [backend/README.md](backend/README.md).
 
 ## Environment Variables
 
@@ -390,18 +437,20 @@ Ray Pabonnie
 - [x] Database architecture decision
 - [x] Environment configuration
 - [x] Cloud and local deployment guides
+- [x] Database schema and migrations (Drizzle ORM)
+- [x] API key authentication
+- [x] Rate limiting middleware (1 req/sec)
+- [x] Generator toggle endpoint
+- [x] Maintenance calculations (hours/months since oil change)
+- [x] Comprehensive test suite (25 tests, TDD approach)
 
 ### 🚧 In Progress
-- [ ] Database schema and migrations (Drizzle ORM)
-- [ ] API key authentication
-- [ ] Rate limiting middleware
-- [ ] Generator toggle endpoint
-
-### 📋 Planned
 - [ ] Web dashboard UI
 - [ ] Email notification service
+
+### 📋 Planned
 - [ ] iOS Shortcuts integration
 - [ ] OAuth2 for web interface
-- [ ] User management
+- [ ] User management endpoints
 - [ ] Generator usage analytics
-- [ ] Maintenance scheduling
+- [ ] Maintenance reminder scheduling
