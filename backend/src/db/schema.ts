@@ -3,6 +3,7 @@ import { pgTable, serial, varchar, timestamp, integer, boolean, doublePrecision 
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   email: varchar('email', { length: 255 }).notNull().unique(),
+  name: varchar('name', { length: 255 }),
   oauthProvider: varchar('oauth_provider', { length: 50 }),
   oauthId: varchar('oauth_id', { length: 255 }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -13,6 +14,8 @@ export const generators = pgTable('generators', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').notNull().references(() => users.id),
   name: varchar('name', { length: 255 }).notNull(),
+  oilChangeMonths: integer('oil_change_months').notNull().default(6),
+  oilChangeHours: doublePrecision('oil_change_hours').notNull().default(100),
   totalHours: doublePrecision('total_hours').notNull().default(0),
   lastOilChangeDate: timestamp('last_oil_change_date'),
   lastOilChangeHours: doublePrecision('last_oil_change_hours').default(0),

@@ -12,6 +12,8 @@ CREATE TABLE "generators" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"user_id" integer NOT NULL,
 	"name" varchar(255) NOT NULL,
+	"oil_change_months" integer DEFAULT 6 NOT NULL,
+	"oil_change_hours" double precision DEFAULT 100 NOT NULL,
 	"total_hours" double precision DEFAULT 0 NOT NULL,
 	"last_oil_change_date" timestamp,
 	"last_oil_change_hours" double precision DEFAULT 0,
@@ -34,6 +36,7 @@ CREATE TABLE "usage_logs" (
 CREATE TABLE "users" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"email" varchar(255) NOT NULL,
+	"name" varchar(255),
 	"oauth_provider" varchar(50),
 	"oauth_id" varchar(255),
 	"created_at" timestamp DEFAULT now() NOT NULL,
