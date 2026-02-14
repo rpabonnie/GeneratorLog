@@ -144,6 +144,41 @@ If using **Go**:
 - Install Playwright browsers once per machine: `pnpm --filter frontend exec playwright install chromium`
 - Keep tests passing on every change; add/adjust tests before implementing features.
 
+### Test Failure Investigation Protocol
+
+**CRITICAL: When tests fail, ALWAYS investigate the test itself before modifying or removing it.**
+
+Before making any changes to a failing test:
+
+1. **Read the test code** to understand what it's testing
+2. **Read the implementation** being tested
+3. **Analyze the failure** - determine if the issue is:
+   - **Test bug**: The test has incorrect expectations or setup issues
+   - **Implementation bug**: The code being tested has a bug
+   - **Environment issue**: Local environment configuration (e.g., .env files affecting tests)
+   - **Timing/timezone issue**: Date/time tests affected by local timezone or system clock
+
+4. **Common test issues to check for**:
+   - `.env` files being loaded by `dotenv/config` that override test expectations
+   - Date parsing with implicit timezone conversion (use `Date.UTC()` for consistent dates)
+   - Async operations not properly awaited
+   - Module caching preventing test isolation (use `vi.resetModules()`)
+   - External dependencies not mocked
+
+5. **Document your findings** - explain WHY the test is failing and WHY your fix is correct
+
+**NEVER**:
+- Skip or comment out failing tests without investigation
+- Modify test expectations to match incorrect behavior without understanding why
+- Remove tests because they're "flaky" without root cause analysis
+
+**Example Investigation**:
+```
+Test failure: config.test.ts expects SESSION_SECRET='change-this-secret' but got random value
+Root cause: dotenv/config loads .env file before test runs, setting SESSION_SECRET
+Solution: Save and restore env values in test, or check if .env should be excluded from test runs
+```
+
 ## Research instructions
 - When the user asks for a research, look for at least 4 ideas/products/libraries/etc.
 - Compare each found concept's strengths and weaknesses.
