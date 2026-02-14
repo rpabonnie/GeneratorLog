@@ -1,0 +1,255 @@
+{
+  "info": {
+    "name": "GeneratorLog API",
+    "description": "Testing collection for GeneratorLog backend API. Import this collection and update the apiKey variable with the key generated from the seed script (pnpm db:seed).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "generatorlog-api-collection",
+    "version": "1.0.0"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "apiKey",
+      "value": "YOUR_API_KEY_FROM_SEED_SCRIPT",
+      "type": "string"
+    },
+    {
+      "key": "generatorId",
+      "value": "1",
+      "type": "number"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        },
+        "description": "Check if the API server is running and healthy. Should return 200 with status: ok."
+      },
+      "response": []
+    },
+    {
+      "name": "Get API Info",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/",
+          "host": ["{{baseUrl}}"],
+          "path": [""]
+        },
+        "description": "Get basic API information (name, version, status)."
+      },
+      "response": []
+    },
+    {
+      "name": "Start Generator",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "{{apiKey}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"generatorId\": {{generatorId}}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/generator/toggle",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "generator", "toggle"]
+        },
+        "description": "Start the generator if it's not running. Returns status: started with generator details. Note: Rate limited to 1 request per second."
+      },
+      "response": []
+    },
+    {
+      "name": "Stop Generator",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "{{apiKey}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"generatorId\": {{generatorId}}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/generator/toggle",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "generator", "toggle"]
+        },
+        "description": "Stop the generator if it's running. Returns status: stopped with duration hours. IMPORTANT: Wait at least 2 seconds after starting before stopping (rate limit + for meaningful duration test)."
+      },
+      "response": []
+    },
+    {
+      "name": "Test Rate Limiting",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "{{apiKey}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"generatorId\": {{generatorId}}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/generator/toggle",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "generator", "toggle"]
+        },
+        "description": "Test rate limiting by sending this request twice in rapid succession. The first should succeed, the second should return 429 Too Many Requests with a retryAfter value. Use Postman's Collection Runner to send multiple requests automatically."
+      },
+      "response": []
+    },
+    {
+      "name": "Invalid API Key (should fail)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "invalid-api-key-12345",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"generatorId\": {{generatorId}}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/generator/toggle",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "generator", "toggle"]
+        },
+        "description": "Test authentication with an invalid API key. Should return 401 Unauthorized with error: 'Invalid API key'."
+      },
+      "response": []
+    },
+    {
+      "name": "Missing API Key (should fail)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"generatorId\": {{generatorId}}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/generator/toggle",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "generator", "toggle"]
+        },
+        "description": "Test authentication without an API key header. Should return 401 Unauthorized with error: 'API key required'."
+      },
+      "response": []
+    },
+    {
+      "name": "Invalid Generator ID (should fail)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "{{apiKey}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"generatorId\": 999\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/generator/toggle",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "generator", "toggle"]
+        },
+        "description": "Test with a generator ID that doesn't belong to the user. Should return 403 Forbidden with error: 'Generator not found or access denied'."
+      },
+      "response": []
+    }
+  ]
+}
