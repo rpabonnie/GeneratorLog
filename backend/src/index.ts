@@ -3,6 +3,9 @@ import config from './config.js';
 import { RateLimiter } from './middleware/rate-limiter.js';
 import { registerGeneratorRoutes } from './routes/generator.js';
 import { authRoutes } from './routes/auth.js';
+import { profileRoutes } from './routes/profile.js';
+import { generatorConfigRoutes } from './routes/generator-config.js';
+import { apiKeyRoutes } from './routes/api-keys.js';
 
 const server = Fastify({
   logger: {
@@ -17,6 +20,9 @@ server.decorate('rateLimiter', rateLimiter);
 // Register routes
 registerGeneratorRoutes(server);
 authRoutes(server);
+profileRoutes(server);
+generatorConfigRoutes(server);
+apiKeyRoutes(server);
 
 // Health check endpoint
 server.get('/health', async () => {
