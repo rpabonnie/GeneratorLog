@@ -14,6 +14,10 @@
     "test:watch": "pnpm --filter generatorlog-backend test:watch",
     "test:e2e": "pnpm --filter frontend test:e2e",
     "test:e2e:ui": "pnpm --filter frontend test:e2e:ui",
+    "version:sync": "node scripts/sync-versions.js",
+    "version:patch": "npm version patch && pnpm version:sync",
+    "version:minor": "npm version minor && pnpm version:sync",
+    "version:major": "npm version major && pnpm version:sync",
     "clean": "pnpm -r clean && rm -rf node_modules",
     "install:all": "pnpm install"
   },

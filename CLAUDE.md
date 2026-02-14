@@ -179,6 +179,197 @@ Root cause: dotenv/config loads .env file before test runs, setting SESSION_SECR
 Solution: Save and restore env values in test, or check if .env should be excluded from test runs
 ```
 
+## Changelog and Versioning
+
+### Version Management
+
+This project uses **unified versioning** across the monorepo:
+- **Single version number**: Root `package.json` version applies to backend and frontend
+- **Single changelog**: `CHANGELOG.md` at repository root documents all changes
+- **Semantic versioning**: We follow [SemVer 2.0.0](https://semver.org/)
+  - **MAJOR** (x.0.0): Breaking changes, incompatible API changes
+  - **MINOR** (1.x.0): New features, backwards-compatible functionality
+  - **PATCH** (1.0.x): Bug fixes, backwards-compatible fixes
+
+### When to Update the Changelog
+
+**ALWAYS** ask the developer before updating the changelog. Use this workflow:
+
+1. **After implementing changes**: Ask "Are you ready to update the changelog for these changes?"
+2. **Wait for confirmation**: Do NOT update changelog without explicit approval
+3. **Collect all changes**: If multiple changes were made, list them all for review
+4. **Categorize properly**: Suggest appropriate categories (Added, Changed, Fixed, etc.)
+
+### Agent Workflow for Changelog Updates
+
+When the developer confirms changelog updates are ready:
+
+**Step 1: Analyze Changes**
+```bash
+# Review recent commits since last release
+git log v1.0.0..HEAD --oneline
+
+# Check current version
+cat package.json | grep version
+
+# Review current changelog
+cat CHANGELOG.md
+```
+
+**Step 2: Ask Developer for Categorization**
+
+Present changes and ask:
+- "I found these changes: [list]. How should I categorize them?"
+- "Should this be a patch (1.0.1), minor (1.1.0), or major (2.0.0) release?"
+- "What release date should I use? (default: today)"
+
+**Step 3: Update CHANGELOG.md**
+
+Add changes under the `## [Unreleased]` section:
+
+```markdown
+## [Unreleased]
+
+### Added
+- New feature X that does Y
+- New endpoint `/api/something` for Z functionality
+
+### Changed
+- Updated configuration format for better readability
+- Improved error messages in API responses
+
+### Fixed
+- Bug where generator wouldn't stop correctly
+- Rate limiter memory leak issue
+```
+
+**Step 4: Version Bump (When Releasing)**
+
+When developer says "let's release this":
+
+```bash
+# For patch release (1.0.0 -> 1.0.1)
+pnpm version:patch
+
+# For minor release (1.0.0 -> 1.1.0)
+pnpm version:minor
+
+# For major release (1.0.0 -> 2.0.0)
+pnpm version:major
+```
+
+**Step 5: Move Unreleased to Versioned Section**
+
+Transform:
+```markdown
+## [Unreleased]
+
+### Added
+- Feature X
+```
+
+Into:
+```markdown
+## [Unreleased]
+
+### Added
+
+## [1.1.0] - 2026-02-15
+
+### Added
+- Feature X
+```
+
+Add link at bottom:
+```markdown
+[Unreleased]: https://github.com/rpabonnie/GeneratorLog/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/rpabonnie/GeneratorLog/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/rpabonnie/GeneratorLog/releases/tag/v1.0.0
+```
+
+**Step 6: Verify Synchronization**
+
+```bash
+# Check all versions match
+grep version package.json backend/package.json frontend/package.json
+```
+
+### Changelog Categories
+
+Use these categories in order (omit empty sections):
+
+- **Added**: New features, endpoints, functionality
+- **Changed**: Changes to existing functionality, refactoring, improvements
+- **Deprecated**: Features marked for future removal
+- **Removed**: Removed features or functionality
+- **Fixed**: Bug fixes, corrections
+- **Security**: Security fixes, vulnerability patches
+
+### Important Rules for Agents
+
+1. **NEVER update changelog without developer approval**
+2. **NEVER create a release without developer approval**
+3. **ALWAYS synchronize all package.json versions** (use `pnpm version:sync`)
+4. **ALWAYS use Keep a Changelog format** (see https://keepachangelog.com/)
+5. **ALWAYS use ISO date format** (YYYY-MM-DD) for release dates
+6. **ALWAYS update comparison links** at bottom of CHANGELOG.md
+7. **DO NOT include trivial changes** (typos in comments, formatting, unless fixing user-facing issues)
+8. **DO include all user-facing changes** (API changes, new features, bug fixes, behavior changes)
+
+### Example: Complete Changelog Update Workflow
+
+**Developer:** "I've finished the email notification feature. Can you update the changelog?"
+
+**Agent Response:**
+```
+I see you've completed the email notification feature. Let me review what was added:
+
+Changes identified:
+- New email service (src/services/email.ts)
+- SMTP configuration in .env
+- Maintenance reminder scheduling
+- 3 new tests for email functionality
+
+Suggested changelog entry under "Added":
+- Email notification service for automated maintenance reminders
+- SMTP configuration support for email delivery
+- Maintenance reminder scheduling based on running hours and months
+
+Should I add this to the [Unreleased] section? This looks like a minor version bump (1.0.0 -> 1.1.0) since it adds new functionality. Is that correct?
+```
+
+**Developer:** "Yes, add it to unreleased. We'll release later."
+
+**Agent:** Updates CHANGELOG.md under `## [Unreleased]` > `### Added` section.
+
+### Version Sync Troubleshooting
+
+If versions are out of sync:
+
+```bash
+# Check current versions
+grep '"version"' package.json backend/package.json frontend/package.json
+
+# Manual sync (if sync script fails)
+# 1. Read version from root package.json
+# 2. Update backend/package.json version field
+# 3. Update frontend/package.json version field
+# 4. Verify all match
+```
+
+### Release Checklist
+
+When creating a new release:
+
+- [ ] All tests passing (`pnpm test` and `pnpm test:e2e`)
+- [ ] CHANGELOG.md updated with all changes
+- [ ] Version bumped in all package.json files (via `pnpm version:*`)
+- [ ] Changes moved from [Unreleased] to versioned section with date
+- [ ] Comparison links updated at bottom of CHANGELOG.md
+- [ ] Git tag created (`git tag v1.1.0`)
+- [ ] Changes committed (`git commit -m "chore: release v1.1.0"`)
+- [ ] Tag pushed to remote (`git push && git push --tags`)
+
 ## Research instructions
 - When the user asks for a research, look for at least 4 ideas/products/libraries/etc.
 - Compare each found concept's strengths and weaknesses.
