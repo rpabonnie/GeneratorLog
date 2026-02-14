@@ -29,32 +29,33 @@ describe('Maintenance calculations', () => {
 
   describe('calculateMonthsSinceOilChange', () => {
     it('calculates months since last oil change', () => {
-      const now = new Date('2026-06-01');
-      const lastOilChangeDate = new Date('2026-01-01');
-      
+      const now = new Date(Date.UTC(2026, 5, 1)); // Jun 1, 2026
+      const lastOilChangeDate = new Date(Date.UTC(2026, 0, 1)); // Jan 1, 2026
+
       const monthsSinceChange = calculateMonthsSinceOilChange(lastOilChangeDate, now);
       expect(monthsSinceChange).toBe(5);
     });
 
     it('returns 0 when less than a month has passed', () => {
-      const now = new Date('2026-01-15');
-      const lastOilChangeDate = new Date('2026-01-01');
-      
+      // Use explicit UTC dates to avoid timezone issues
+      const now = new Date(Date.UTC(2026, 0, 15)); // Jan 15, 2026
+      const lastOilChangeDate = new Date(Date.UTC(2026, 0, 1)); // Jan 1, 2026
+
       const monthsSinceChange = calculateMonthsSinceOilChange(lastOilChangeDate, now);
       expect(monthsSinceChange).toBe(0);
     });
 
     it('handles null last oil change date', () => {
-      const now = new Date('2026-06-01');
-      
+      const now = new Date(Date.UTC(2026, 5, 1)); // Jun 1, 2026
+
       const monthsSinceChange = calculateMonthsSinceOilChange(null, now);
       expect(monthsSinceChange).toBeGreaterThan(100); // Should be very large
     });
 
     it('handles dates across year boundaries', () => {
-      const now = new Date('2026-02-01');
-      const lastOilChangeDate = new Date('2025-11-01');
-      
+      const now = new Date(Date.UTC(2026, 1, 1)); // Feb 1, 2026
+      const lastOilChangeDate = new Date(Date.UTC(2025, 10, 1)); // Nov 1, 2025
+
       const monthsSinceChange = calculateMonthsSinceOilChange(lastOilChangeDate, now);
       expect(monthsSinceChange).toBe(3);
     });
@@ -83,10 +84,10 @@ describe('Maintenance calculations', () => {
       const totalHours = 100;
       const lastOilChangeHours = 90; // Only 10 hours since change
       const hoursThreshold = 50;
-      const lastOilChangeDate = new Date('2025-06-01'); // 8 months ago
+      const lastOilChangeDate = new Date(Date.UTC(2025, 5, 1)); // Jun 1, 2025 - 8 months ago
       const monthsThreshold = 6;
-      const now = new Date('2026-02-01');
-      
+      const now = new Date(Date.UTC(2026, 1, 1)); // Feb 1, 2026
+
       const shouldRemind = shouldSendMaintenanceReminder(
         totalHours,
         lastOilChangeHours,
@@ -95,7 +96,7 @@ describe('Maintenance calculations', () => {
         monthsThreshold,
         now
       );
-      
+
       expect(shouldRemind).toBe(true);
     });
 
@@ -103,10 +104,10 @@ describe('Maintenance calculations', () => {
       const totalHours = 100;
       const lastOilChangeHours = 90; // Only 10 hours
       const hoursThreshold = 50;
-      const lastOilChangeDate = new Date('2026-01-01'); // 1 month ago
+      const lastOilChangeDate = new Date(Date.UTC(2026, 0, 1)); // Jan 1, 2026 - 1 month ago
       const monthsThreshold = 6;
-      const now = new Date('2026-02-01');
-      
+      const now = new Date(Date.UTC(2026, 1, 1)); // Feb 1, 2026
+
       const shouldRemind = shouldSendMaintenanceReminder(
         totalHours,
         lastOilChangeHours,
@@ -115,7 +116,7 @@ describe('Maintenance calculations', () => {
         monthsThreshold,
         now
       );
-      
+
       expect(shouldRemind).toBe(false);
     });
 
@@ -141,10 +142,10 @@ describe('Maintenance calculations', () => {
       const totalHours = 100;
       const lastOilChangeHours = 90;
       const hoursThreshold = 50;
-      const lastOilChangeDate = new Date('2025-08-01'); // 6 months ago
+      const lastOilChangeDate = new Date(Date.UTC(2025, 7, 1)); // Aug 1, 2025 - 6 months ago
       const monthsThreshold = 6;
-      const now = new Date('2026-02-01');
-      
+      const now = new Date(Date.UTC(2026, 1, 1)); // Feb 1, 2026
+
       const shouldRemind = shouldSendMaintenanceReminder(
         totalHours,
         lastOilChangeHours,
@@ -153,7 +154,7 @@ describe('Maintenance calculations', () => {
         monthsThreshold,
         now
       );
-      
+
       expect(shouldRemind).toBe(true);
     });
   });

@@ -10,6 +10,10 @@
     "build": "pnpm -r build",
     "build:backend": "pnpm --filter backend build",
     "build:frontend": "pnpm --filter frontend build",
+    "test": "pnpm --filter generatorlog-backend test",
+    "test:watch": "pnpm --filter generatorlog-backend test:watch",
+    "test:e2e": "pnpm --filter frontend test:e2e",
+    "test:e2e:ui": "pnpm --filter frontend test:e2e:ui",
     "clean": "pnpm -r clean && rm -rf node_modules",
     "install:all": "pnpm install"
   },

@@ -17,9 +17,9 @@ export function calculateMonthsSinceOilChange(
     return 999;
   }
 
-  const yearDiff = now.getFullYear() - lastOilChangeDate.getFullYear();
-  const monthDiff = now.getMonth() - lastOilChangeDate.getMonth();
-  
+  const yearDiff = now.getUTCFullYear() - lastOilChangeDate.getUTCFullYear();
+  const monthDiff = now.getUTCMonth() - lastOilChangeDate.getUTCMonth();
+
   return yearDiff * 12 + monthDiff;
 }
 
