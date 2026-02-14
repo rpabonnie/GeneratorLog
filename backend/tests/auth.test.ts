@@ -13,10 +13,10 @@ describe('Auth Routes', () => {
     await authRoutes(app);
     await app.ready();
 
-    // Clean up test data before each test
+    // Clean up test data (order matters due to foreign keys)
     const db = getDb();
-    await db.delete(schema.apiKeys).execute();
     await db.delete(schema.usageLogs).execute();
+    await db.delete(schema.apiKeys).execute();
     await db.delete(schema.generators).execute();
     await db.delete(schema.users).execute();
   });
