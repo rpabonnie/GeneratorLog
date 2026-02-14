@@ -41,6 +41,8 @@ pnpm dev
 
 ### Testing
 
+#### Unit Tests
+
 ```bash
 # Run all tests
 pnpm test
@@ -53,6 +55,44 @@ pnpm test <filename>
 ```
 
 All tests follow TDD principles and use Vitest.
+
+#### API Testing with Seed Data
+
+To test the API endpoints without building the frontend:
+
+1. **Seed test data** (creates user, generator, and API key):
+   ```bash
+   pnpm db:seed
+   ```
+
+   This creates:
+   - Test user: `test@example.com`
+   - Test generator with realistic data (125.5 hours, maintenance due)
+   - Valid API key (64-char hex string, displayed in output)
+   - 5 historical usage log entries
+
+2. **Start development server**:
+   ```bash
+   pnpm dev
+   ```
+
+3. **Test with Postman**:
+   - Import collection from `docs/postman/GeneratorLog.postman_collection.json`
+   - Update the `apiKey` variable with the key from seed output
+   - Run requests: health check → start generator → stop generator
+
+4. **Test with cURL**:
+   ```bash
+   export API_KEY="your-key-from-seed"
+   curl -X POST http://localhost:3000/api/generator/toggle \
+     -H "x-api-key: $API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"generatorId": 1}' | jq
+   ```
+
+**Detailed guides**:
+- [Database Setup & Testing](../docs/testing/database-setup-and-testing.md)
+- [cURL Examples](../docs/testing/curl-examples.md)
 
 ## Database
 
@@ -71,6 +111,9 @@ pnpm db:generate
 
 # Apply migrations
 pnpm db:migrate
+
+# Seed test data (user, generator, API key)
+pnpm db:seed
 
 # Push schema directly to database (dev only)
 pnpm db:push
@@ -183,7 +226,8 @@ backend/
 │   └── rate-limiter.test.ts
 ├── drizzle/                # Database migrations
 └── scripts/
-    └── migrate.ts          # Migration runner
+    ├── migrate.ts          # Migration runner
+    └── seed.ts             # Test data seeder
 ```
 
 ## Architecture
