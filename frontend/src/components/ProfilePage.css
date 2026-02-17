@@ -1,0 +1,189 @@
+.profile-page {
+  min-height: 100vh;
+  padding: 2rem;
+  background: #f7fafc;
+}
+
+.profile-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.profile-container h1 {
+  margin: 0 0 2rem 0;
+  color: #1a202c;
+  font-size: 2.5rem;
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.2rem;
+  color: #718096;
+}
+
+.success-message {
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  background: #d4edda;
+  border: 1px solid #c3e6cb;
+  border-radius: 8px;
+  color: #155724;
+}
+
+.error-message {
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  background: #fee;
+  border: 1px solid #fcc;
+  border-radius: 8px;
+  color: #c53030;
+}
+
+.profile-section {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+}
+
+.profile-section h2 {
+  margin: 0 0 1.5rem 0;
+  color: #2d3748;
+  font-size: 1.5rem;
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 500;
+  color: #2d3748;
+  font-size: 0.9rem;
+}
+
+.form-group input {
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.generator-stats {
+  padding: 1rem;
+  background: #f7fafc;
+  border-radius: 6px;
+  display: flex;
+  gap: 2rem;
+}
+
+.generator-stats p {
+  margin: 0;
+  color: #4a5568;
+}
+
+.generator-stats strong {
+  color: #1a202c;
+}
+
+.status-running {
+  color: #38a169 !important;
+}
+
+.status-stopped {
+  color: #718096 !important;
+}
+
+.submit-button {
+  padding: 0.875rem;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.submit-button:hover {
+  background: #5568d3;
+}
+
+@media (max-width: 640px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .generator-stats {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .profile-page {
+    background: #1a202c;
+  }
+
+  .profile-container h1 {
+    color: #f7fafc;
+  }
+
+  .profile-section {
+    background: #2d3748;
+  }
+
+  .profile-section h2 {
+    color: #e2e8f0;
+  }
+
+  .form-group label {
+    color: #e2e8f0;
+  }
+
+  .form-group input {
+    background: #1a202c;
+    border-color: #4a5568;
+    color: #f7fafc;
+  }
+
+  .generator-stats {
+    background: #1a202c;
+  }
+
+  .generator-stats p {
+    color: #cbd5e0;
+  }
+
+  .generator-stats strong {
+    color: #f7fafc;
+  }
+
+  .loading {
+    color: #cbd5e0;
+  }
+}
