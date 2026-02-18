@@ -17,6 +17,16 @@ const server = Fastify({
 const rateLimiter = new RateLimiter(config.apiRateLimit);
 server.decorate('rateLimiter', rateLimiter);
 
+// CORS
+server.addHook('onRequest', async (request, reply) => {
+  reply.header('Access-Control-Allow-Origin', config.corsOrigin);
+  reply.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  reply.header('Access-Control-Allow-Headers', 'Content-Type, x-api-key, x-user-id');
+  if (request.method === 'OPTIONS') {
+    return reply.status(204).send();
+  }
+});
+
 // Register routes
 registerGeneratorRoutes(server);
 authRoutes(server);

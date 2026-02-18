@@ -1,5 +1,6 @@
 import { type ReactNode } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { api } from '../utils/api';
 import './Layout.css';
 
 interface LayoutProps {
@@ -8,9 +9,15 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const isActive = (path: string) => {
     return location.pathname === path ? 'active' : '';
+  };
+
+  const handleLogout = () => {
+    api.logout();
+    navigate('/login');
   };
 
   return (
@@ -27,6 +34,9 @@ export function Layout({ children }: LayoutProps) {
             <Link to="/api-keys" className={`nav-link ${isActive('/api-keys')}`}>
               API Keys
             </Link>
+            <button onClick={handleLogout} className="nav-logout">
+              Sign Out
+            </button>
           </div>
         </div>
       </nav>

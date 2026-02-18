@@ -3,10 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../utils/api';
 import './EnrollmentPage.css';
 
-export function EnrollmentPage() {
+export function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -16,10 +15,10 @@ export function EnrollmentPage() {
     setLoading(true);
 
     try {
-      await api.enrollUser(email, name || undefined);
+      await api.loginUser(email);
       navigate('/profile');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to enroll');
+      setError(err instanceof Error ? err.message : 'Failed to sign in');
     } finally {
       setLoading(false);
     }
@@ -28,12 +27,12 @@ export function EnrollmentPage() {
   return (
     <div className="enrollment-page">
       <div className="enrollment-container">
-        <h1>Create Your Account</h1>
-        <p className="subtitle">Sign up to start tracking your generator usage</p>
+        <h1>Sign In</h1>
+        <p className="subtitle">Enter your email to access your account</p>
 
         <form onSubmit={handleSubmit} className="enrollment-form">
           <div className="form-group">
-            <label htmlFor="email">Email *</label>
+            <label htmlFor="email">Email</label>
             <input
               type="email"
               id="email"
@@ -45,29 +44,17 @@ export function EnrollmentPage() {
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="name">Name (optional)</label>
-            <input
-              type="text"
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Your Name"
-              disabled={loading}
-            />
-          </div>
-
           {error && <div className="error-message">{error}</div>}
 
           <button type="submit" disabled={loading} className="submit-button">
-            {loading ? 'Creating Account...' : 'Create Account'}
+            {loading ? 'Signing In...' : 'Sign In'}
           </button>
         </form>
 
         <p style={{ textAlign: 'center', marginTop: '1.5rem', color: '#718096' }}>
-          Already have an account?{' '}
-          <Link to="/login" style={{ color: '#667eea', fontWeight: 500 }}>
-            Sign in
+          No account yet?{' '}
+          <Link to="/enroll" style={{ color: '#667eea', fontWeight: 500 }}>
+            Create one
           </Link>
         </p>
       </div>

@@ -6,7 +6,7 @@ import * as schema from '../db/schema.js';
 import { eq, and } from 'drizzle-orm';
 
 const createApiKeySchema = z.object({
-  name: z.string().optional(),
+  name: z.string().min(1),
 });
 
 function getUserId(request: any): number | null {
