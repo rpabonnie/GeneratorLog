@@ -29,8 +29,12 @@ export function ApiKeysPage() {
 
   const handleCreateKey = async () => {
     setError('');
+    if (!newKeyName.trim()) {
+      setError('Key name is required');
+      return;
+    }
     try {
-      const created = await api.createApiKey(newKeyName || undefined);
+      const created = await api.createApiKey(newKeyName.trim());
       setNewKey(created);
       setShowNewKeyModal(true);
       setNewKeyName('');
@@ -93,8 +97,9 @@ export function ApiKeysPage() {
             type="text"
             value={newKeyName}
             onChange={(e) => setNewKeyName(e.target.value)}
-            placeholder="Key name (optional, e.g., 'iPhone Shortcut')"
+            placeholder="Key name, e.g. 'iPhone Shortcut'"
             className="key-name-input"
+            required
           />
           <button onClick={handleCreateKey} className="create-button">
             Create New API Key

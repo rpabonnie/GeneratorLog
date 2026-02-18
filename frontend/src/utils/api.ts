@@ -65,6 +65,19 @@ class ApiClient {
     return user;
   }
 
+  async loginUser(email: string): Promise<User> {
+    const user = await this.request<User>('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+    this.setUserId(user.id);
+    return user;
+  }
+
+  logout() {
+    this.setUserId(null);
+  }
+
   async getCurrentUser(): Promise<User> {
     return this.request<User>('/api/auth/me');
   }
@@ -113,7 +126,7 @@ class ApiClient {
     });
   }
 
-  async createApiKey(name?: string): Promise<ApiKey> {
+  async createApiKey(name: string): Promise<ApiKey> {
     return this.request<ApiKey>('/api/api-keys', {
       method: 'POST',
       body: JSON.stringify({ name }),
@@ -133,6 +146,7 @@ class ApiClient {
   async resetApiKey(id: number): Promise<ApiKey> {
     return this.request<ApiKey>(`/api/api-keys/${id}/reset`, {
       method: 'POST',
+      body: JSON.stringify({}),
     });
   }
 }

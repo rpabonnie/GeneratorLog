@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { EnrollmentPage } from './components/EnrollmentPage';
+import { LoginPage } from './components/LoginPage';
 import { ProfilePage } from './components/ProfilePage';
 import { ApiKeysPage } from './components/ApiKeysPage';
 import { Layout } from './components/Layout';
@@ -13,16 +14,11 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/enroll" element={<EnrollmentPage />} />
         <Route
           path="/"
-          element={
-            isAuthenticated ? (
-              <Navigate to="/profile" replace />
-            ) : (
-              <Navigate to="/enroll" replace />
-            )
-          }
+          element={<Navigate to={isAuthenticated ? '/profile' : '/login'} replace />}
         />
         <Route
           path="/profile"
@@ -32,7 +28,7 @@ function App() {
                 <ProfilePage />
               </Layout>
             ) : (
-              <Navigate to="/enroll" replace />
+              <Navigate to="/login" replace />
             )
           }
         />
@@ -44,7 +40,7 @@ function App() {
                 <ApiKeysPage />
               </Layout>
             ) : (
-              <Navigate to="/enroll" replace />
+              <Navigate to="/login" replace />
             )
           }
         />
