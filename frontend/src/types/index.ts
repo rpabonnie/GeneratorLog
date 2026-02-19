@@ -23,7 +23,7 @@ export interface ApiKey {
   id: number;
   name: string | null;
   key?: string;
-  keyPreview?: string;
+  hint?: string;
   lastUsedAt: string | null;
   createdAt: string;
 }

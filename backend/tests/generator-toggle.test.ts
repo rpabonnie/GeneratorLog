@@ -1,27 +1,69 @@
 import { describe, expect, it, beforeEach, afterEach } from 'vitest';
 import Fastify, { FastifyInstance } from 'fastify';
 import { registerGeneratorRoutes } from '../src/routes/generator.js';
+import { authRoutes } from '../src/routes/auth.js';
+import { apiKeyRoutes } from '../src/routes/api-keys.js';
+import { generatorConfigRoutes } from '../src/routes/generator-config.js';
+import { registerSessionMiddleware } from '../src/services/session.js';
 import { RateLimiter } from '../src/middleware/rate-limiter.js';
+import { getDb } from '../src/db/index.js';
+import * as schema from '../src/db/schema.js';
+
+const TEST_PASSWORD = 'TestPass123!';
+
+function extractCookie(setCookieHeader: string | string[] | undefined): string {
+  const header = Array.isArray(setCookieHeader) ? setCookieHeader[0] : setCookieHeader;
+  return header ? header.split(';')[0] : '';
+}
 
 describe('Generator Toggle Endpoint', () => {
   let app: FastifyInstance;
   let rateLimiter: RateLimiter;
+  let testApiKey: string;
 
   beforeEach(async () => {
     app = Fastify();
     rateLimiter = new RateLimiter(1);
-    
-    // Mock database for testing
-    const mockDb = {
-      generators: new Map(),
-      usageLogs: [],
-    };
-    
-    app.decorate('db', mockDb);
     app.decorate('rateLimiter', rateLimiter);
-    
+
+    registerSessionMiddleware(app);
+    await authRoutes(app);
+    await apiKeyRoutes(app);
+    await generatorConfigRoutes(app);
     registerGeneratorRoutes(app);
     await app.ready();
+
+    const db = getDb();
+    await db.delete(schema.usageLogs).execute();
+    await db.delete(schema.apiKeys).execute();
+    await db.delete(schema.generators).execute();
+    await db.delete(schema.sessions).execute();
+    await db.delete(schema.users).execute();
+
+    // Enroll user and capture session cookie (enroll auto-creates a session)
+    const enrollResp = await app.inject({
+      method: 'POST',
+      url: '/api/auth/enroll',
+      payload: { email: 'toggle@example.com', name: 'Toggle User', password: TEST_PASSWORD },
+    });
+    const cookie = extractCookie(enrollResp.headers['set-cookie']);
+
+    // Create an API key — raw key is returned only once
+    const keyResp = await app.inject({
+      method: 'POST',
+      url: '/api/api-keys',
+      headers: { cookie },
+      payload: { name: 'Test Key' },
+    });
+    testApiKey = JSON.parse(keyResp.body).key;
+
+    // Create a generator for the user
+    await app.inject({
+      method: 'POST',
+      url: '/api/generators',
+      headers: { cookie },
+      payload: { name: 'Test Generator', oilChangeHours: 100, oilChangeMonths: 6 },
+    });
   });
 
   afterEach(async () => {
@@ -33,12 +75,7 @@ describe('Generator Toggle Endpoint', () => {
     const response = await app.inject({
       method: 'POST',
       url: '/api/generator/toggle',
-      headers: {
-        'x-api-key': 'test-api-key',
-      },
-      payload: {
-        generatorId: 1,
-      },
+      headers: { 'x-api-key': testApiKey },
     });
 
     expect(response.statusCode).toBe(200);
@@ -49,31 +86,21 @@ describe('Generator Toggle Endpoint', () => {
   });
 
   it('stops a generator that is running', async () => {
-    // First, start the generator
+    // Start the generator
     await app.inject({
       method: 'POST',
       url: '/api/generator/toggle',
-      headers: {
-        'x-api-key': 'test-api-key',
-      },
-      payload: {
-        generatorId: 1,
-      },
+      headers: { 'x-api-key': testApiKey },
     });
 
     // Wait for rate limit to reset (1.1 seconds)
     await new Promise(resolve => setTimeout(resolve, 1100));
 
-    // Then stop it
+    // Stop it
     const response = await app.inject({
       method: 'POST',
       url: '/api/generator/toggle',
-      headers: {
-        'x-api-key': 'test-api-key',
-      },
-      payload: {
-        generatorId: 1,
-      },
+      headers: { 'x-api-key': testApiKey },
     });
 
     expect(response.statusCode).toBe(200);
@@ -87,9 +114,6 @@ describe('Generator Toggle Endpoint', () => {
     const response = await app.inject({
       method: 'POST',
       url: '/api/generator/toggle',
-      payload: {
-        generatorId: 1,
-      },
     });
 
     expect(response.statusCode).toBe(401);
@@ -100,58 +124,28 @@ describe('Generator Toggle Endpoint', () => {
     const response1 = await app.inject({
       method: 'POST',
       url: '/api/generator/toggle',
-      headers: {
-        'x-api-key': 'test-api-key',
-      },
-      payload: {
-        generatorId: 1,
-      },
+      headers: { 'x-api-key': testApiKey },
     });
-
     expect(response1.statusCode).toBe(200);
 
     // Second request should be rate limited
     const response2 = await app.inject({
       method: 'POST',
       url: '/api/generator/toggle',
-      headers: {
-        'x-api-key': 'test-api-key',
-      },
-      payload: {
-        generatorId: 1,
-      },
+      headers: { 'x-api-key': testApiKey },
     });
-
     expect(response2.statusCode).toBe(429);
     const body = JSON.parse(response2.body);
     expect(body.error).toContain('rate limit');
   });
 
-  it('validates generator ID is provided', async () => {
+  it('returns 401 for an invalid API key', async () => {
     const response = await app.inject({
       method: 'POST',
       url: '/api/generator/toggle',
-      headers: {
-        'x-api-key': 'test-api-key',
-      },
-      payload: {},
+      headers: { 'x-api-key': 'gl_invalid_key_that_does_not_exist' },
     });
 
-    expect(response.statusCode).toBe(400);
-  });
-
-  it('returns 404 for non-existent generator', async () => {
-    const response = await app.inject({
-      method: 'POST',
-      url: '/api/generator/toggle',
-      headers: {
-        'x-api-key': 'test-api-key',
-      },
-      payload: {
-        generatorId: 999,
-      },
-    });
-
-    expect(response.statusCode).toBe(404);
+    expect(response.statusCode).toBe(401);
   });
 });

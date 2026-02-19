@@ -3,43 +3,19 @@ import type { User, Generator, ApiKey, ApiError } from '../types';
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 class ApiClient {
-  private userId: number | null = null;
-
-  setUserId(userId: number | null) {
-    this.userId = userId;
-    if (userId) {
-      localStorage.setItem('userId', userId.toString());
-    } else {
-      localStorage.removeItem('userId');
-    }
-  }
-
-  getUserId(): number | null {
-    if (this.userId) return this.userId;
-    const stored = localStorage.getItem('userId');
-    if (stored) {
-      this.userId = parseInt(stored, 10);
-      return this.userId;
-    }
-    return null;
-  }
-
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
+      ...(options.body !== undefined ? { 'Content-Type': 'application/json' } : {}),
       ...options.headers as Record<string, string>,
     };
-
-    if (this.userId) {
-      headers['x-user-id'] = this.userId.toString();
-    }
 
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       ...options,
       headers,
+      credentials: 'include',
     });
 
     if (!response.ok) {
@@ -56,26 +32,22 @@ class ApiClient {
     return response.json();
   }
 
-  async enrollUser(email: string, name?: string): Promise<User> {
-    const user = await this.request<User>('/api/auth/enroll', {
+  async enrollUser(email: string, password: string, name?: string): Promise<User> {
+    return this.request<User>('/api/auth/enroll', {
       method: 'POST',
-      body: JSON.stringify({ email, name }),
+      body: JSON.stringify({ email, password, name }),
     });
-    this.setUserId(user.id);
-    return user;
   }
 
-  async loginUser(email: string): Promise<User> {
-    const user = await this.request<User>('/api/auth/login', {
+  async loginUser(email: string, password: string): Promise<User> {
+    return this.request<User>('/api/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, password }),
     });
-    this.setUserId(user.id);
-    return user;
   }
 
-  logout() {
-    this.setUserId(null);
+  async logout(): Promise<void> {
+    return this.request<void>('/api/auth/logout', { method: 'POST' });
   }
 
   async getCurrentUser(): Promise<User> {

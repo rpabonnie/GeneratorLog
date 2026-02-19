@@ -12,9 +12,7 @@ const updateProfileSchema = z.object({
 });
 
 function getUserId(request: any): number | null {
-  const userId = request.headers['x-user-id'];
-  if (!userId) return null;
-  return parseInt(userId as string, 10);
+  return (request.sessionUser?.id) ?? null;
 }
 
 export async function profileRoutes(app: FastifyInstance) {

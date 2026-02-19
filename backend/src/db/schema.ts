@@ -4,6 +4,7 @@ export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   email: varchar('email', { length: 255 }).notNull().unique(),
   name: varchar('name', { length: 255 }),
+  passwordHash: varchar('password_hash', { length: 256 }).notNull(),
   oauthProvider: varchar('oauth_provider', { length: 50 }),
   oauthId: varchar('oauth_id', { length: 255 }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -38,8 +39,16 @@ export const usageLogs = pgTable('usage_logs', {
 export const apiKeys = pgTable('api_keys', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').notNull().references(() => users.id),
-  key: varchar('key', { length: 64 }).notNull().unique(),
+  keyHash: varchar('key_hash', { length: 64 }).notNull().unique(),
+  hint: varchar('hint', { length: 4 }).notNull(),
   name: varchar('name', { length: 255 }),
   lastUsedAt: timestamp('last_used_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const sessions = pgTable('sessions', {
+  id: varchar('id', { length: 64 }).primaryKey(),
+  userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  expiresAt: timestamp('expires_at').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });

@@ -1,11 +1,11 @@
 import { useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { api } from '../utils/api';
 import './EnrollmentPage.css';
 
 export function LoginPage() {
-  const navigate = useNavigate();
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -15,11 +15,10 @@ export function LoginPage() {
     setLoading(true);
 
     try {
-      await api.loginUser(email);
-      navigate('/profile');
+      await api.loginUser(email, password);
+      window.location.href = '/profile';
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to sign in');
-    } finally {
       setLoading(false);
     }
   };
@@ -28,7 +27,7 @@ export function LoginPage() {
     <div className="enrollment-page">
       <div className="enrollment-container">
         <h1>Sign In</h1>
-        <p className="subtitle">Enter your email to access your account</p>
+        <p className="subtitle">Enter your credentials to access your account</p>
 
         <form onSubmit={handleSubmit} className="enrollment-form">
           <div className="form-group">
@@ -40,6 +39,18 @@ export function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="your.email@example.com"
+              disabled={loading}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
               disabled={loading}
             />
           </div>
