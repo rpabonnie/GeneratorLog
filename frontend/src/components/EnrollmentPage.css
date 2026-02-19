@@ -7,6 +7,18 @@
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
+@media (max-width: 768px) {
+  .enrollment-page {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .enrollment-page {
+    padding: 0.75rem;
+  }
+}
+
 .enrollment-container {
   background: white;
   padding: 3rem;
@@ -16,10 +28,28 @@
   width: 100%;
 }
 
+@media (max-width: 768px) {
+  .enrollment-container {
+    padding: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .enrollment-container {
+    padding: 1.5rem;
+  }
+}
+
 .enrollment-container h1 {
   margin: 0 0 0.5rem 0;
   color: #1a202c;
   font-size: 2rem;
+}
+
+@media (max-width: 480px) {
+  .enrollment-container h1 {
+    font-size: 1.5rem;
+  }
 }
 
 .subtitle {
