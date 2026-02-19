@@ -1,26 +1,36 @@
 import { useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { api } from '../utils/api';
 import './EnrollmentPage.css';
 
 export function EnrollmentPage() {
-  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await api.enrollUser(email, name || undefined);
-      navigate('/profile');
+      await api.enrollUser(email, password, name || undefined);
+      window.location.href = '/profile';
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to enroll');
-    } finally {
       setLoading(false);
     }
   };
@@ -53,6 +63,31 @@ export function EnrollmentPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Your Name"
+              disabled={loading}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password">Password *</label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              placeholder="Minimum 8 characters"
+              disabled={loading}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="confirmPassword">Confirm Password *</label>
+            <input
+              type="password"
+              id="confirmPassword"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
               disabled={loading}
             />
           </div>

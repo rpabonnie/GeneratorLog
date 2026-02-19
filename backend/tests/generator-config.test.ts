@@ -2,37 +2,50 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import Fastify, { FastifyInstance } from 'fastify';
 import { generatorConfigRoutes } from '../src/routes/generator-config.js';
 import { authRoutes } from '../src/routes/auth.js';
+import { registerSessionMiddleware } from '../src/services/session.js';
 import { getDb } from '../src/db/index.js';
 import * as schema from '../src/db/schema.js';
 
+const TEST_PASSWORD = 'TestPass123!';
+
+function extractCookie(setCookieHeader: string | string[] | undefined): string {
+  const header = Array.isArray(setCookieHeader) ? setCookieHeader[0] : setCookieHeader;
+  return header ? header.split(';')[0] : '';
+}
+
+async function loginAs(app: FastifyInstance, email: string): Promise<string> {
+  const resp = await app.inject({
+    method: 'POST',
+    url: '/api/auth/login',
+    payload: { email, password: TEST_PASSWORD },
+  });
+  return extractCookie(resp.headers['set-cookie']);
+}
+
 describe('Generator Configuration Routes', () => {
   let app: FastifyInstance;
-  let testUserId: number;
+  let testCookie: string;
 
   beforeEach(async () => {
     app = Fastify();
+    registerSessionMiddleware(app);
     await authRoutes(app);
     await generatorConfigRoutes(app);
     await app.ready();
 
-    // Clean up test data (order matters due to foreign keys)
     const db = getDb();
     await db.delete(schema.usageLogs).execute();
     await db.delete(schema.apiKeys).execute();
     await db.delete(schema.generators).execute();
+    await db.delete(schema.sessions).execute();
     await db.delete(schema.users).execute();
 
-    // Create a test user
-    const enrollResponse = await app.inject({
+    await app.inject({
       method: 'POST',
       url: '/api/auth/enroll',
-      payload: {
-        email: 'generator@example.com',
-        name: 'Generator User',
-      },
+      payload: { email: 'generator@example.com', name: 'Generator User', password: TEST_PASSWORD },
     });
-
-    testUserId = JSON.parse(enrollResponse.body).id;
+    testCookie = await loginAs(app, 'generator@example.com');
   });
 
   afterEach(async () => {
@@ -44,9 +57,7 @@ describe('Generator Configuration Routes', () => {
       const response = await app.inject({
         method: 'POST',
         url: '/api/generators',
-        headers: {
-          'x-user-id': testUserId.toString(),
-        },
+        headers: { cookie: testCookie },
         payload: {
           name: 'Honda EU2200i',
           oilChangeMonths: 6,
@@ -67,12 +78,8 @@ describe('Generator Configuration Routes', () => {
       const response = await app.inject({
         method: 'POST',
         url: '/api/generators',
-        headers: {
-          'x-user-id': testUserId.toString(),
-        },
-        payload: {
-          name: 'My Generator',
-        },
+        headers: { cookie: testCookie },
+        payload: { name: 'My Generator' },
       });
 
       expect(response.statusCode).toBe(201);
@@ -85,9 +92,7 @@ describe('Generator Configuration Routes', () => {
       const response = await app.inject({
         method: 'POST',
         url: '/api/generators',
-        headers: {
-          'x-user-id': testUserId.toString(),
-        },
+        headers: { cookie: testCookie },
         payload: {},
       });
 
@@ -98,13 +103,8 @@ describe('Generator Configuration Routes', () => {
       const response = await app.inject({
         method: 'POST',
         url: '/api/generators',
-        headers: {
-          'x-user-id': testUserId.toString(),
-        },
-        payload: {
-          name: 'Generator',
-          oilChangeHours: -10,
-        },
+        headers: { cookie: testCookie },
+        payload: { name: 'Generator', oilChangeHours: -10 },
       });
 
       expect(response.statusCode).toBe(400);
@@ -114,9 +114,7 @@ describe('Generator Configuration Routes', () => {
       const response = await app.inject({
         method: 'POST',
         url: '/api/generators',
-        payload: {
-          name: 'Generator',
-        },
+        payload: { name: 'Generator' },
       });
 
       expect(response.statusCode).toBe(401);
@@ -128,35 +126,25 @@ describe('Generator Configuration Routes', () => {
       const response = await app.inject({
         method: 'GET',
         url: '/api/generators',
-        headers: {
-          'x-user-id': testUserId.toString(),
-        },
+        headers: { cookie: testCookie },
       });
 
       expect(response.statusCode).toBe(200);
-      const body = JSON.parse(response.body);
-      expect(body).toEqual([]);
+      expect(JSON.parse(response.body)).toEqual([]);
     });
 
     it('should return user generators', async () => {
-      // Create a generator
       await app.inject({
         method: 'POST',
         url: '/api/generators',
-        headers: {
-          'x-user-id': testUserId.toString(),
-        },
-        payload: {
-          name: 'Generator 1',
-        },
+        headers: { cookie: testCookie },
+        payload: { name: 'Generator 1' },
       });
 
       const response = await app.inject({
         method: 'GET',
         url: '/api/generators',
-        headers: {
-          'x-user-id': testUserId.toString(),
-        },
+        headers: { cookie: testCookie },
       });
 
       expect(response.statusCode).toBe(200);
@@ -180,36 +168,26 @@ describe('Generator Configuration Routes', () => {
       const createResponse = await app.inject({
         method: 'POST',
         url: '/api/generators',
-        headers: {
-          'x-user-id': testUserId.toString(),
-        },
-        payload: {
-          name: 'Test Generator',
-        },
+        headers: { cookie: testCookie },
+        payload: { name: 'Test Generator' },
       });
-
       const generator = JSON.parse(createResponse.body);
 
       const response = await app.inject({
         method: 'GET',
         url: `/api/generators/${generator.id}`,
-        headers: {
-          'x-user-id': testUserId.toString(),
-        },
+        headers: { cookie: testCookie },
       });
 
       expect(response.statusCode).toBe(200);
-      const body = JSON.parse(response.body);
-      expect(body.name).toBe('Test Generator');
+      expect(JSON.parse(response.body).name).toBe('Test Generator');
     });
 
     it('should return 404 for non-existent generator', async () => {
       const response = await app.inject({
         method: 'GET',
         url: '/api/generators/99999',
-        headers: {
-          'x-user-id': testUserId.toString(),
-        },
+        headers: { cookie: testCookie },
       });
 
       expect(response.statusCode).toBe(404);
@@ -230,27 +208,16 @@ describe('Generator Configuration Routes', () => {
       const createResponse = await app.inject({
         method: 'POST',
         url: '/api/generators',
-        headers: {
-          'x-user-id': testUserId.toString(),
-        },
-        payload: {
-          name: 'Old Name',
-        },
+        headers: { cookie: testCookie },
+        payload: { name: 'Old Name' },
       });
-
       const generator = JSON.parse(createResponse.body);
 
       const response = await app.inject({
         method: 'PUT',
         url: `/api/generators/${generator.id}`,
-        headers: {
-          'x-user-id': testUserId.toString(),
-        },
-        payload: {
-          name: 'New Name',
-          oilChangeMonths: 12,
-          oilChangeHours: 200,
-        },
+        headers: { cookie: testCookie },
+        payload: { name: 'New Name', oilChangeMonths: 12, oilChangeHours: 200 },
       });
 
       expect(response.statusCode).toBe(200);
@@ -261,41 +228,26 @@ describe('Generator Configuration Routes', () => {
     });
 
     it('should prevent user from updating another user generator', async () => {
-      // Create second user
-      const user2Response = await app.inject({
+      await app.inject({
         method: 'POST',
         url: '/api/auth/enroll',
-        payload: {
-          email: 'user2@example.com',
-        },
+        payload: { email: 'user2@example.com', password: TEST_PASSWORD },
       });
+      const user2Cookie = await loginAs(app, 'user2@example.com');
 
-      const user2Id = JSON.parse(user2Response.body).id;
-
-      // Create generator for user 1
       const createResponse = await app.inject({
         method: 'POST',
         url: '/api/generators',
-        headers: {
-          'x-user-id': testUserId.toString(),
-        },
-        payload: {
-          name: 'User 1 Generator',
-        },
+        headers: { cookie: testCookie },
+        payload: { name: 'User 1 Generator' },
       });
-
       const generator = JSON.parse(createResponse.body);
 
-      // Try to update as user 2
       const response = await app.inject({
         method: 'PUT',
         url: `/api/generators/${generator.id}`,
-        headers: {
-          'x-user-id': user2Id.toString(),
-        },
-        payload: {
-          name: 'Hacked',
-        },
+        headers: { cookie: user2Cookie },
+        payload: { name: 'Hacked' },
       });
 
       expect(response.statusCode).toBe(404);
@@ -305,9 +257,7 @@ describe('Generator Configuration Routes', () => {
       const response = await app.inject({
         method: 'PUT',
         url: '/api/generators/1',
-        payload: {
-          name: 'New Name',
-        },
+        payload: { name: 'New Name' },
       });
 
       expect(response.statusCode).toBe(401);

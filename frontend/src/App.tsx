@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { EnrollmentPage } from './components/EnrollmentPage';
 import { LoginPage } from './components/LoginPage';
 import { ProfilePage } from './components/ProfilePage';
@@ -8,8 +9,18 @@ import { api } from './utils/api';
 import './App.css';
 
 function App() {
-  const userId = api.getUserId();
-  const isAuthenticated = userId !== null;
+  // null = still checking, true = authenticated, false = not authenticated
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    api.getCurrentUser()
+      .then(() => setIsAuthenticated(true))
+      .catch(() => setIsAuthenticated(false));
+  }, []);
+
+  if (isAuthenticated === null) {
+    return null;
+  }
 
   return (
     <BrowserRouter>

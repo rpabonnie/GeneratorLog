@@ -6,5 +6,7 @@ export default defineConfig({
     environment: 'node',
     include: ['tests/**/*.test.ts'],
     clearMocks: true,
+    // Tests share a real PostgreSQL DB; run files sequentially to avoid interference
+    fileParallelism: false,
   },
 });

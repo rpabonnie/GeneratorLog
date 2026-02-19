@@ -119,7 +119,7 @@ export function ApiKeysPage() {
                   <span className="key-id">ID: {key.id}</span>
                 </div>
                 <div className="key-preview">
-                  <code>{key.keyPreview}</code>
+                  <code>{key.hint}</code>
                 </div>
                 <div className="key-meta">
                   <span>Created: {new Date(key.createdAt).toLocaleDateString()}</span>

@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { api } from '../utils/api';
 import './Layout.css';
 
@@ -9,15 +9,18 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   const location = useLocation();
-  const navigate = useNavigate();
 
   const isActive = (path: string) => {
     return location.pathname === path ? 'active' : '';
   };
 
-  const handleLogout = () => {
-    api.logout();
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      await api.logout();
+    } catch {
+      // Session may already be invalid; proceed to login page
+    }
+    window.location.href = '/login';
   };
 
   return (

@@ -1,5 +1,6 @@
-import { eq, and } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { getDb, schema } from '../db/index.js';
+import { hashApiKey } from '../utils/auth.js';
 
 export interface StartGeneratorResult {
   status: 'started';
@@ -87,12 +88,12 @@ export async function toggleGenerator(generatorId: number): Promise<ToggleResult
 
 export async function getGeneratorByApiKey(apiKey: string) {
   const db = getDb();
+  const keyHash = hashApiKey(apiKey);
 
-  // Find the API key and get the associated user
   const [apiKeyRecord] = await db
     .select()
     .from(schema.apiKeys)
-    .where(eq(schema.apiKeys.key, apiKey))
+    .where(eq(schema.apiKeys.keyHash, keyHash))
     .limit(1);
 
   if (!apiKeyRecord) {

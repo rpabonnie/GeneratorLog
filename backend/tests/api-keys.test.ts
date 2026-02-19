@@ -2,37 +2,51 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import Fastify, { FastifyInstance } from 'fastify';
 import { apiKeyRoutes } from '../src/routes/api-keys.js';
 import { authRoutes } from '../src/routes/auth.js';
+import { registerSessionMiddleware } from '../src/services/session.js';
 import { getDb } from '../src/db/index.js';
 import * as schema from '../src/db/schema.js';
 
+const TEST_PASSWORD = 'TestPass123!';
+
+function extractCookie(setCookieHeader: string | string[] | undefined): string {
+  const header = Array.isArray(setCookieHeader) ? setCookieHeader[0] : setCookieHeader;
+  return header ? header.split(';')[0] : '';
+}
+
+async function loginAs(app: FastifyInstance, email: string): Promise<string> {
+  const resp = await app.inject({
+    method: 'POST',
+    url: '/api/auth/login',
+    payload: { email, password: TEST_PASSWORD },
+  });
+  return extractCookie(resp.headers['set-cookie']);
+}
+
 describe('API Key Routes', () => {
   let app: FastifyInstance;
-  let testUserId: number;
+  let testCookie: string;
 
   beforeEach(async () => {
     app = Fastify();
+    registerSessionMiddleware(app);
     await authRoutes(app);
     await apiKeyRoutes(app);
     await app.ready();
 
-    // Clean up test data (order matters due to foreign keys)
     const db = getDb();
     await db.delete(schema.usageLogs).execute();
     await db.delete(schema.apiKeys).execute();
     await db.delete(schema.generators).execute();
+    await db.delete(schema.sessions).execute();
     await db.delete(schema.users).execute();
 
-    // Create a test user
-    const enrollResponse = await app.inject({
+    // Create and login test user
+    await app.inject({
       method: 'POST',
       url: '/api/auth/enroll',
-      payload: {
-        email: 'apikey@example.com',
-        name: 'API Key User',
-      },
+      payload: { email: 'apikey@example.com', name: 'API Key User', password: TEST_PASSWORD },
     });
-
-    testUserId = JSON.parse(enrollResponse.body).id;
+    testCookie = await loginAs(app, 'apikey@example.com');
   });
 
   afterEach(async () => {
@@ -44,19 +58,19 @@ describe('API Key Routes', () => {
       const response = await app.inject({
         method: 'POST',
         url: '/api/api-keys',
-        headers: {
-          'x-user-id': testUserId.toString(),
-        },
-        payload: {
-          name: 'iPhone Shortcut',
-        },
+        headers: { cookie: testCookie },
+        payload: { name: 'iPhone Shortcut' },
       });
 
       expect(response.statusCode).toBe(201);
       const body = JSON.parse(response.body);
       expect(body.name).toBe('iPhone Shortcut');
+      // Raw key shown once: gl_ prefix + 43 base64url chars = 46 chars total
       expect(body.key).toBeDefined();
-      expect(body.key).toHaveLength(64);
+      expect(body.key).toMatch(/^gl_/);
+      expect(body.key).toHaveLength(46);
+      // hint is the last 4 chars of the raw key
+      expect(body.hint).toBe(body.key.slice(-4));
       expect(body).toHaveProperty('createdAt');
     });
 
@@ -64,25 +78,21 @@ describe('API Key Routes', () => {
       const response = await app.inject({
         method: 'POST',
         url: '/api/api-keys',
-        headers: {
-          'x-user-id': testUserId.toString(),
-        },
+        headers: { cookie: testCookie },
         payload: {},
       });
 
       expect(response.statusCode).toBe(201);
       const body = JSON.parse(response.body);
       expect(body.name).toBeNull();
-      expect(body.key).toHaveLength(64);
+      expect(body.key).toHaveLength(46);
     });
 
     it('should return 401 without authentication', async () => {
       const response = await app.inject({
         method: 'POST',
         url: '/api/api-keys',
-        payload: {
-          name: 'Key',
-        },
+        payload: { name: 'Key' },
       });
 
       expect(response.statusCode).toBe(401);
@@ -94,43 +104,34 @@ describe('API Key Routes', () => {
       const response = await app.inject({
         method: 'GET',
         url: '/api/api-keys',
-        headers: {
-          'x-user-id': testUserId.toString(),
-        },
+        headers: { cookie: testCookie },
       });
 
       expect(response.statusCode).toBe(200);
-      const body = JSON.parse(response.body);
-      expect(body).toEqual([]);
+      expect(JSON.parse(response.body)).toEqual([]);
     });
 
-    it('should return user API keys without showing full key', async () => {
+    it('should return user API keys with hint preview (full key not exposed)', async () => {
       const createResponse = await app.inject({
         method: 'POST',
         url: '/api/api-keys',
-        headers: {
-          'x-user-id': testUserId.toString(),
-        },
-        payload: {
-          name: 'Test Key',
-        },
+        headers: { cookie: testCookie },
+        payload: { name: 'Test Key' },
       });
-
       const createdKey = JSON.parse(createResponse.body);
 
       const response = await app.inject({
         method: 'GET',
         url: '/api/api-keys',
-        headers: {
-          'x-user-id': testUserId.toString(),
-        },
+        headers: { cookie: testCookie },
       });
 
       expect(response.statusCode).toBe(200);
       const body = JSON.parse(response.body);
       expect(body).toHaveLength(1);
       expect(body[0].name).toBe('Test Key');
-      expect(body[0].keyPreview).toBe(createdKey.key.substring(0, 8) + '...');
+      // List shows gl_... + last 4 chars, never the full key
+      expect(body[0].hint).toBe(`gl_...${createdKey.key.slice(-4)}`);
       expect(body[0].key).toBeUndefined();
     });
 
@@ -149,73 +150,47 @@ describe('API Key Routes', () => {
       const createResponse = await app.inject({
         method: 'POST',
         url: '/api/api-keys',
-        headers: {
-          'x-user-id': testUserId.toString(),
-        },
-        payload: {
-          name: 'To Delete',
-        },
+        headers: { cookie: testCookie },
+        payload: { name: 'To Delete' },
       });
-
       const apiKey = JSON.parse(createResponse.body);
 
       const response = await app.inject({
         method: 'DELETE',
         url: `/api/api-keys/${apiKey.id}`,
-        headers: {
-          'x-user-id': testUserId.toString(),
-        },
+        headers: { cookie: testCookie },
       });
-
       expect(response.statusCode).toBe(204);
 
-      // Verify it's deleted
       const listResponse = await app.inject({
         method: 'GET',
         url: '/api/api-keys',
-        headers: {
-          'x-user-id': testUserId.toString(),
-        },
+        headers: { cookie: testCookie },
       });
-
-      const keys = JSON.parse(listResponse.body);
-      expect(keys).toHaveLength(0);
+      expect(JSON.parse(listResponse.body)).toHaveLength(0);
     });
 
     it('should prevent deleting another users API key', async () => {
       const createResponse = await app.inject({
         method: 'POST',
         url: '/api/api-keys',
-        headers: {
-          'x-user-id': testUserId.toString(),
-        },
-        payload: {
-          name: 'User 1 Key',
-        },
+        headers: { cookie: testCookie },
+        payload: { name: 'User 1 Key' },
       });
-
       const apiKey = JSON.parse(createResponse.body);
 
-      // Create second user
-      const user2Response = await app.inject({
+      await app.inject({
         method: 'POST',
         url: '/api/auth/enroll',
-        payload: {
-          email: 'user2@example.com',
-        },
+        payload: { email: 'user2@example.com', password: TEST_PASSWORD },
       });
+      const user2Cookie = await loginAs(app, 'user2@example.com');
 
-      const user2Id = JSON.parse(user2Response.body).id;
-
-      // Try to delete as user 2
       const response = await app.inject({
         method: 'DELETE',
         url: `/api/api-keys/${apiKey.id}`,
-        headers: {
-          'x-user-id': user2Id.toString(),
-        },
+        headers: { cookie: user2Cookie },
       });
-
       expect(response.statusCode).toBe(404);
     });
 
@@ -223,11 +198,8 @@ describe('API Key Routes', () => {
       const response = await app.inject({
         method: 'DELETE',
         url: '/api/api-keys/99999',
-        headers: {
-          'x-user-id': testUserId.toString(),
-        },
+        headers: { cookie: testCookie },
       });
-
       expect(response.statusCode).toBe(404);
     });
 
@@ -236,76 +208,57 @@ describe('API Key Routes', () => {
         method: 'DELETE',
         url: '/api/api-keys/1',
       });
-
       expect(response.statusCode).toBe(401);
     });
   });
 
   describe('POST /api/api-keys/:id/reset', () => {
-    it('should reset an API key', async () => {
+    it('should reset an API key and return new raw key', async () => {
       const createResponse = await app.inject({
         method: 'POST',
         url: '/api/api-keys',
-        headers: {
-          'x-user-id': testUserId.toString(),
-        },
-        payload: {
-          name: 'To Reset',
-        },
+        headers: { cookie: testCookie },
+        payload: { name: 'To Reset' },
       });
-
       const originalKey = JSON.parse(createResponse.body);
 
       const response = await app.inject({
         method: 'POST',
         url: `/api/api-keys/${originalKey.id}/reset`,
-        headers: {
-          'x-user-id': testUserId.toString(),
-        },
+        headers: { cookie: testCookie },
       });
 
       expect(response.statusCode).toBe(200);
       const body = JSON.parse(response.body);
       expect(body.key).toBeDefined();
-      expect(body.key).toHaveLength(64);
+      expect(body.key).toMatch(/^gl_/);
+      expect(body.key).toHaveLength(46);
       expect(body.key).not.toBe(originalKey.key);
       expect(body.name).toBe('To Reset');
+      expect(body.hint).toBe(body.key.slice(-4));
     });
 
     it('should prevent resetting another users API key', async () => {
       const createResponse = await app.inject({
         method: 'POST',
         url: '/api/api-keys',
-        headers: {
-          'x-user-id': testUserId.toString(),
-        },
-        payload: {
-          name: 'User 1 Key',
-        },
+        headers: { cookie: testCookie },
+        payload: { name: 'User 1 Key' },
       });
-
       const apiKey = JSON.parse(createResponse.body);
 
-      // Create second user
-      const user2Response = await app.inject({
+      await app.inject({
         method: 'POST',
         url: '/api/auth/enroll',
-        payload: {
-          email: 'user2@example.com',
-        },
+        payload: { email: 'user2@example.com', password: TEST_PASSWORD },
       });
+      const user2Cookie = await loginAs(app, 'user2@example.com');
 
-      const user2Id = JSON.parse(user2Response.body).id;
-
-      // Try to reset as user 2
       const response = await app.inject({
         method: 'POST',
         url: `/api/api-keys/${apiKey.id}/reset`,
-        headers: {
-          'x-user-id': user2Id.toString(),
-        },
+        headers: { cookie: user2Cookie },
       });
-
       expect(response.statusCode).toBe(404);
     });
 
@@ -314,7 +267,6 @@ describe('API Key Routes', () => {
         method: 'POST',
         url: '/api/api-keys/1/reset',
       });
-
       expect(response.statusCode).toBe(401);
     });
   });

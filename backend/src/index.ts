@@ -6,6 +6,7 @@ import { authRoutes } from './routes/auth.js';
 import { profileRoutes } from './routes/profile.js';
 import { generatorConfigRoutes } from './routes/generator-config.js';
 import { apiKeyRoutes } from './routes/api-keys.js';
+import { registerSessionMiddleware } from './services/session.js';
 
 const server = Fastify({
   logger: {
@@ -17,15 +18,22 @@ const server = Fastify({
 const rateLimiter = new RateLimiter(config.apiRateLimit);
 server.decorate('rateLimiter', rateLimiter);
 
-// CORS
+// CORS — reflect localhost origins in development, enforce configured origin in production
 server.addHook('onRequest', async (request, reply) => {
-  reply.header('Access-Control-Allow-Origin', config.corsOrigin);
+  const origin = request.headers['origin'] ?? '';
+  const isLocalOrigin = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+  const allowedOrigin = (config.nodeEnv !== 'production' && isLocalOrigin) ? origin : config.corsOrigin;
+  reply.header('Access-Control-Allow-Origin', allowedOrigin);
   reply.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  reply.header('Access-Control-Allow-Headers', 'Content-Type, x-api-key, x-user-id');
+  reply.header('Access-Control-Allow-Headers', 'Content-Type, x-api-key');
+  reply.header('Access-Control-Allow-Credentials', 'true');
   if (request.method === 'OPTIONS') {
     return reply.status(204).send();
   }
 });
+
+// Session middleware — populates request.sessionUser from cookie on every request
+registerSessionMiddleware(server);
 
 // Register routes
 registerGeneratorRoutes(server);
