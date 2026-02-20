@@ -1,8 +1,12 @@
 # Email Notification Research for Generator Maintenance Alerts
 
-**Date:** 2026-02-20
+**Date:** 2026-02-20 (Updated)
 **Status:** Research Complete - Awaiting Decision
 **Context:** Need to send automated email alerts when generator maintenance is due (based on running hours OR months since last oil change)
+
+## ⚠️ CRITICAL UPDATE: SendGrid Free Tier Discontinued
+
+**SendGrid permanently discontinued its free tier in July 2025.** All previous recommendations based on SendGrid are no longer valid. This research has been updated with current alternatives that offer permanent free tiers.
 
 ## Requirements
 
@@ -10,33 +14,32 @@
 2. Deploy to Azure (App Service B1 or F1 Free tier)
 3. Minimal external dependencies (per project philosophy)
 4. Support for local/self-hosted deployment option
-5. Low cost for beta/production ($0-30/month budget)
-6. Simple implementation (~50-200 lines of code preferred over heavy frameworks)
+5. **Permanent free tier** for self-hosting use case (critical requirement)
+6. Low cost for beta/production ($0-30/month budget)
+7. Simple implementation (~50-200 lines of code preferred over heavy frameworks)
 
 ## Solutions Evaluated
 
-### 1. Nodemailer + External SMTP Service
+### 1. Nodemailer + Brevo (Recommended) ⭐
 
-**Description:** Use the Nodemailer library (most popular Node.js email library) with a third-party SMTP provider (Gmail, SendGrid, etc.)
+**Description:** Use Nodemailer with Brevo (formerly Sendinblue), which offers a permanent free tier with generous limits.
 
 **Implementation:**
-- Install `nodemailer` (npm package)
-- Configure with SMTP credentials from provider
+- Install `nodemailer` and `node-cron` (npm packages)
+- Configure with Brevo SMTP credentials
 - Use `node-cron` for scheduling maintenance checks
 
-**Providers Comparison:**
-
-| Provider | Free Tier | Best For | Pros | Cons |
-|----------|-----------|----------|------|------|
-| **SendGrid** | 100/day (~3,000/month) | Ongoing small projects | Generous free tier, good docs, scalable | Daily limit, costs rise quickly |
-| **Mailgun** | 5,000/month (first 30 days), then 100/day | API-first apps, trial period | Great API, analytics, flexible | Limited after trial, technical setup |
-| **Postmark** | 100/month | Critical transactional only | Fastest delivery, excellent support | Very limited free tier |
-| **Gmail SMTP** | 500/day | Development/testing | Free, easy setup | Not for production, risk of account suspension |
+**Brevo Free Tier (Permanent):**
+- **300 emails/day** (~9,000/month)
+- Free forever with proper usage
+- No credit card required
+- Includes transactional email features
+- SMTP + API support
 
 **Azure Compatibility:**
-- Works on Azure App Service (all tiers)
-- Note: Azure blocks outbound port 25 (raw SMTP) on basic VMs, but authenticated SMTP on ports 587/465 works fine
-- No Azure-specific configuration needed
+- ✅ Works on Azure App Service (all tiers)
+- ✅ Authenticated SMTP on port 587 (no Azure restrictions)
+- ✅ No Azure-specific configuration needed
 
 **Code Complexity:** Low (~50-100 lines)
 
@@ -50,36 +53,178 @@
 
 **Pros:**
 - ✅ Minimal dependencies (2 packages)
-- ✅ Most popular/documented solution
+- ✅ **Permanent free tier** (9,000 emails/month)
+- ✅ Most popular/documented solution (Nodemailer)
 - ✅ Works locally and in cloud
 - ✅ Simple implementation
-- ✅ SendGrid free tier covers typical usage (3,000 emails/month >> maintenance reminders)
-- ✅ Supports HTML templates, attachments if needed later
+- ✅ 300-900x more emails than typical usage (30-100 reminders/month)
+- ✅ Supports HTML templates, attachments
+- ✅ Strong deliverability
+- ✅ All-in-one platform (can add marketing features later)
 
 **Cons:**
 - ❌ Requires external service account/credentials
 - ❌ Third-party dependency for critical feature
-- ❌ SendGrid OAuth2 setup can be complex
-- ❌ Free tier limits could be restrictive for multi-user scaling
+- ❌ Daily limit (vs monthly) - but still 10x+ our needs
 
 **Cost Estimate:**
-- **Beta:** $0/month (SendGrid free tier)
-- **Production:** $0-15/month depending on user count
+- **Beta:** $0/month (Brevo free tier)
+- **Production:** $0/month (free tier sufficient for 100+ users)
+- **Scale-up:** $15/month for 20K emails if needed
 
-### 2. Azure Communication Services (ACS) Email
+**Typical Usage Calculation:**
+- 100 users × 2 reminders/month = 200 emails/month
+- Brevo free tier: 9,000/month
+- Headroom: **45x** usage capacity
 
-**Description:** Microsoft's first-party cloud email service with native Azure integration
+### 2. Nodemailer + MailerSend
+
+**Description:** Use Nodemailer with MailerSend, a developer-focused email API with permanent free tier.
+
+**MailerSend Free Tier (Permanent):**
+- **3,000 emails/month**
+- Free forever
+- No credit card required
+- API + SMTP support
+- Template editor, analytics included
+
+**Azure Compatibility:**
+- ✅ Works on Azure (all tiers)
+- ✅ SMTP on port 587
+
+**Code Complexity:** Low (~50-100 lines)
+
+**Dependencies:** Same as Brevo (nodemailer + node-cron)
+
+**Pros:**
+- ✅ Minimal dependencies (2 packages)
+- ✅ **Permanent free tier** (3,000 emails/month)
+- ✅ Developer-friendly API
+- ✅ Good documentation
+- ✅ 15-100x typical usage
+- ✅ Built-in template editor
+
+**Cons:**
+- ❌ Requires external service account
+- ❌ Lower monthly limit than Brevo (3K vs 9K)
+- ❌ No marketing features (transactional only)
+
+**Cost Estimate:**
+- **Beta:** $0/month
+- **Production:** $0/month (sufficient for 100+ users)
+
+### 3. Nodemailer + SMTP2GO
+
+**Description:** Use Nodemailer with SMTP2GO, a simple SMTP relay service.
+
+**SMTP2GO Free Tier (Permanent):**
+- **1,000 emails/month**
+- Free forever
+- Simple SMTP setup
+- Basic analytics included
+
+**Azure Compatibility:**
+- ✅ Works on Azure (all tiers)
+
+**Code Complexity:** Low (~50-100 lines)
+
+**Pros:**
+- ✅ Minimal dependencies (2 packages)
+- ✅ **Permanent free tier** (1,000 emails/month)
+- ✅ Very simple setup
+- ✅ 5-33x typical usage
+- ✅ Good for low-volume long-term
+
+**Cons:**
+- ❌ Lowest free tier limit (but still sufficient)
+- ❌ Fewer features than alternatives
+
+**Cost Estimate:**
+- **Beta:** $0/month
+- **Production:** $0/month (sufficient for 30-50 users)
+
+### 4. Nodemailer + Resend
+
+**Description:** Use Nodemailer with Resend, a modern developer-focused email API.
+
+**Resend Free Tier:**
+- **3,000 emails/month**
+- Free tier available (check latest terms)
+- API-first design
+- React email component support
+
+**Azure Compatibility:**
+- ✅ Works on Azure
+
+**Code Complexity:** Low (~50-100 lines)
+
+**Pros:**
+- ✅ Modern API
+- ✅ Developer-friendly
+- ✅ React component support
+
+**Cons:**
+- ❌ Newer service (less track record)
+- ❌ Free tier permanence unclear
+
+### 5. Self-Hosted with FreeResend + Amazon SES
+
+**Description:** Self-host a Resend-compatible API using FreeResend (open source) + Amazon SES for actual sending.
+
+**Implementation:**
+- Deploy FreeResend (Node.js app) on your infrastructure
+- Connect to Amazon SES for email delivery
+- Use Resend-compatible API
+
+**Amazon SES Pricing:**
+- First 3,000 emails/month: **FREE** (when sending from AWS-hosted apps)
+- After: $0.10 per 1,000 emails
+- Very economical for scale
+
+**Azure Compatibility:**
+- ⚠️ FreeResend would need separate hosting
+- ⚠️ SES free tier requires AWS-hosted app (doesn't apply to Azure)
+- 💰 Would cost ~$0.30/month for 3K emails from Azure
+
+**Code Complexity:** High (~200+ lines + infrastructure setup)
+
+**Dependencies:**
+```json
+{
+  "resend": "^1.x",  // or custom FreeResend client
+  "node-cron": "^3.0.x"
+}
+```
+
+**Pros:**
+- ✅ Fully self-hosted option
+- ✅ No third-party API dependencies
+- ✅ Very low cost at scale ($0.10 per 1K)
+- ✅ Complete control
+
+**Cons:**
+- ❌ Requires PostgreSQL for FreeResend
+- ❌ Requires AWS account + SES setup
+- ❌ Complex infrastructure (violates minimal dependencies philosophy)
+- ❌ SES free tier doesn't apply to Azure deployments
+- ❌ Deliverability setup (SPF, DKIM, domain verification)
+- ❌ Operational overhead
+
+**Cost Estimate:**
+- **Beta:** $0-5/month (FreeResend hosting + SES)
+- **Production:** $5-15/month
+
+### 6. Azure Communication Services (ACS) Email
+
+**Description:** Microsoft's first-party cloud email service with native Azure integration.
 
 **Implementation:**
 - Install `@azure/communication-email` SDK
 - Configure Azure Communication Service in portal
 - Verify custom domain (or use Azure-managed domain)
-- Use Azure AD or API keys for authentication
 
 **Azure Compatibility:**
 - ✅ Native Azure service
-- ✅ Integrates with Azure Identity, Monitoring, Key Vault
-- ✅ Built-in retry, suppression list management
 
 **Code Complexity:** Medium (~100-150 lines including Azure auth)
 
@@ -93,119 +238,59 @@
 ```
 
 **Pros:**
-- ✅ Cloud-native, no third-party SMTP credentials
-- ✅ Highly scalable and secure
+- ✅ Cloud-native
 - ✅ Azure SLA and support
 - ✅ Native monitoring/alerting
-- ✅ Good fit for Azure-only deployment
 
 **Cons:**
-- ❌ Requires Azure Portal setup (domain verification, resource creation)
+- ❌ **NOT suitable for local/self-hosted deployment** (critical requirement)
 - ❌ More dependencies (Azure SDK)
-- ❌ NOT suitable for local/self-hosted deployment
-- ❌ Less community documentation than Nodemailer
+- ❌ Requires Azure Portal setup
 - ❌ Pricing unclear for low-volume use
-- ❌ Service still evolving (fewer features than mature alternatives)
+- ❌ Ties project to Azure exclusively
 
 **Cost Estimate:**
-- **Beta:** ~$0-5/month (Azure Communication Services pricing)
+- **Beta:** ~$0-5/month
 - **Production:** ~$5-15/month
-- Note: Requires Azure account with payment method even for free tier
 
-### 3. Self-Hosted SMTP Server (Haraka)
+### 7. Gmail SMTP (Development Only)
 
-**Description:** Run your own lightweight SMTP server using Haraka (Node.js-based)
+**Description:** Use Gmail's SMTP server for development and testing.
 
-**Implementation:**
-- Install Haraka via npm
-- Configure as lightweight SMTP relay
-- Deploy alongside main app or as separate container
-- Use Nodemailer to send via local Haraka instance
-
-**Azure Compatibility:**
-- ⚠️ Requires dedicated container or VM
-- ⚠️ Need static outbound IP or relay service for deliverability
-- ⚠️ Azure blocks port 25, requires relay setup
-
-**Code Complexity:** High (~200-500 lines for Haraka config + app integration)
-
-**Dependencies:**
-```json
-{
-  "haraka": "^3.x",
-  "nodemailer": "^6.9.x",
-  "node-cron": "^3.0.x"
-}
-```
+**Gmail SMTP:**
+- 500 emails/day
+- Requires App Password (OAuth2)
+- Free
 
 **Pros:**
-- ✅ No third-party service dependency
-- ✅ Full control over email delivery
-- ✅ No per-email costs
-- ✅ Works locally and cloud
+- ✅ Free and easy for development
+- ✅ No signup required (use personal account)
 
 **Cons:**
-- ❌ Significant setup and maintenance overhead
-- ❌ Complex deliverability (SPF, DKIM, DMARC configuration)
-- ❌ IP reputation management needed
-- ❌ Emails likely to be marked as spam without proper setup
-- ❌ Violates "minimal dependencies" philosophy (heavy operational burden)
-- ❌ Not suitable for $0 Azure free tier (needs additional resources)
+- ❌ **NOT for production use**
+- ❌ Risk of account suspension
+- ❌ Not reliable for transactional emails
+- ❌ Rate limits
 
-**Cost Estimate:**
-- **Beta:** Not practical on F1 Free tier
-- **Production:** +$10-30/month (additional container/VM resources)
-
-### 4. Custom SMTP Client (Pure Node.js)
-
-**Description:** Write a minimal SMTP client from scratch using Node.js `net` or `tls` modules
-
-**Implementation:**
-- Implement SMTP protocol manually (~200-300 lines)
-- Connect directly to recipient MX servers
-- No external libraries
-
-**Azure Compatibility:**
-- ❌ Azure blocks port 25 (SMTP)
-- ❌ Would require SMTP relay anyway, defeating the purpose
-
-**Code Complexity:** Very High (~300-500 lines for robust implementation)
-
-**Dependencies:** None (stdlib only)
-
-**Pros:**
-- ✅ Zero dependencies
-- ✅ Educational value
-
-**Cons:**
-- ❌ Violates "only add a library if writing the code would take significant effort" guideline
-- ❌ Reinventing the wheel
-- ❌ No authentication, TLS, or modern SMTP features without significant work
-- ❌ Poor deliverability (no DKIM, SPF)
-- ❌ Azure port 25 restriction makes this impractical
-- ❌ High maintenance burden for future AI-generated code
-
-**Cost Estimate:**
-- Not viable due to Azure restrictions
+**Use Case:** Local development only, switch to proper service before deployment
 
 ## Comparison Matrix
 
-| Criteria | Nodemailer + SMTP | Azure Comm Services | Self-Hosted (Haraka) | Custom SMTP |
-|----------|-------------------|---------------------|----------------------|-------------|
-| **Minimal Dependencies** | ✅ Excellent (2 packages) | ⚠️ Good (3 packages) | ❌ Poor (3+ packages + ops) | ✅ Perfect (0 packages) |
-| **Implementation Complexity** | ✅ Low | ⚠️ Medium | ❌ High | ❌ Very High |
-| **Azure Compatibility** | ✅ Excellent | ✅ Native | ⚠️ Possible but complex | ❌ Blocked |
-| **Local Deployment** | ✅ Yes | ❌ No | ✅ Yes | ⚠️ Difficult |
-| **Cost (Beta)** | ✅ $0 | ⚠️ $0-5 | ❌ Not viable | ❌ Not viable |
-| **Cost (Production)** | ✅ $0-15 | ⚠️ $5-15 | ❌ $10-30+ | ❌ N/A |
-| **Maintenance Burden** | ✅ Low | ⚠️ Medium | ❌ High | ❌ Very High |
-| **Deliverability** | ✅ Excellent (provider-managed) | ✅ Excellent | ⚠️ Poor (requires work) | ❌ Very Poor |
-| **Community Support** | ✅ Extensive | ⚠️ Growing | ⚠️ Limited | ❌ DIY |
-| **AI Code Generation** | ✅ Well-suited | ⚠️ Moderate | ❌ Complex | ❌ Not recommended |
+| Criteria | Brevo | MailerSend | SMTP2GO | Resend | FreeResend+SES | ACS Email | Gmail |
+|----------|-------|------------|---------|--------|----------------|-----------|-------|
+| **Free Tier** | 9K/mo | 3K/mo | 1K/mo | 3K/mo | ~$0.30/mo | ~$5/mo | Dev only |
+| **Permanent Free** | ✅ Yes | ✅ Yes | ✅ Yes | ⚠️ Unclear | ❌ Paid | ❌ Paid | ✅ Yes |
+| **Local Deploy** | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes | ❌ No | ✅ Yes |
+| **Azure Compat** | ✅ Perfect | ✅ Perfect | ✅ Perfect | ✅ Good | ⚠️ Complex | ✅ Native | ✅ Works |
+| **Dependencies** | 2 packages | 2 packages | 2 packages | 2 packages | 2-3 + infra | 3 packages | 2 packages |
+| **Complexity** | ✅ Low | ✅ Low | ✅ Low | ✅ Low | ❌ High | ⚠️ Medium | ✅ Low |
+| **Deliverability** | ✅ Excellent | ✅ Excellent | ✅ Good | ✅ Good | ⚠️ DIY setup | ✅ Excellent | ❌ Poor |
+| **Support** | ✅ Good | ✅ Good | ✅ Basic | ⚠️ Growing | ❌ Community | ✅ Azure | ❌ None |
+| **Self-Host Viable** | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Best | ❌ No | ⚠️ Dev only |
 
 ## Recommendation
 
-**Solution: Nodemailer + SendGrid (SMTP)**
+**Solution: Nodemailer + Brevo (SMTP)**
 
 ### Rationale
 
@@ -217,24 +302,43 @@
 2. **Meets all requirements:**
    - ✅ Works on Azure (all tiers, no special configuration)
    - ✅ Works locally (for development and self-hosted deployments)
-   - ✅ $0 cost for beta (SendGrid 3,000/month >> maintenance reminders)
-   - ✅ Low cost for production (free tier covers most scenarios)
+   - ✅ **Permanent free tier** (9,000 emails/month)
+   - ✅ $0 cost for beta AND production
+   - ✅ 45x headroom over typical usage
 
-3. **AI-friendly:**
+3. **Self-hosting compatible:**
+   - Users can run the app locally or on their own servers
+   - Just need to configure SMTP credentials in environment variables
+   - No Azure lock-in
+   - No infrastructure dependencies
+
+4. **AI-friendly:**
    - Extensive documentation and examples
    - Simple, predictable API
    - Easy for future AI agents to understand and modify
 
-4. **Scalability:**
-   - SendGrid free tier: 3,000 emails/month
+5. **Scalability:**
+   - Brevo free tier: 9,000 emails/month (300/day)
    - Typical usage: ~30-100 users × 1-2 reminders/month = 30-200 emails/month
-   - 15x-100x headroom on free tier
-   - Easy upgrade path if needed ($15/month for 40K emails)
+   - **45x-300x headroom on free tier**
+   - Easy upgrade path if needed ($15-25/month for 20K-40K emails)
 
-5. **Avoids over-engineering:**
+6. **Avoids over-engineering:**
    - Self-hosted SMTP is overkill for maintenance reminders
-   - Custom SMTP client violates project principles
-   - ACS ties project to Azure unnecessarily
+   - FreeResend+SES adds unnecessary infrastructure complexity
+   - ACS ties project to Azure (violates self-hosting requirement)
+
+### Why Not MailerSend or SMTP2GO?
+
+Both are excellent alternatives:
+- **MailerSend:** 3,000/month (15x+ headroom) - great choice if preferred
+- **SMTP2GO:** 1,000/month (5x+ headroom) - sufficient but less buffer
+
+**Brevo wins** because:
+- 3x more free emails than MailerSend
+- 9x more than SMTP2GO
+- More room for growth without upgrading
+- All-in-one platform (can add features later)
 
 ### Implementation Plan
 
@@ -242,11 +346,11 @@
 // 1. Install dependencies
 npm install nodemailer node-cron
 
-// 2. Configure in environment variables
-SMTP_HOST=smtp.sendgrid.net
+// 2. Configure in environment variables (.env)
+SMTP_HOST=smtp-relay.brevo.com
 SMTP_PORT=587
-SMTP_USER=apikey
-SMTP_PASSWORD=<SendGrid API key>
+SMTP_USER=<Brevo login email>
+SMTP_PASSWORD=<Brevo SMTP key>
 SMTP_FROM=noreply@yourdomain.com
 
 // 3. Create email service (50-75 lines)
@@ -255,29 +359,44 @@ SMTP_FROM=noreply@yourdomain.com
 // - Handle errors gracefully
 
 // 4. Create scheduler service (25-50 lines)
-// - Use node-cron to check daily (or on app startup)
+// - Use node-cron to check daily at 9am
 // - Query generators where:
 //   - (totalHours - lastOilChangeHours) >= oilChangeHours OR
 //   - months_since(lastOilChangeDate) >= oilChangeMonths
 // - Send reminder email to user
-// - Log sent emails (optional: store in DB to avoid duplicates)
+// - Log sent emails (store in DB to avoid duplicates)
 
-// 5. Test with development SMTP (Mailtrap.io or similar)
+// 5. Test with Brevo account
 ```
 
-### Alternative: Gmail SMTP (Development Only)
+### Setup Instructions for Users
 
-For local development and testing, Gmail SMTP can be used:
-- Free and easy setup
-- 500 emails/day limit
-- Requires "App Password" (not suitable for production)
-- Good for testing without creating SendGrid account initially
+**Brevo Account Setup:**
+1. Create free account at [brevo.com](https://www.brevo.com/)
+2. Verify email address
+3. Go to Settings > SMTP & API
+4. Copy SMTP credentials
+5. Add to `.env` file
 
-**Switch to SendGrid before beta deployment.**
+**For Self-Hosting:**
+- Users provide their own Brevo account credentials
+- Or use any other SMTP provider (Gmail for dev, MailerSend, SMTP2GO, etc.)
+- Just change environment variables - no code changes needed
+
+## Alternative Providers (If Brevo Not Preferred)
+
+All use the same Nodemailer implementation - just change SMTP settings:
+
+| Provider | SMTP Host | Port | Free Tier | Setup |
+|----------|-----------|------|-----------|-------|
+| **Brevo** | smtp-relay.brevo.com | 587 | 9K/mo | [brevo.com](https://www.brevo.com/) |
+| **MailerSend** | smtp.mailersend.net | 587 | 3K/mo | [mailersend.com](https://www.mailersend.com/) |
+| **SMTP2GO** | mail.smtp2go.com | 2525/587 | 1K/mo | [smtp2go.com](https://www.smtp2go.com/) |
+| **Resend** | smtp.resend.com | 587 | 3K/mo | [resend.com](https://resend.com/) |
 
 ## Next Steps
 
-1. **Approval Required:** Confirm approach with user
+1. **Approval Required:** Confirm Brevo (or alternative) approach with user
 2. **Create ADR:** Document decision in `docs/adr/0004-email-notifications.md`
 3. **Implementation Tasks:**
    - Add environment variables to `.env.example`
@@ -285,13 +404,16 @@ For local development and testing, Gmail SMTP can be used:
    - Create `backend/src/services/scheduler.ts`
    - Add tests for email service (mock SMTP)
    - Update README with email configuration instructions
-   - Document SendGrid setup steps
+   - Document Brevo setup steps for self-hosting users
 
 ## References
 
 - [Nodemailer Documentation](https://nodemailer.com/)
 - [node-cron Documentation](https://nodecron.com/)
-- [SendGrid Free Tier Details](https://sendgrid.com/pricing/)
+- [Brevo (Sendinblue) Free Tier](https://www.brevo.com/pricing/)
+- [MailerSend Pricing](https://www.mailersend.com/pricing)
+- [SMTP2GO Pricing](https://www.smtp2go.com/pricing/)
 - [Azure SMTP Restrictions](https://docs.microsoft.com/en-us/azure/virtual-network/troubleshoot-outbound-smtp-connectivity)
-- [Azure Communication Services Email](https://learn.microsoft.com/en-us/azure/communication-services/concepts/email/email-overview)
+- [SendGrid Free Tier Discontinuation (July 2025)](https://www.twilio.com/en-us/changelog/sendgrid-free-plan)
 - [Transactional Email Services Comparison (2026)](https://mailtrap.io/blog/transactional-email-services/)
+- [Best Free Transactional Email Services 2026](https://www.emailtooltester.com/en/blog/best-transactional-email-service/)
