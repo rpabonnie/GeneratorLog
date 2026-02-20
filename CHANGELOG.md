@@ -43,7 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Version synchronization scripts for monorepo
 
 ### Infrastructure
-- TypeScript + Node.js 25.2.1 backend with Fastify framework
+- TypeScript + Node.js 26.1.1 backend with Fastify framework
 - React + TypeScript frontend with Vite build system
 - PostgreSQL 16 database with Drizzle ORM
 - pnpm workspace monorepo structure

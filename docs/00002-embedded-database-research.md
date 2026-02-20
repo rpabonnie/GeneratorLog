@@ -9,7 +9,7 @@
 This document evaluates embedded database solutions for GeneratorLog that can work in a single Docker container without external database servers. The goal is to simplify deployment while maintaining data persistence through Docker volume mounts.
 
 **Project Requirements**:
-- TypeScript/Node.js 25.2.1 compatibility
+- TypeScript/Node.js 26.1.1 compatibility
 - Drizzle ORM support
 - File-based persistence that survives container restarts
 - Suitable for low-traffic home automation (not high-scale)
@@ -480,7 +480,7 @@ DuckDB is the wrong tool for GeneratorLog:
 Bun (JavaScript runtime) includes a built-in SQLite implementation with zero dependencies.
 
 ### Technical Specifications
-- **Availability**: Only in Bun runtime (not Node.js 25.2.1)
+- **Availability**: Only in Bun runtime (not Node.js 26.1.1)
 - **API**: Native Bun.js API
 - **Performance**: Highly optimized, faster than better-sqlite3
 - **Zero Install**: Built into Bun runtime
@@ -499,7 +499,7 @@ const db = drizzle(sqlite);
 ### Critical Limitation
 ❌ **Requires Bun Runtime**
 
-GeneratorLog uses **Node.js 25.2.1** (per `.node-version` file), so Bun SQLite is **NOT COMPATIBLE**.
+GeneratorLog uses **Node.js 26.1.1** (per `.node-version` file), so Bun SQLite is **NOT COMPATIBLE**.
 
 ### Use Case Fit for GeneratorLog: 0/10
 ❌ **Not Applicable**
@@ -546,7 +546,7 @@ Would be excellent if using Bun, but project uses Node.js.
 | **PostgreSQL Compatibility** | ❌ No | ❌ No | ✅ Full | ⚠️ SQL | ❌ No |
 | **Concurrency** | ⭐⭐⭐ | ⭐⭐⭐ | ⭐ (single) | ⭐⭐⭐⭐ | ⭐⭐⭐ |
 | **Use Case Fit** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐ | ⭐ | ❌ N/A |
-| **Node.js 25.2.1** | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes | ❌ Bun only |
+| **Node.js 26.1.1** | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes | ❌ Bun only |
 
 ### Scoring Legend
 - ⭐⭐⭐⭐⭐ Excellent
@@ -650,7 +650,7 @@ export const db = drizzle(client);
 
 **PGlite**: ❌ Alpha status, single-connection limitation
 **DuckDB**: ❌ Wrong tool (OLAP not OLTP), no Drizzle support
-**Bun SQLite**: ❌ Not compatible with Node.js 25.2.1
+**Bun SQLite**: ❌ Not compatible with Node.js 26.1.1
 **LowDB/LevelDB**: ❌ No SQL, no Drizzle support
 
 ---

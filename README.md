@@ -18,7 +18,7 @@ Choose your deployment method:
 
 ## Technology Stack
 
-- **Backend**: TypeScript + Node.js 25.2.1 + Fastify
+- **Backend**: TypeScript + Node.js 26.1.1 + Fastify
 - **Frontend**: React + TypeScript + Vite
 - **Database**: PostgreSQL 16 (cloud or self-hosted)
 - **ORM**: Drizzle ORM + Zod validation
@@ -72,7 +72,7 @@ Run on your own hardware with Docker:
 ## Prerequisites
 
 ### For Development
-- **Node.js 25.2.1** (use nvm: `nvm install 25.2.1`)
+- **Node.js 26.1.1** (use nvm: `nvm install 26.1.1`)
 - **Docker** and **docker-compose**
 - **Git**
 

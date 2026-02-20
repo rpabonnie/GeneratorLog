@@ -263,4 +263,93 @@ describe('Generator Configuration Routes', () => {
       expect(response.statusCode).toBe(401);
     });
   });
+
+  describe('POST /api/generators/:id/toggle', () => {
+    let generatorId: number;
+
+    beforeEach(async () => {
+      const resp = await app.inject({
+        method: 'POST',
+        url: '/api/generators',
+        headers: { cookie: testCookie },
+        payload: { name: 'Toggle Generator' },
+      });
+      generatorId = JSON.parse(resp.body).id;
+    });
+
+    it('should start a stopped generator', async () => {
+      const response = await app.inject({
+        method: 'POST',
+        url: `/api/generators/${generatorId}/toggle`,
+        headers: { cookie: testCookie },
+      });
+
+      expect(response.statusCode).toBe(200);
+      const body = JSON.parse(response.body);
+      expect(body.status).toBe('started');
+      expect(body.isRunning).toBe(true);
+      expect(body.startTime).toBeDefined();
+    });
+
+    it('should stop a running generator and create a usage log', async () => {
+      // Start first
+      await app.inject({
+        method: 'POST',
+        url: `/api/generators/${generatorId}/toggle`,
+        headers: { cookie: testCookie },
+      });
+
+      const response = await app.inject({
+        method: 'POST',
+        url: `/api/generators/${generatorId}/toggle`,
+        headers: { cookie: testCookie },
+      });
+
+      expect(response.statusCode).toBe(200);
+      const body = JSON.parse(response.body);
+      expect(body.status).toBe('stopped');
+      expect(body.isRunning).toBe(false);
+      expect(body.durationHours).toBeGreaterThanOrEqual(0);
+      expect(body.totalHours).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should return updated generator state after start', async () => {
+      await app.inject({
+        method: 'POST',
+        url: `/api/generators/${generatorId}/toggle`,
+        headers: { cookie: testCookie },
+      });
+
+      const genResp = await app.inject({
+        method: 'GET',
+        url: `/api/generators/${generatorId}`,
+        headers: { cookie: testCookie },
+      });
+      expect(JSON.parse(genResp.body).isRunning).toBe(true);
+    });
+
+    it('should return 401 without authentication', async () => {
+      const response = await app.inject({
+        method: 'POST',
+        url: `/api/generators/${generatorId}/toggle`,
+      });
+      expect(response.statusCode).toBe(401);
+    });
+
+    it('should return 404 for another user generator', async () => {
+      await app.inject({
+        method: 'POST',
+        url: '/api/auth/enroll',
+        payload: { email: 'toggle-other@example.com', password: TEST_PASSWORD },
+      });
+      const otherCookie = await loginAs(app, 'toggle-other@example.com');
+
+      const response = await app.inject({
+        method: 'POST',
+        url: `/api/generators/${generatorId}/toggle`,
+        headers: { cookie: otherCookie },
+      });
+      expect(response.statusCode).toBe(404);
+    });
+  });
 });

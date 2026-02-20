@@ -1,12 +1,23 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { DashboardPage } from './components/DashboardPage';
 import { EnrollmentPage } from './components/EnrollmentPage';
 import { LoginPage } from './components/LoginPage';
 import { ProfilePage } from './components/ProfilePage';
 import { ApiKeysPage } from './components/ApiKeysPage';
+import { GeneratorLogsPage } from './components/GeneratorLogsPage';
+import { DownloadsPage } from './components/DownloadsPage';
 import { Layout } from './components/Layout';
 import { api } from './utils/api';
 import './App.css';
+
+function ProtectedRoute({ isAuthenticated, children }: {
+  isAuthenticated: boolean;
+  children: React.ReactNode;
+}) {
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  return <Layout>{children}</Layout>;
+}
 
 function App() {
   // null = still checking, true = authenticated, false = not authenticated
@@ -18,9 +29,7 @@ function App() {
       .catch(() => setIsAuthenticated(false));
   }, []);
 
-  if (isAuthenticated === null) {
-    return null;
-  }
+  if (isAuthenticated === null) return null;
 
   return (
     <BrowserRouter>
@@ -29,30 +38,42 @@ function App() {
         <Route path="/enroll" element={<EnrollmentPage />} />
         <Route
           path="/"
-          element={<Navigate to={isAuthenticated ? '/profile' : '/login'} replace />}
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
         />
         <Route
           path="/profile"
           element={
-            isAuthenticated ? (
-              <Layout>
-                <ProfilePage />
-              </Layout>
-            ) : (
-              <Navigate to="/login" replace />
-            )
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/logs"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <GeneratorLogsPage />
+            </ProtectedRoute>
           }
         />
         <Route
           path="/api-keys"
           element={
-            isAuthenticated ? (
-              <Layout>
-                <ApiKeysPage />
-              </Layout>
-            ) : (
-              <Navigate to="/login" replace />
-            )
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ApiKeysPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/downloads"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <DownloadsPage />
+            </ProtectedRoute>
           }
         />
       </Routes>

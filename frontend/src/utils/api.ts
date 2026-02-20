@@ -1,4 +1,4 @@
-import type { User, Generator, ApiKey, ApiError } from '../types';
+import type { User, Generator, ApiKey, UsageLog, OilChangeEntry, ToggleResult, ApiError } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -119,6 +119,63 @@ class ApiClient {
     return this.request<ApiKey>(`/api/api-keys/${id}/reset`, {
       method: 'POST',
       body: JSON.stringify({}),
+    });
+  }
+
+  async getUsageLogs(generatorId: number): Promise<UsageLog[]> {
+    return this.request<UsageLog[]>(`/api/generators/${generatorId}/logs`);
+  }
+
+  async createUsageLog(
+    generatorId: number,
+    data: { startTime: string; endTime?: string }
+  ): Promise<UsageLog> {
+    return this.request<UsageLog>(`/api/generators/${generatorId}/logs`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateUsageLog(
+    generatorId: number,
+    logId: number,
+    data: { startTime?: string; endTime?: string | null }
+  ): Promise<UsageLog> {
+    return this.request<UsageLog>(`/api/generators/${generatorId}/logs/${logId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteUsageLog(generatorId: number, logId: number): Promise<void> {
+    return this.request<void>(`/api/generators/${generatorId}/logs/${logId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getOilChangeHistory(generatorId: number): Promise<OilChangeEntry[]> {
+    return this.request<OilChangeEntry[]>(`/api/generators/${generatorId}/oil-changes`);
+  }
+
+  async logOilChange(
+    generatorId: number,
+    data: { performedAt?: string; notes?: string }
+  ): Promise<OilChangeEntry> {
+    return this.request<OilChangeEntry>(`/api/generators/${generatorId}/oil-changes`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteOilChange(generatorId: number, changeId: number): Promise<void> {
+    return this.request<void>(`/api/generators/${generatorId}/oil-changes/${changeId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async toggleGenerator(generatorId: number): Promise<ToggleResult> {
+    return this.request<ToggleResult>(`/api/generators/${generatorId}/toggle`, {
+      method: 'POST',
     });
   }
 }

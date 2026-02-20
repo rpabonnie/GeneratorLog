@@ -14,10 +14,10 @@ The testing workflow allows you to verify the GeneratorLog API functionality wit
 
 ### Required
 
-- **Node.js 25.2.1**: Install with nvm
+- **Node.js 26.1.1**: Install with nvm
   ```bash
-  nvm install 25.2.1
-  nvm use 25.2.1
+  nvm install 26.1.1
+  nvm use 26.1.1
   ```
 - **pnpm**: Package manager
   ```bash
