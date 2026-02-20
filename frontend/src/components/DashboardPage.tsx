@@ -33,11 +33,6 @@ function formatElapsed(ms: number): string {
   return h > 0 ? `${h}h ${m}m` : `${m}m ${s}s`;
 }
 
-function toDateTimeLocal(iso: string | null): string {
-  if (!iso) return '';
-  return iso.slice(0, 16);
-}
-
 // ── SVG Gauge ─────────────────────────────────────────────────────────────────
 
 function Gauge({ value, max, label, unit }: {

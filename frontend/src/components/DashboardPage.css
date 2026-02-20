@@ -212,11 +212,16 @@
 .section-header h2 { margin: 0; }
 
 /* ── Run Bar Chart ── */
-.run-chart-wrap { overflow-x: auto; }
+.run-chart-wrap {
+  overflow-x: auto;
+  max-width: 100%;
+}
 
 .run-chart-svg {
   min-width: 200px;
-  width: 100%;
+  max-width: 500px;
+  width: auto;
+  height: auto;
   display: block;
 }
 
