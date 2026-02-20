@@ -1,0 +1,443 @@
+.dashboard-page {
+  min-height: 100vh;
+  padding: 2rem;
+  background: #f7fafc;
+}
+
+.dashboard-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.dashboard-container h1 {
+  margin: 0 0 0.25rem 0;
+  color: #1a202c;
+  font-size: 2.5rem;
+}
+
+.subtitle {
+  color: #718096;
+  margin: 0 0 2rem 0;
+  font-size: 1.1rem;
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.2rem;
+  color: #718096;
+}
+
+.error-message {
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  background: #fee;
+  border: 1px solid #fcc;
+  border-radius: 8px;
+  color: #c53030;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.05);
+  color: #718096;
+}
+
+.setup-link {
+  display: inline-block;
+  margin-top: 1rem;
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.setup-link:hover { text-decoration: underline; }
+
+/* ── Stat Cards ── */
+.stat-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.05);
+}
+
+.stat-card h2 {
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #4a5568;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.stat-card-header {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: 1rem;
+}
+
+.stat-card-header h2 { margin: 0; }
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-dot.running { background: #48bb78; box-shadow: 0 0 6px rgba(72,187,120,.6); }
+.status-dot.stopped { background: #a0aec0; }
+
+.status-badge {
+  display: inline-block;
+  padding: .375rem .875rem;
+  border-radius: 9999px;
+  font-size: .95rem;
+  font-weight: 700;
+  margin-bottom: .75rem;
+}
+
+.badge-running { background: #c6f6d5; color: #276749; }
+.badge-stopped { background: #edf2f7; color: #4a5568; }
+
+.stat-detail {
+  margin: .25rem 0 0 0;
+  font-size: .9rem;
+  color: #718096;
+}
+
+/* ── Toggle Button ── */
+.toggle-button {
+  display: block;
+  width: 100%;
+  margin-top: 1rem;
+  padding: .75rem 1rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .2s, transform .1s;
+}
+
+.toggle-button:disabled { opacity: .6; cursor: not-allowed; }
+
+.toggle-button:not(:disabled):active { transform: scale(.97); }
+
+.toggle-start {
+  background: #48bb78;
+  color: white;
+}
+
+.toggle-start:hover:not(:disabled) { background: #38a169; }
+
+.toggle-stop {
+  background: #e53e3e;
+  color: white;
+}
+
+.toggle-stop:hover:not(:disabled) { background: #c53030; }
+
+.toggle-error {
+  margin: .5rem 0 0 0;
+  font-size: .85rem;
+  color: #c53030;
+}
+
+/* ── SVG Gauge ── */
+.gauge-wrap { text-align: center; }
+
+.gauge-svg {
+  width: 100%;
+  max-width: 180px;
+  display: block;
+  margin: 0 auto;
+}
+
+.gauge-value-text {
+  font-size: 22px;
+  font-weight: 700;
+  fill: #1a202c;
+}
+
+.gauge-max-text {
+  font-size: 11px;
+  fill: #718096;
+}
+
+.gauge-status-text {
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.gauge-label {
+  font-size: .8rem;
+  color: #718096;
+  margin-top: .25rem;
+}
+
+/* ── Dashboard Sections ── */
+.dashboard-section {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.05);
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-section h2 {
+  margin: 0 0 1.25rem 0;
+  font-size: 1.15rem;
+  color: #2d3748;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.section-header h2 { margin: 0; }
+
+/* ── Run Bar Chart ── */
+.run-chart-wrap { overflow-x: auto; }
+
+.run-chart-svg {
+  min-width: 200px;
+  width: 100%;
+  display: block;
+}
+
+.chart-label {
+  font-size: 9px;
+  fill: #718096;
+}
+
+.chart-bar-val {
+  font-size: 8px;
+  fill: #4a5568;
+}
+
+.chart-empty {
+  color: #718096;
+  text-align: center;
+  padding: 1.5rem 0;
+  margin: 0;
+}
+
+/* ── Oil Change Form ── */
+.oil-change-form {
+  background: #f7fafc;
+  padding: 1.25rem;
+  border-radius: 8px;
+  margin-bottom: 1.25rem;
+}
+
+.oil-change-form .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+}
+
+.form-group label {
+  font-size: .875rem;
+  font-weight: 500;
+  color: #4a5568;
+}
+
+.form-group input {
+  padding: .65rem .875rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: .95rem;
+  color: #2d3748;
+  background: white;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102,126,234,.1);
+}
+
+.form-actions {
+  display: flex;
+  gap: .75rem;
+}
+
+.primary-button {
+  padding: .65rem 1.25rem;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: .95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .2s;
+}
+
+.primary-button:hover:not(:disabled) { background: #5568d3; }
+.primary-button:disabled { opacity: .6; cursor: not-allowed; }
+
+.cancel-button {
+  padding: .65rem 1.25rem;
+  background: #edf2f7;
+  color: #2d3748;
+  border: none;
+  border-radius: 6px;
+  font-size: .95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .2s;
+}
+
+.cancel-button:hover { background: #e2e8f0; }
+
+/* ── Oil Change List ── */
+.oil-change-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: .625rem;
+}
+
+.oil-change-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: .875rem 1rem;
+  background: #f7fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.oil-change-info {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.oil-change-info strong { color: #2d3748; }
+
+.oil-hours {
+  font-size: .875rem;
+  color: #718096;
+}
+
+.oil-notes {
+  font-size: .875rem;
+  color: #4a5568;
+  font-style: italic;
+}
+
+.delete-oil-change-button {
+  background: none;
+  border: none;
+  color: #a0aec0;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: .25rem .5rem;
+  border-radius: 4px;
+  transition: color .15s;
+  flex-shrink: 0;
+}
+
+.delete-oil-change-button:hover { color: #e53e3e; }
+
+.empty-list {
+  color: #718096;
+  margin: 0;
+  font-size: .95rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .stat-cards { grid-template-columns: 1fr; }
+
+  .oil-change-form .form-row { grid-template-columns: 1fr; }
+
+  .form-actions { flex-direction: column; }
+
+  .primary-button,
+  .cancel-button { width: 100%; }
+}
+
+/* ── Dark Mode ── */
+@media (prefers-color-scheme: dark) {
+  .dashboard-page { background: #1a202c; }
+
+  .dashboard-container h1 { color: #f7fafc; }
+
+  .subtitle { color: #cbd5e0; }
+
+  .stat-card,
+  .dashboard-section { background: #2d3748; }
+
+  .stat-card h2,
+  .dashboard-section h2 { color: #e2e8f0; }
+
+  .stat-detail { color: #cbd5e0; }
+
+  .gauge-value-text { fill: #f7fafc; }
+
+  .gauge-max-text { fill: #a0aec0; }
+
+  .badge-stopped { background: #4a5568; color: #e2e8f0; }
+
+  .oil-change-form { background: #1a202c; }
+
+  .form-group label { color: #cbd5e0; }
+
+  .form-group input {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: #f7fafc;
+  }
+
+  .cancel-button { background: #4a5568; color: #e2e8f0; }
+
+  .oil-change-entry {
+    background: #1a202c;
+    border-color: #4a5568;
+  }
+
+  .oil-change-info strong { color: #e2e8f0; }
+
+  .oil-notes { color: #a0aec0; }
+
+  .chart-label { fill: #a0aec0; }
+
+  .chart-bar-val { fill: #cbd5e0; }
+
+  .toggle-error { color: #fc8181; }
+
+  .loading,
+  .chart-empty,
+  .empty-list { color: #cbd5e0; }
+
+  .empty-state { background: #2d3748; color: #cbd5e0; }
+}
