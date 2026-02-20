@@ -52,3 +52,12 @@ export const sessions = pgTable('sessions', {
   expiresAt: timestamp('expires_at').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
+
+export const oilChangeHistory = pgTable('oil_change_history', {
+  id: serial('id').primaryKey(),
+  generatorId: integer('generator_id').notNull().references(() => generators.id, { onDelete: 'cascade' }),
+  performedAt: timestamp('performed_at').notNull(),
+  hoursAtChange: doublePrecision('hours_at_change').notNull(),
+  notes: varchar('notes', { length: 500 }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});

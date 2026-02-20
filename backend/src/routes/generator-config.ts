@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { getDb } from '../db/index.js';
 import * as schema from '../db/schema.js';
 import { eq, and } from 'drizzle-orm';
+import { toggleGenerator } from '../services/generator.js';
 
 const createGeneratorSchema = z.object({
   name: z.string().min(1),
@@ -248,6 +249,31 @@ export async function generatorConfigRoutes(app: FastifyInstance) {
       return reply.status(500).send({
         error: 'Internal server error',
       });
+    }
+  });
+
+  app.post('/api/generators/:id/toggle', async (request, reply) => {
+    const userId = getUserId(request);
+    if (!userId) return reply.status(401).send({ error: 'Not authenticated' });
+
+    const generatorId = parseInt((request.params as { id: string }).id, 10);
+    if (isNaN(generatorId)) return reply.status(400).send({ error: 'Invalid generator ID' });
+
+    const db = getDb();
+    const [generator] = await db
+      .select()
+      .from(schema.generators)
+      .where(and(eq(schema.generators.id, generatorId), eq(schema.generators.userId, userId)))
+      .limit(1);
+
+    if (!generator) return reply.status(404).send({ error: 'Generator not found' });
+
+    try {
+      const result = await toggleGenerator(generatorId);
+      return reply.send(result);
+    } catch (error) {
+      app.log.error(error);
+      return reply.status(500).send({ error: 'Internal server error' });
     }
   });
 }

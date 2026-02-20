@@ -1,5 +1,5 @@
 # Backend Dockerfile
-FROM node:25.2.1-alpine AS base
+FROM node:26.1.1-alpine AS base
 
 WORKDIR /app
 

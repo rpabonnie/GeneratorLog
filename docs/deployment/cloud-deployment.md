@@ -447,7 +447,7 @@ See Azure documentation for auto-scale rules.
 1. Check logs: `az webapp log tail --name generatorlog --resource-group generatorlog-rg`
 2. Verify environment variables are set correctly
 3. Ensure DATABASE_URL is accessible from Azure
-4. Check Node.js version matches (25.2.1)
+4. Check Node.js version matches (26.1.1)
 
 ### Database Connection Errors
 1. Verify connection string format

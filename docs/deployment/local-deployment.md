@@ -237,7 +237,7 @@ curl http://localhost:3000/health
 
 For running directly on the host system without Docker.
 
-### Step 1: Install Node.js 25.2.1
+### Step 1: Install Node.js 26.1.1
 
 #### Using nvm (Recommended)
 ```bash
@@ -247,10 +247,10 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 # Reload shell
 source ~/.bashrc
 
-# Install Node.js 25.2.1
-nvm install 25.2.1
-nvm use 25.2.1
-nvm alias default 25.2.1
+# Install Node.js 26.1.1
+nvm install 26.1.1
+nvm use 26.1.1
+nvm alias default 26.1.1
 ```
 
 #### Using Package Manager

@@ -122,7 +122,7 @@ If using **.NET/C#**:
 - **Only external packages**: Npgsql, Dapper (optional)
 
 If using **TypeScript/Node.js** (SELECTED):
-- Node.js 25.2.1
+- Node.js 26.1.1
 - Fastify (not Express or Next.js)
 - `pg` client for PostgreSQL
 - Drizzle ORM (lightweight, type-safe, minimal abstraction)

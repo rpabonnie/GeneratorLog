@@ -31,11 +31,20 @@ export function Layout({ children }: LayoutProps) {
             GeneratorLog
           </Link>
           <div className="nav-links">
-            <Link to="/profile" className={`nav-link ${isActive('/profile')}`}>
-              Profile
+            <Link to="/" className={`nav-link ${isActive('/')}`}>
+              Dashboard
+            </Link>
+            <Link to="/logs" className={`nav-link ${isActive('/logs')}`}>
+              Run Log
             </Link>
             <Link to="/api-keys" className={`nav-link ${isActive('/api-keys')}`}>
               API Keys
+            </Link>
+            <Link to="/downloads" className={`nav-link ${isActive('/downloads')}`}>
+              Downloads
+            </Link>
+            <Link to="/profile" className={`nav-link ${isActive('/profile')}`}>
+              Settings
             </Link>
             <button onClick={handleLogout} className="nav-logout">
               Sign Out

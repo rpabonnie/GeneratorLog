@@ -1,13 +1,14 @@
 {
   "version": "0.2.0",
   "configurations": [
+    
     {
       "name": "Debug Backend (tsx)",
       "type": "node",
       "request": "launch",
       "cwd": "${workspaceFolder}/backend",
-      "runtimeExecutable": "${userHome}/.local/share/fnm/node-versions/v25.2.1/installation/bin/node",
-      "runtimeArgs": ["${userHome}/.local/share/fnm/node-versions/v25.2.1/installation/bin/pnpm", "dev"],
+      "runtimeExecutable": "${userHome}/.local/share/fnm/node-versions/v26.1.1/installation/bin/node",
+      "runtimeArgs": ["${userHome}/.local/share/fnm/node-versions/v26.1.1/installation/bin/pnpm", "dev"],
       "skipFiles": ["<node_internals>/**"],
       "presentation": {
         "hidden": false,
@@ -37,17 +38,47 @@
       "type": "node",
       "request": "launch",
       "cwd": "${workspaceFolder}/backend",
-      "runtimeExecutable": "${userHome}/.local/share/fnm/node-versions/v25.2.1/installation/bin/node",
-      "runtimeArgs": ["${userHome}/.local/share/fnm/node-versions/v25.2.1/installation/bin/pnpm", "test"],
+      "runtimeExecutable": "${userHome}/.local/share/fnm/node-versions/v26.1.1/installation/bin/node",
+      "runtimeArgs": ["${userHome}/.local/share/fnm/node-versions/v26.1.1/installation/bin/pnpm", "test"],
       "skipFiles": ["<node_internals>/**"],
       "presentation": {
         "hidden": false,
         "group": "test",
         "order": 1
       }
+    },
+    {
+      "name": "Start Frontend",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/frontend",
+      "runtimeExecutable": "${userHome}/.local/share/fnm/node-versions/v26.1.1/installation/bin/node",
+      "runtimeArgs": ["${userHome}/.local/share/fnm/node-versions/v26.1.1/installation/bin/pnpm", "dev"],
+      "skipFiles": ["<node_internals>/**"],
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "presentation": {
+        "hidden": false,
+        "group": "frontend",
+        "order": 1
+      }
     }
   ],
   "compounds": [
+    {
+      "name": "Full System",
+      "configurations": ["Debug Backend (tsx)", "Start Frontend"],
+      "preLaunchTask": "db: push migrations",
+      "stopAll": true,
+      "presentation": {
+        "hidden": false,
+        "group": "compound",
+        "order": 0
+      }
+    },
     {
       "name": "Full Stack Debug",
       "configurations": ["Debug Backend (tsx)"],
