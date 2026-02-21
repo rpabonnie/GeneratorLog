@@ -8,6 +8,7 @@ import { generatorConfigRoutes } from './routes/generator-config.js';
 import { apiKeyRoutes } from './routes/api-keys.js';
 import { usageLogsRoutes } from './routes/usage-logs.js';
 import { oilChangeHistoryRoutes } from './routes/oil-change-history.js';
+import { emailRoutes } from './routes/email.js';
 import { registerSessionMiddleware } from './services/session.js';
 
 const server = Fastify({
@@ -45,6 +46,7 @@ generatorConfigRoutes(server);
 apiKeyRoutes(server);
 usageLogsRoutes(server);
 oilChangeHistoryRoutes(server);
+emailRoutes(server);
 
 // Health check endpoint
 server.get('/health', async () => {
