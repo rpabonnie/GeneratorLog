@@ -1,15 +1,21 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../utils/api';
 import type { ApiKey } from '../types';
 import './ApiKeysPage.css';
 
 export function ApiKeysPage() {
+  const navigate = useNavigate();
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [newKeyName, setNewKeyName] = useState('');
   const [showNewKeyModal, setShowNewKeyModal] = useState(false);
   const [newKey, setNewKey] = useState<ApiKey | null>(null);
+  const [qrCode, setQrCode] = useState<string>('');
+  const [setupUrl, setSetupUrl] = useState<string>('');
+  const [showQrModal, setShowQrModal] = useState(false);
+  const [selectedKeyId, setSelectedKeyId] = useState<number | null>(null);
 
   useEffect(() => {
     loadApiKeys();
@@ -36,12 +42,35 @@ export function ApiKeysPage() {
     try {
       const created = await api.createApiKey(newKeyName.trim());
       setNewKey(created);
+
+      // Fetch QR code for the new key
+      const qrData = await api.getApiKeyQRCode(created.id);
+      setQrCode(qrData.qrCode);
+      setSetupUrl(qrData.setupUrl);
+      setSelectedKeyId(created.id);
+
       setShowNewKeyModal(true);
       setNewKeyName('');
       await loadApiKeys();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create API key');
     }
+  };
+
+  const handleShowQR = async (keyId: number) => {
+    try {
+      const qrData = await api.getApiKeyQRCode(keyId);
+      setQrCode(qrData.qrCode);
+      setSetupUrl(qrData.setupUrl);
+      setSelectedKeyId(keyId);
+      setShowQrModal(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load QR code');
+    }
+  };
+
+  const handleViewInstructions = (keyId: number) => {
+    navigate(`/shortcut-setup/${keyId}`);
   };
 
   const handleDeleteKey = async (id: number) => {
@@ -128,6 +157,12 @@ export function ApiKeysPage() {
                   )}
                 </div>
                 <div className="key-actions">
+                  <button onClick={() => handleShowQR(key.id)} className="qr-button">
+                    View QR Code
+                  </button>
+                  <button onClick={() => handleViewInstructions(key.id)} className="instructions-button">
+                    Setup Instructions
+                  </button>
                   <button onClick={() => handleResetKey(key.id)} className="reset-button">
                     Reset Key
                   </button>
@@ -154,8 +189,41 @@ export function ApiKeysPage() {
                 </button>
               </div>
               {newKey.name && <p className="key-name-display">Name: {newKey.name}</p>}
+
+              {qrCode && (
+                <div className="qr-section">
+                  <h3>iOS Shortcut Setup</h3>
+                  <p>Scan this QR code with your iPhone to get setup instructions:</p>
+                  <img src={qrCode} alt="QR Code" className="qr-code-img" />
+                  <button onClick={() => selectedKeyId && handleViewInstructions(selectedKeyId)} className="link-button">
+                    View Instructions in Browser
+                  </button>
+                </div>
+              )}
+
               <button onClick={closeModal} className="close-button">
                 I've Saved the Key
+              </button>
+            </div>
+          </div>
+        )}
+
+        {showQrModal && selectedKeyId && (
+          <div className="modal-overlay" onClick={() => setShowQrModal(false)}>
+            <div className="modal" onClick={(e) => e.stopPropagation()}>
+              <h2>iOS Shortcut Setup QR Code</h2>
+              <p>Scan this QR code with your iPhone to view setup instructions:</p>
+              {qrCode && <img src={qrCode} alt="QR Code" className="qr-code-img" />}
+              <div className="qr-actions">
+                <button onClick={() => handleViewInstructions(selectedKeyId)} className="link-button">
+                  View Instructions in Browser
+                </button>
+                <button onClick={() => window.open(setupUrl, '_blank')} className="link-button">
+                  Open Setup URL
+                </button>
+              </div>
+              <button onClick={() => setShowQrModal(false)} className="close-button">
+                Close
               </button>
             </div>
           </div>

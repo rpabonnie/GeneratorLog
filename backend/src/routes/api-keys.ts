@@ -4,6 +4,8 @@ import { getDb } from '../db/index.js';
 import * as schema from '../db/schema.js';
 import { eq, and } from 'drizzle-orm';
 import { generateApiKey } from '../utils/auth.js';
+import QRCode from 'qrcode';
+import config from '../config.js';
 
 const createApiKeySchema = z.object({
   name: z.string().min(1).optional(),
@@ -130,6 +132,77 @@ export async function apiKeyRoutes(app: FastifyInstance) {
         key: raw,
         hint: updated.hint,
         createdAt: updated.createdAt,
+      });
+    } catch (error) {
+      app.log.error(error);
+      return reply.status(500).send({ error: 'Internal server error' });
+    }
+  });
+
+  app.get('/api/api-keys/:id/qrcode', async (request, reply) => {
+    const userId = (request as any).sessionUser?.id;
+    if (!userId) return reply.status(401).send({ error: 'Not authenticated' });
+
+    const params = request.params as { id: string };
+    const keyId = parseInt(params.id, 10);
+    if (isNaN(keyId)) return reply.status(400).send({ error: 'Invalid API key ID' });
+
+    const db = getDb();
+
+    try {
+      const [existing] = await db
+        .select()
+        .from(schema.apiKeys)
+        .where(and(eq(schema.apiKeys.id, keyId), eq(schema.apiKeys.userId, userId)))
+        .limit(1);
+
+      if (!existing) return reply.status(404).send({ error: 'API key not found' });
+
+      // Generate QR code URL that points to the setup page with the key ID
+      const setupUrl = `${config.corsOrigin}/shortcut-setup/${keyId}`;
+
+      // Generate QR code as data URL
+      const qrDataUrl = await QRCode.toDataURL(setupUrl, {
+        width: 300,
+        margin: 2,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF',
+        },
+      });
+
+      return reply.send({ qrCode: qrDataUrl, setupUrl });
+    } catch (error) {
+      app.log.error(error);
+      return reply.status(500).send({ error: 'Internal server error' });
+    }
+  });
+
+  app.get('/api/api-keys/:id/shortcut-info', async (request, reply) => {
+    const userId = (request as any).sessionUser?.id;
+    if (!userId) return reply.status(401).send({ error: 'Not authenticated' });
+
+    const params = request.params as { id: string };
+    const keyId = parseInt(params.id, 10);
+    if (isNaN(keyId)) return reply.status(400).send({ error: 'Invalid API key ID' });
+
+    const db = getDb();
+
+    try {
+      const [existing] = await db
+        .select()
+        .from(schema.apiKeys)
+        .where(and(eq(schema.apiKeys.id, keyId), eq(schema.apiKeys.userId, userId)))
+        .limit(1);
+
+      if (!existing) return reply.status(404).send({ error: 'API key not found' });
+
+      // Return info needed for shortcut setup (without exposing the raw key)
+      return reply.send({
+        id: existing.id,
+        name: existing.name,
+        hint: `gl_...${existing.hint}`,
+        apiEndpoint: `${config.corsOrigin.replace(/:\d+$/, ':3000')}/api/generator/toggle`,
       });
     } catch (error) {
       app.log.error(error);

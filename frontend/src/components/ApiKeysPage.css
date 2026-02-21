@@ -179,8 +179,11 @@
 .key-actions {
   display: flex;
   gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
+.qr-button,
+.instructions-button,
 .reset-button,
 .delete-button {
   padding: 0.5rem 1rem;
@@ -190,6 +193,24 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
+}
+
+.qr-button {
+  background: #667eea;
+  color: white;
+}
+
+.qr-button:hover {
+  background: #5568d3;
+}
+
+.instructions-button {
+  background: #48bb78;
+  color: white;
+}
+
+.instructions-button:hover {
+  background: #38a169;
 }
 
 .reset-button {
@@ -410,5 +431,87 @@
 
   .loading {
     color: #cbd5e0;
+  }
+}
+
+.qr-section {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.qr-section h3 {
+  margin: 0 0 0.5rem 0;
+  color: #1a202c;
+  font-size: 1.1rem;
+}
+
+.qr-section p {
+  color: #718096;
+  margin: 0 0 1rem 0;
+}
+
+.qr-code-img {
+  display: block;
+  max-width: 300px;
+  width: 100%;
+  margin: 1rem auto;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.link-button {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1.25rem;
+  background: white;
+  color: #667eea;
+  border: 2px solid #667eea;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 0.75rem;
+  text-align: center;
+}
+
+.link-button:hover {
+  background: #667eea;
+  color: white;
+}
+
+.qr-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .qr-section {
+    border-top-color: #4a5568;
+  }
+
+  .qr-section h3 {
+    color: #f7fafc;
+  }
+
+  .qr-section p {
+    color: #cbd5e0;
+  }
+
+  .qr-code-img {
+    border-color: #4a5568;
+  }
+
+  .link-button {
+    background: #2d3748;
+    color: #667eea;
+    border-color: #667eea;
+  }
+
+  .link-button:hover {
+    background: #667eea;
+    color: white;
   }
 }
