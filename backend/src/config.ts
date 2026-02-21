@@ -20,6 +20,14 @@ interface Config {
     cookieName: string;
     maxAge: number;
   };
+  email: {
+    host: string;
+    port: number;
+    user: string;
+    password: string;
+    from: string;
+    secure: boolean;
+  };
   logLevel: string;
 }
 
@@ -42,6 +50,14 @@ const config: Config = {
     secret: process.env.SESSION_SECRET || 'change-this-secret',
     cookieName: process.env.SESSION_COOKIE_NAME || 'generatorlog_session',
     maxAge: parseInt(process.env.SESSION_MAX_AGE || '86400000', 10),
+  },
+  email: {
+    host: process.env.SMTP_HOST || '',
+    port: parseInt(process.env.SMTP_PORT || '587', 10),
+    user: process.env.SMTP_USER || '',
+    password: process.env.SMTP_PASSWORD || '',
+    from: process.env.SMTP_FROM || 'GeneratorLog <noreply@generatorlog.com>',
+    secure: process.env.SMTP_SECURE === 'true',
   },
   logLevel: process.env.LOG_LEVEL || 'info',
 };
