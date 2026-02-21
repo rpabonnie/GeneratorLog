@@ -270,4 +270,121 @@ describe('API Key Routes', () => {
       expect(response.statusCode).toBe(401);
     });
   });
+
+  describe('GET /api/api-keys/:id/qrcode', () => {
+    it('should return QR code data URL and setup URL', async () => {
+      const createResponse = await app.inject({
+        method: 'POST',
+        url: '/api/api-keys',
+        headers: { cookie: testCookie },
+        payload: { name: 'QR Test Key' },
+      });
+      const apiKey = JSON.parse(createResponse.body);
+
+      const response = await app.inject({
+        method: 'GET',
+        url: `/api/api-keys/${apiKey.id}/qrcode`,
+        headers: { cookie: testCookie },
+      });
+
+      expect(response.statusCode).toBe(200);
+      const body = JSON.parse(response.body);
+      expect(body.qrCode).toBeDefined();
+      expect(body.qrCode).toMatch(/^data:image\/png;base64,/);
+      expect(body.setupUrl).toBeDefined();
+      expect(body.setupUrl).toContain(`/shortcut-setup/${apiKey.id}`);
+    });
+
+    it('should prevent accessing another users API key QR code', async () => {
+      const createResponse = await app.inject({
+        method: 'POST',
+        url: '/api/api-keys',
+        headers: { cookie: testCookie },
+        payload: { name: 'User 1 Key' },
+      });
+      const apiKey = JSON.parse(createResponse.body);
+
+      await app.inject({
+        method: 'POST',
+        url: '/api/auth/enroll',
+        payload: { email: 'user2@example.com', password: TEST_PASSWORD },
+      });
+      const user2Cookie = await loginAs(app, 'user2@example.com');
+
+      const response = await app.inject({
+        method: 'GET',
+        url: `/api/api-keys/${apiKey.id}/qrcode`,
+        headers: { cookie: user2Cookie },
+      });
+      expect(response.statusCode).toBe(404);
+    });
+
+    it('should return 401 without authentication', async () => {
+      const response = await app.inject({
+        method: 'GET',
+        url: '/api/api-keys/1/qrcode',
+      });
+      expect(response.statusCode).toBe(401);
+    });
+  });
+
+  describe('GET /api/api-keys/:id/shortcut-info', () => {
+    it('should return shortcut setup information without exposing raw key', async () => {
+      const createResponse = await app.inject({
+        method: 'POST',
+        url: '/api/api-keys',
+        headers: { cookie: testCookie },
+        payload: { name: 'Shortcut Info Test' },
+      });
+      const apiKey = JSON.parse(createResponse.body);
+
+      const response = await app.inject({
+        method: 'GET',
+        url: `/api/api-keys/${apiKey.id}/shortcut-info`,
+        headers: { cookie: testCookie },
+      });
+
+      expect(response.statusCode).toBe(200);
+      const body = JSON.parse(response.body);
+      expect(body.id).toBe(apiKey.id);
+      expect(body.name).toBe('Shortcut Info Test');
+      expect(body.hint).toMatch(/^gl_\.\.\./);
+      expect(body.apiEndpoint).toBeDefined();
+      expect(body.apiEndpoint).toContain('/api/generator/toggle');
+      // Ensure raw key is not exposed
+      expect(body.key).toBeUndefined();
+    });
+
+    it('should prevent accessing another users API key info', async () => {
+      const createResponse = await app.inject({
+        method: 'POST',
+        url: '/api/api-keys',
+        headers: { cookie: testCookie },
+        payload: { name: 'User 1 Key' },
+      });
+      const apiKey = JSON.parse(createResponse.body);
+
+      await app.inject({
+        method: 'POST',
+        url: '/api/auth/enroll',
+        payload: { email: 'user3@example.com', password: TEST_PASSWORD },
+      });
+      const user3Cookie = await loginAs(app, 'user3@example.com');
+
+      const response = await app.inject({
+        method: 'GET',
+        url: `/api/api-keys/${apiKey.id}/shortcut-info`,
+        headers: { cookie: user3Cookie },
+      });
+      expect(response.statusCode).toBe(404);
+    });
+
+    it('should return 401 without authentication', async () => {
+      const response = await app.inject({
+        method: 'GET',
+        url: '/api/api-keys/1/shortcut-info',
+      });
+      expect(response.statusCode).toBe(401);
+    });
+  });
 });

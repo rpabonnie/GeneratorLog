@@ -122,6 +122,14 @@ class ApiClient {
     });
   }
 
+  async getApiKeyQRCode(id: number): Promise<{ qrCode: string; setupUrl: string }> {
+    return this.request<{ qrCode: string; setupUrl: string }>(`/api/api-keys/${id}/qrcode`);
+  }
+
+  async getApiKeyShortcutInfo(id: number): Promise<{ id: number; name: string | null; hint: string; apiEndpoint: string }> {
+    return this.request<{ id: number; name: string | null; hint: string; apiEndpoint: string }>(`/api/api-keys/${id}/shortcut-info`);
+  }
+
   async getUsageLogs(generatorId: number): Promise<UsageLog[]> {
     return this.request<UsageLog[]>(`/api/generators/${generatorId}/logs`);
   }

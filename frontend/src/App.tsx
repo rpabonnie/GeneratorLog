@@ -7,6 +7,7 @@ import { ProfilePage } from './components/ProfilePage';
 import { ApiKeysPage } from './components/ApiKeysPage';
 import { GeneratorLogsPage } from './components/GeneratorLogsPage';
 import { DownloadsPage } from './components/DownloadsPage';
+import { ShortcutSetupPage } from './components/ShortcutSetupPage';
 import { Layout } from './components/Layout';
 import { api } from './utils/api';
 import './App.css';
@@ -73,6 +74,14 @@ function App() {
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <DownloadsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/shortcut-setup/:keyId"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ShortcutSetupPage />
             </ProtectedRoute>
           }
         />
