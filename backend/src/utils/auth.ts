@@ -1,7 +1,12 @@
-import { scrypt, randomBytes, createHash, timingSafeEqual } from 'node:crypto';
+import { scrypt, randomBytes, createHash, timingSafeEqual, type BinaryLike, type ScryptOptions } from 'node:crypto';
 import { promisify } from 'node:util';
 
-const scryptAsync = promisify(scrypt);
+const scryptAsync = promisify(scrypt) as unknown as (
+  password: BinaryLike,
+  salt: BinaryLike,
+  keylen: number,
+  options: ScryptOptions
+) => Promise<Buffer>;
 
 // Passwords — scrypt, OWASP params: N=32768 r=8 p=1 keylen=64
 // maxmem must be set explicitly; Node's default (32 MiB) equals N*128*r exactly, causing failures

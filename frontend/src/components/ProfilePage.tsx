@@ -15,6 +15,7 @@ export function ProfilePage() {
   const [generatorName, setGeneratorName] = useState('');
   const [oilChangeMonths, setOilChangeMonths] = useState('6');
   const [oilChangeHours, setOilChangeHours] = useState('100');
+  const [installedAt, setInstalledAt] = useState('');
 
   useEffect(() => {
     loadProfile();
@@ -37,6 +38,7 @@ export function ProfilePage() {
         setGeneratorName(gen.name);
         setOilChangeMonths(gen.oilChangeMonths.toString());
         setOilChangeHours(gen.oilChangeHours.toString());
+        setInstalledAt(gen.installedAt ? gen.installedAt.split('T')[0] : '');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load profile');
@@ -71,6 +73,7 @@ export function ProfilePage() {
           name: generatorName,
           oilChangeMonths: parseInt(oilChangeMonths, 10),
           oilChangeHours: parseFloat(oilChangeHours),
+          installedAt: installedAt || null,
         });
         setGenerator(updated);
         setSuccessMessage('Generator settings updated!');
@@ -79,6 +82,7 @@ export function ProfilePage() {
           name: generatorName,
           oilChangeMonths: parseInt(oilChangeMonths, 10),
           oilChangeHours: parseFloat(oilChangeHours),
+          installedAt: installedAt || null,
         });
         setGenerator(created);
         setSuccessMessage('Generator created!');
@@ -173,6 +177,17 @@ export function ProfilePage() {
                   required
                 />
               </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="installedAt">Installation Date</label>
+              <input
+                type="date"
+                id="installedAt"
+                value={installedAt}
+                onChange={(e) => setInstalledAt(e.target.value)}
+              />
+              <small className="field-hint">Used to calculate time-based oil change reminders from the start.</small>
             </div>
 
             {generator && (

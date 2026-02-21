@@ -20,6 +20,7 @@ export const generators = pgTable('generators', {
   totalHours: doublePrecision('total_hours').notNull().default(0),
   lastOilChangeDate: timestamp('last_oil_change_date'),
   lastOilChangeHours: doublePrecision('last_oil_change_hours').default(0),
+  installedAt: timestamp('installed_at'),
   isRunning: boolean('is_running').notNull().default(false),
   currentStartTime: timestamp('current_start_time'),
   createdAt: timestamp('created_at').defaultNow().notNull(),

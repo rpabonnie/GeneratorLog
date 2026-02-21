@@ -9,16 +9,19 @@ const createGeneratorSchema = z.object({
   name: z.string().min(1),
   oilChangeMonths: z.number().int().positive().optional().default(6),
   oilChangeHours: z.number().positive().optional().default(100),
+  installedAt: z.coerce.date().nullable().optional(),
 });
 
 const updateGeneratorSchema = z.object({
   name: z.string().min(1).optional(),
   oilChangeMonths: z.number().int().positive().optional(),
   oilChangeHours: z.number().positive().optional(),
+  installedAt: z.coerce.date().nullable().optional(),
 }).refine(data =>
   data.name !== undefined ||
   data.oilChangeMonths !== undefined ||
-  data.oilChangeHours !== undefined, {
+  data.oilChangeHours !== undefined ||
+  data.installedAt !== undefined, {
   message: 'At least one field must be provided',
 });
 
@@ -45,7 +48,7 @@ export async function generatorConfigRoutes(app: FastifyInstance) {
       });
     }
 
-    const { name, oilChangeMonths, oilChangeHours } = validation.data;
+    const { name, oilChangeMonths, oilChangeHours, installedAt } = validation.data;
     const db = getDb();
 
     try {
@@ -56,6 +59,7 @@ export async function generatorConfigRoutes(app: FastifyInstance) {
           name,
           oilChangeMonths,
           oilChangeHours,
+          installedAt: installedAt ?? null,
         })
         .returning();
 
@@ -67,6 +71,7 @@ export async function generatorConfigRoutes(app: FastifyInstance) {
         totalHours: newGenerator.totalHours,
         lastOilChangeDate: newGenerator.lastOilChangeDate,
         lastOilChangeHours: newGenerator.lastOilChangeHours,
+        installedAt: newGenerator.installedAt,
         isRunning: newGenerator.isRunning,
         createdAt: newGenerator.createdAt,
       });
@@ -103,6 +108,7 @@ export async function generatorConfigRoutes(app: FastifyInstance) {
         totalHours: g.totalHours,
         lastOilChangeDate: g.lastOilChangeDate,
         lastOilChangeHours: g.lastOilChangeHours,
+        installedAt: g.installedAt,
         isRunning: g.isRunning,
         currentStartTime: g.currentStartTime,
         createdAt: g.createdAt,
@@ -160,6 +166,7 @@ export async function generatorConfigRoutes(app: FastifyInstance) {
         totalHours: generator.totalHours,
         lastOilChangeDate: generator.lastOilChangeDate,
         lastOilChangeHours: generator.lastOilChangeHours,
+        installedAt: generator.installedAt,
         isRunning: generator.isRunning,
         currentStartTime: generator.currentStartTime,
         createdAt: generator.createdAt,
@@ -200,7 +207,7 @@ export async function generatorConfigRoutes(app: FastifyInstance) {
       });
     }
 
-    const { name, oilChangeMonths, oilChangeHours } = validation.data;
+    const { name, oilChangeMonths, oilChangeHours, installedAt } = validation.data;
     const db = getDb();
 
     try {
@@ -225,6 +232,7 @@ export async function generatorConfigRoutes(app: FastifyInstance) {
       if (name !== undefined) updateData.name = name;
       if (oilChangeMonths !== undefined) updateData.oilChangeMonths = oilChangeMonths;
       if (oilChangeHours !== undefined) updateData.oilChangeHours = oilChangeHours;
+      if (installedAt !== undefined) updateData.installedAt = installedAt;
 
       const [updatedGenerator] = await db
         .update(schema.generators)
@@ -240,6 +248,7 @@ export async function generatorConfigRoutes(app: FastifyInstance) {
         totalHours: updatedGenerator.totalHours,
         lastOilChangeDate: updatedGenerator.lastOilChangeDate,
         lastOilChangeHours: updatedGenerator.lastOilChangeHours,
+        installedAt: updatedGenerator.installedAt,
         isRunning: updatedGenerator.isRunning,
         currentStartTime: updatedGenerator.currentStartTime,
         updatedAt: updatedGenerator.updatedAt,

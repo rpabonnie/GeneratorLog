@@ -52,6 +52,23 @@ describe('Maintenance calculations', () => {
       expect(monthsSinceChange).toBeGreaterThan(100); // Should be very large
     });
 
+    it('uses installedAt as fallback when lastOilChangeDate is null', () => {
+      const now = new Date(Date.UTC(2026, 5, 1)); // Jun 1, 2026
+      const installedAt = new Date(Date.UTC(2026, 0, 1)); // Jan 1, 2026
+
+      const monthsSinceChange = calculateMonthsSinceOilChange(null, now, installedAt);
+      expect(monthsSinceChange).toBe(5);
+    });
+
+    it('prefers lastOilChangeDate over installedAt when both are provided', () => {
+      const now = new Date(Date.UTC(2026, 5, 1)); // Jun 1, 2026
+      const lastOilChangeDate = new Date(Date.UTC(2026, 3, 1)); // Apr 1, 2026 - 2 months ago
+      const installedAt = new Date(Date.UTC(2026, 0, 1)); // Jan 1, 2026 - 5 months ago
+
+      const monthsSinceChange = calculateMonthsSinceOilChange(lastOilChangeDate, now, installedAt);
+      expect(monthsSinceChange).toBe(2); // Uses lastOilChangeDate, not installedAt
+    });
+
     it('handles dates across year boundaries', () => {
       const now = new Date(Date.UTC(2026, 1, 1)); // Feb 1, 2026
       const lastOilChangeDate = new Date(Date.UTC(2025, 10, 1)); // Nov 1, 2025
@@ -156,6 +173,18 @@ describe('Maintenance calculations', () => {
       );
 
       expect(shouldRemind).toBe(true);
+    });
+
+    it('uses installedAt when no oil change has been recorded and threshold exceeded', () => {
+      // Generator installed 8 months ago, never had oil change, low hours
+      const now = new Date(Date.UTC(2026, 1, 1)); // Feb 1, 2026
+      const installedAt = new Date(Date.UTC(2025, 5, 1)); // Jun 1, 2025 — 8 months ago
+
+      const shouldRemind = shouldSendMaintenanceReminder(
+        5, null, 50, null, 6, now, installedAt
+      );
+
+      expect(shouldRemind).toBe(true); // 8 months > 6 month threshold
     });
   });
 });

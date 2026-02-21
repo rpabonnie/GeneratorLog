@@ -13,6 +13,7 @@ export interface Generator {
   totalHours: number;
   lastOilChangeDate: string | null;
   lastOilChangeHours: number;
+  installedAt: string | null;
   isRunning: boolean;
   currentStartTime: string | null;
   createdAt: string;
