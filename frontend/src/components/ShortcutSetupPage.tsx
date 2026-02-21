@@ -8,6 +8,7 @@ interface ShortcutInfo {
   name: string | null;
   hint: string;
   apiEndpoint: string;
+  shortcutFileUrl: string;
 }
 
 export function ShortcutSetupPage() {
@@ -73,6 +74,31 @@ export function ShortcutSetupPage() {
           <h2>API Key: {info.name || 'Unnamed'}</h2>
           <p className="hint">Key hint: {info.hint}</p>
         </div>
+
+        <div className="setup-section setup-import-section">
+          <h3>Quick Import (Recommended)</h3>
+          <p>
+            Tap the button below on your iPhone to import a pre-configured Shortcut directly into the Shortcuts app.
+            You'll be asked to enter your API key once during import.
+          </p>
+          <div className="import-actions">
+            <a
+              href={`shortcuts://import-workflow?url=${encodeURIComponent(info.shortcutFileUrl)}`}
+              className="btn-import"
+            >
+              Import Shortcut on iPhone
+            </a>
+            <a href={info.shortcutFileUrl} download className="btn-download">
+              Download .shortcut File
+            </a>
+          </div>
+          <p className="import-note">
+            The "Import" button only works when opened on an iPhone. Use "Download" to transfer the file manually.
+          </p>
+        </div>
+
+        <details className="manual-steps-toggle">
+          <summary>Manual Setup (step-by-step instructions)</summary>
 
         <div className="setup-section">
           <h3>Step 1: Create a New Shortcut</h3>
@@ -163,6 +189,8 @@ export function ShortcutSetupPage() {
 }`}</pre>
           </div>
         </div>
+
+        </details>
 
         <div className="setup-actions">
           <button onClick={() => navigate('/api-keys')} className="btn-primary">

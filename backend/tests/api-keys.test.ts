@@ -291,8 +291,8 @@ describe('API Key Routes', () => {
       const body = JSON.parse(response.body);
       expect(body.qrCode).toBeDefined();
       expect(body.qrCode).toMatch(/^data:image\/png;base64,/);
-      expect(body.setupUrl).toBeDefined();
-      expect(body.setupUrl).toContain(`/shortcut-setup/${apiKey.id}`);
+      expect(body.shortcutFileUrl).toBeDefined();
+      expect(body.shortcutFileUrl).toContain(`/api/api-keys/${apiKey.id}/shortcut-file`);
     });
 
     it('should prevent accessing another users API key QR code', async () => {

@@ -5,6 +5,7 @@ interface Config {
   host: string;
   nodeEnv: string;
   corsOrigin: string;
+  apiBaseUrl: string;
   database: {
     url: string;
     host: string;
@@ -28,6 +29,7 @@ const config: Config = {
   host: process.env.HOST || '0.0.0.0',
   nodeEnv: process.env.NODE_ENV || 'development',
   corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  apiBaseUrl: process.env.API_BASE_URL || `http://localhost:${process.env.PORT || '3000'}`,
   database: {
     url: process.env.DATABASE_URL || '',
     host: process.env.DB_HOST || 'localhost',

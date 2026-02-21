@@ -20,10 +20,10 @@ const server = Fastify({
 const rateLimiter = new RateLimiter(config.apiRateLimit);
 server.decorate('rateLimiter', rateLimiter);
 
-// CORS — reflect localhost origins in development, enforce configured origin in production
+// CORS — reflect localhost/LAN origins in development, enforce configured origin in production
 server.addHook('onRequest', async (request, reply) => {
   const origin = request.headers['origin'] ?? '';
-  const isLocalOrigin = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+  const isLocalOrigin = /^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})(:\d+)?$/.test(origin);
   const allowedOrigin = (config.nodeEnv !== 'production' && isLocalOrigin) ? origin : config.corsOrigin;
   reply.header('Access-Control-Allow-Origin', allowedOrigin);
   reply.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');

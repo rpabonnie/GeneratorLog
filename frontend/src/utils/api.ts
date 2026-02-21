@@ -1,6 +1,6 @@
 import type { User, Generator, ApiKey, UsageLog, OilChangeEntry, ToggleResult, ApiError } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
 class ApiClient {
   private async request<T>(
@@ -69,6 +69,7 @@ class ApiClient {
     name: string;
     oilChangeMonths?: number;
     oilChangeHours?: number;
+    installedAt?: string | null;
   }): Promise<Generator> {
     return this.request<Generator>('/api/generators', {
       method: 'POST',
@@ -90,6 +91,7 @@ class ApiClient {
       name?: string;
       oilChangeMonths?: number;
       oilChangeHours?: number;
+      installedAt?: string | null;
     }
   ): Promise<Generator> {
     return this.request<Generator>(`/api/generators/${id}`, {
@@ -122,12 +124,12 @@ class ApiClient {
     });
   }
 
-  async getApiKeyQRCode(id: number): Promise<{ qrCode: string; setupUrl: string }> {
-    return this.request<{ qrCode: string; setupUrl: string }>(`/api/api-keys/${id}/qrcode`);
+  async getApiKeyQRCode(id: number): Promise<{ qrCode: string; shortcutFileUrl: string }> {
+    return this.request<{ qrCode: string; shortcutFileUrl: string }>(`/api/api-keys/${id}/qrcode`);
   }
 
-  async getApiKeyShortcutInfo(id: number): Promise<{ id: number; name: string | null; hint: string; apiEndpoint: string }> {
-    return this.request<{ id: number; name: string | null; hint: string; apiEndpoint: string }>(`/api/api-keys/${id}/shortcut-info`);
+  async getApiKeyShortcutInfo(id: number): Promise<{ id: number; name: string | null; hint: string; apiEndpoint: string; shortcutFileUrl: string }> {
+    return this.request<{ id: number; name: string | null; hint: string; apiEndpoint: string; shortcutFileUrl: string }>(`/api/api-keys/${id}/shortcut-info`);
   }
 
   async getUsageLogs(generatorId: number): Promise<UsageLog[]> {

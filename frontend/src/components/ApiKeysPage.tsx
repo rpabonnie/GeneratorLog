@@ -13,7 +13,7 @@ export function ApiKeysPage() {
   const [showNewKeyModal, setShowNewKeyModal] = useState(false);
   const [newKey, setNewKey] = useState<ApiKey | null>(null);
   const [qrCode, setQrCode] = useState<string>('');
-  const [setupUrl, setSetupUrl] = useState<string>('');
+  const [shortcutFileUrl, setShortcutFileUrl] = useState<string>('');
   const [showQrModal, setShowQrModal] = useState(false);
   const [selectedKeyId, setSelectedKeyId] = useState<number | null>(null);
 
@@ -46,7 +46,7 @@ export function ApiKeysPage() {
       // Fetch QR code for the new key
       const qrData = await api.getApiKeyQRCode(created.id);
       setQrCode(qrData.qrCode);
-      setSetupUrl(qrData.setupUrl);
+      setShortcutFileUrl(qrData.shortcutFileUrl);
       setSelectedKeyId(created.id);
 
       setShowNewKeyModal(true);
@@ -61,7 +61,7 @@ export function ApiKeysPage() {
     try {
       const qrData = await api.getApiKeyQRCode(keyId);
       setQrCode(qrData.qrCode);
-      setSetupUrl(qrData.setupUrl);
+      setShortcutFileUrl(qrData.shortcutFileUrl);
       setSelectedKeyId(keyId);
       setShowQrModal(true);
     } catch (err) {
@@ -192,11 +192,11 @@ export function ApiKeysPage() {
 
               {qrCode && (
                 <div className="qr-section">
-                  <h3>iOS Shortcut Setup</h3>
-                  <p>Scan this QR code with your iPhone to get setup instructions:</p>
-                  <img src={qrCode} alt="QR Code" className="qr-code-img" />
+                  <h3>Import iOS Shortcut</h3>
+                  <p>Scan with your iPhone to import a pre-configured Shortcut in one tap. You'll be asked for your API key once on import — paste the key copied above.</p>
+                  <img src={qrCode} alt="QR Code for Shortcut import" className="qr-code-img" />
                   <button onClick={() => selectedKeyId && handleViewInstructions(selectedKeyId)} className="link-button">
-                    View Instructions in Browser
+                    Manual Setup Instructions
                   </button>
                 </div>
               )}
@@ -211,15 +211,15 @@ export function ApiKeysPage() {
         {showQrModal && selectedKeyId && (
           <div className="modal-overlay" onClick={() => setShowQrModal(false)}>
             <div className="modal" onClick={(e) => e.stopPropagation()}>
-              <h2>iOS Shortcut Setup QR Code</h2>
-              <p>Scan this QR code with your iPhone to view setup instructions:</p>
-              {qrCode && <img src={qrCode} alt="QR Code" className="qr-code-img" />}
+              <h2>Import iOS Shortcut</h2>
+              <p>Scan with your iPhone to import a pre-configured Shortcut directly into the Shortcuts app. You'll be asked for your API key once on import.</p>
+              {qrCode && <img src={qrCode} alt="QR Code for Shortcut import" className="qr-code-img" />}
               <div className="qr-actions">
+                <a href={shortcutFileUrl} download className="link-button">
+                  Download Shortcut File
+                </a>
                 <button onClick={() => handleViewInstructions(selectedKeyId)} className="link-button">
-                  View Instructions in Browser
-                </button>
-                <button onClick={() => window.open(setupUrl, '_blank')} className="link-button">
-                  Open Setup URL
+                  Manual Setup Instructions
                 </button>
               </div>
               <button onClick={() => setShowQrModal(false)} className="close-button">
