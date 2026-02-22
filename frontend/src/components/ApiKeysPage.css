@@ -1,7 +1,7 @@
 .apikeys-page {
   min-height: 100vh;
   padding: 2rem;
-  background: #0a0a0a;
+  background: #0d1410;
 }
 
 @media (max-width: 1024px) {
@@ -29,7 +29,7 @@
 
 .apikeys-container h1 {
   margin: 0 0 0.5rem 0;
-  color: #00ff00;
+  color: #66ac92;
   font-size: 2.5rem;
 }
 
@@ -46,7 +46,7 @@
 }
 
 .subtitle {
-  color: #00cc00;
+  color: #4a8072;
   margin: 0 0 2rem 0;
 }
 
@@ -54,7 +54,7 @@
   text-align: center;
   padding: 3rem;
   font-size: 1.2rem;
-  color: #00cc00;
+  color: #4a8072;
 }
 
 .error-message {
@@ -75,24 +75,24 @@
 .key-name-input {
   flex: 1;
   padding: 0.875rem;
-  border: 1px solid #00ff00;
+  border: 1px solid #66ac92;
   border-radius: 0;
   font-size: 1rem;
   background: #000000;
-  color: #00ff00;
+  color: #66ac92;
 }
 
 .key-name-input:focus {
   outline: none;
-  border-color: #00ff00;
-  box-shadow: 0 0 8px rgba(0, 255, 0, 0.3);
+  border-color: #66ac92;
+  box-shadow: 0 0 8px rgba(102, 172, 146, 0.3);
 }
 
 .create-button {
   padding: 0.875rem 1.5rem;
-  background: #00ff0033;
-  color: #00ff00;
-  border: 1px solid #00ff00;
+  background: #66ac9233;
+  color: #66ac92;
+  border: 1px solid #66ac92;
   border-radius: 0;
   font-size: 1rem;
   font-weight: 600;
@@ -102,7 +102,7 @@
 }
 
 .create-button:hover {
-  background: #00ff00;
+  background: #66ac92;
   color: #000000;
 }
 
@@ -112,8 +112,8 @@
   background: #000000;
   border-radius: 0;
   box-shadow: none;
-  border: 1px solid #00ff00;
-  color: #00cc00;
+  border: 1px solid #66ac92;
+  color: #4a8072;
 }
 
 .keys-list {
@@ -127,7 +127,7 @@
   padding: 1.5rem;
   border-radius: 0;
   box-shadow: none;
-  border: 1px solid #00ff00;
+  border: 1px solid #66ac92;
 }
 
 @media (max-width: 768px) {
@@ -151,12 +151,12 @@
 
 .key-header h3 {
   margin: 0;
-  color: #00ff00;
+  color: #66ac92;
   font-size: 1.2rem;
 }
 
 .key-id {
-  color: #00cc00;
+  color: #4a8072;
   font-size: 0.875rem;
 }
 
@@ -165,19 +165,19 @@
   padding: 1rem;
   border-radius: 0;
   margin-bottom: 1rem;
-  border: 1px solid #00ff0055;
+  border: 1px solid #66ac9555;
 }
 
 .key-preview code {
   font-family: 'Courier New', monospace;
-  color: #00ff00;
+  color: #66ac92;
   font-size: 0.9rem;
 }
 
 .key-meta {
   display: flex;
   gap: 1.5rem;
-  color: #00cc00;
+  color: #4a8072;
   font-size: 0.875rem;
   margin-bottom: 1rem;
 }
@@ -203,35 +203,35 @@
 }
 
 .qr-button {
-  background: #00ff0033;
-  color: #00ff00;
-  border-color: #00ff00;
+  background: #66ac9233;
+  color: #66ac92;
+  border-color: #66ac92;
 }
 
 .qr-button:hover {
-  background: #00ff00;
+  background: #66ac92;
   color: #000000;
 }
 
 .instructions-button {
-  background: #00ff0033;
-  color: #00ff00;
-  border-color: #00ff00;
+  background: #66ac9233;
+  color: #66ac92;
+  border-color: #66ac92;
 }
 
 .instructions-button:hover {
-  background: #00ff00;
+  background: #66ac92;
   color: #000000;
 }
 
 .reset-button {
   background: #0a0a0a;
-  color: #00cc00;
-  border-color: #00cc00;
+  color: #4a8072;
+  border-color: #4a8072;
 }
 
 .reset-button:hover {
-  background: #00cc0033;
+  background: #4a807233;
 }
 
 .delete-button {
@@ -265,12 +265,12 @@
   max-width: 600px;
   width: 90%;
   box-shadow: none;
-  border: 2px solid #00ff00;
+  border: 2px solid #66ac92;
 }
 
 .modal h2 {
   margin: 0 0 1rem 0;
-  color: #00ff00;
+  color: #66ac92;
 }
 
 .modal-warning {
@@ -291,21 +291,21 @@
 
 .key-display code {
   flex: 1;
-  background: #0a0a0a;
+  background: #0d1410;
   padding: 1rem;
   border-radius: 0;
   font-family: 'Courier New', monospace;
   font-size: 0.9rem;
   word-break: break-all;
-  color: #00ff00;
-  border: 1px solid #00ff0055;
+  color: #66ac92;
+  border: 1px solid #66ac9255;
 }
 
 .copy-button {
   padding: 0.75rem 1.25rem;
-  background: #00ff0033;
-  color: #00ff00;
-  border: 1px solid #00ff00;
+  background: #66ac9233;
+  color: #66ac92;
+  border: 1px solid #66ac92;
   border-radius: 0;
   font-weight: 600;
   cursor: pointer;
@@ -313,12 +313,12 @@
 }
 
 .copy-button:hover {
-  background: #00ff00;
+  background: #66ac92;
   color: #000000;
 }
 
 .key-name-display {
-  color: #00cc00;
+  color: #4a8072;
   font-size: 0.9rem;
   margin-bottom: 1rem;
 }
@@ -326,9 +326,9 @@
 .close-button {
   width: 100%;
   padding: 0.875rem;
-  background: #00ff0033;
-  color: #00ff00;
-  border: 1px solid #00ff00;
+  background: #66ac9233;
+  color: #66ac92;
+  border: 1px solid #66ac92;
   border-radius: 0;
   font-size: 1rem;
   font-weight: 600;
@@ -337,7 +337,9 @@
 }
 
 .close-button:hover {
-  background: #00ff00;
+  background: #66ac92;
+  color: #000000;
+}
   color: #000000;
 }
 
@@ -382,17 +384,17 @@
 .qr-section {
   margin-top: 1.5rem;
   padding-top: 1.5rem;
-  border-top: 1px solid #00ff00;
+  border-top: 1px solid #66ac92;
 }
 
 .qr-section h3 {
   margin: 0 0 0.5rem 0;
-  color: #00ff00;
+  color: #66ac92;
   font-size: 1.1rem;
 }
 
 .qr-section p {
-  color: #00cc00;
+  color: #4a8072;
   margin: 0 0 1rem 0;
 }
 
@@ -401,7 +403,7 @@
   max-width: 300px;
   width: 100%;
   margin: 1rem auto;
-  border: 2px solid #00ff00;
+  border: 2px solid #66ac92;
   border-radius: 0;
 }
 
@@ -409,9 +411,9 @@
   display: block;
   width: 100%;
   padding: 0.75rem 1.25rem;
-  background: #0a0a0a;
-  color: #00ff00;
-  border: 2px solid #00ff00;
+  background: #0d1410;
+  color: #66ac92;
+  border: 2px solid #66ac92;
   border-radius: 0;
   font-weight: 600;
   cursor: pointer;
@@ -421,7 +423,7 @@
 }
 
 .link-button:hover {
-  background: #00ff00;
+  background: #66ac92;
   color: #000000;
 }
 

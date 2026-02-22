@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background: #0a0a0a;
+  background: #0d1410;
 }
 
 @media (max-width: 768px) {
@@ -24,7 +24,7 @@
   padding: 3rem;
   border-radius: 0;
   box-shadow: none;
-  border: 2px solid #00ff00;
+  border: 2px solid #66ac92;
   max-width: 450px;
   width: 100%;
 }
@@ -43,7 +43,7 @@
 
 .enrollment-container h1 {
   margin: 0 0 0.5rem 0;
-  color: #00ff00;
+  color: #66ac92;
   font-size: 2rem;
 }
 
@@ -54,7 +54,7 @@
 }
 
 .subtitle {
-  color: #00cc00;
+  color: #4a8072;
   margin: 0 0 2rem 0;
 }
 
@@ -72,28 +72,28 @@
 
 .form-group label {
   font-weight: 500;
-  color: #00ff00;
+  color: #66ac92;
   font-size: 0.9rem;
 }
 
 .form-group input {
   padding: 0.75rem;
-  border: 1px solid #00ff00;
+  border: 1px solid #66ac92;
   border-radius: 0;
   font-size: 1rem;
-  background: #0a0a0a;
-  color: #00ff00;
+  background: #0d1410;
+  color: #66ac92;
   transition: all 0.2s;
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: #00ff00;
-  box-shadow: 0 0 8px rgba(0, 255, 0, 0.3);
+  border-color: #66ac92;
+  box-shadow: 0 0 8px rgba(102, 172, 146, 0.3);
 }
 
 .form-group input:disabled {
-  background: #0a0a0a;
+  background: #0d1410;
   cursor: not-allowed;
   opacity: 0.5;
 }
@@ -109,9 +109,9 @@
 
 .submit-button {
   padding: 0.875rem;
-  background: #00ff0033;
-  color: #00ff00;
-  border: 1px solid #00ff00;
+  background: #66ac9233;
+  color: #66ac92;
+  border: 1px solid #66ac92;
   border-radius: 0;
   font-size: 1rem;
   font-weight: 600;
@@ -120,12 +120,12 @@
 }
 
 .submit-button:hover:not(:disabled) {
-  background: #00ff00;
+  background: #66ac92;
   color: #000000;
 }
 
 .submit-button:disabled {
-  background: #0a0a0a;
+  background: #0d1410;
   cursor: not-allowed;
   opacity: 0.5;
 }

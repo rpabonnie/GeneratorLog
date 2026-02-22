@@ -1,9 +1,8 @@
 import { randomUUID } from 'crypto';
 
 // Generates an iOS .shortcut plist file (XML property list) for toggling the generator.
-// The shortcut uses a WFWorkflowImportQuestion to ask the user for their API key on import,
-// so the raw key never needs to be stored or transmitted by the server.
-export function generateToggleShortcut(toggleEndpoint: string, shortcutName: string): string {
+// The API key is embedded in the shortcut so import is one-tap on iPhone.
+export function generateToggleShortcut(toggleEndpoint: string, shortcutName: string, apiKey: string): string {
   const textActionUUID = randomUUID().toUpperCase();
   const httpActionUUID = randomUUID().toUpperCase();
 
@@ -17,7 +16,7 @@ export function generateToggleShortcut(toggleEndpoint: string, shortcutName: str
 <dict>
 \t<key>WFWorkflowActions</key>
 \t<array>
-\t\t<!-- Action 0: Text holding the API key (set via import question) -->
+		<!-- Action 0: Text holding the API key -->
 \t\t<dict>
 \t\t\t<key>WFWorkflowActionIdentifier</key>
 \t\t\t<string>is.workflow.actions.gettext</string>
@@ -31,8 +30,8 @@ export function generateToggleShortcut(toggleEndpoint: string, shortcutName: str
 \t\t\t\t<dict>
 \t\t\t\t\t<key>Value</key>
 \t\t\t\t\t<dict>
-\t\t\t\t\t\t<key>string</key>
-\t\t\t\t\t\t<string></string>
+						<key>string</key>
+						<string>${apiKey}</string>
 \t\t\t\t\t</dict>
 \t\t\t\t\t<key>WFSerializationType</key>
 \t\t\t\t\t<string>WFTextTokenString</string>
@@ -144,21 +143,6 @@ export function generateToggleShortcut(toggleEndpoint: string, shortcutName: str
 \t\t<key>WFWorkflowIconGlyphNumber</key>
 \t\t<integer>59511</integer>
 \t</dict>
-\t<key>WFWorkflowImportQuestions</key>
-\t<array>
-\t\t<dict>
-\t\t\t<key>ActionIndex</key>
-\t\t\t<integer>0</integer>
-\t\t\t<key>Category</key>
-\t\t\t<string>Parameter</string>
-\t\t\t<key>DefaultValue</key>
-\t\t\t<string></string>
-\t\t\t<key>ParameterKey</key>
-\t\t\t<string>WFTextActionText</string>
-\t\t\t<key>Text</key>
-\t\t\t<string>Enter your Generator Log API Key (starts with gl_)</string>
-\t\t</dict>
-\t</array>
 \t<key>WFWorkflowInputContentItemClasses</key>
 \t<array/>
 \t<key>WFWorkflowMinimumClientVersion</key>

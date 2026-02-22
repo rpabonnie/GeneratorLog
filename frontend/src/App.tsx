@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { DashboardPage } from './components/DashboardPage';
 import { EnrollmentPage } from './components/EnrollmentPage';
 import { LoginPage } from './components/LoginPage';
+import { PasswordResetPage } from './components/PasswordResetPage';
 import { ProfilePage } from './components/ProfilePage';
 import { ApiKeysPage } from './components/ApiKeysPage';
 import { GeneratorLogsPage } from './components/GeneratorLogsPage';
@@ -37,6 +38,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/enroll" element={<EnrollmentPage />} />
+        <Route path="/reset-password" element={<PasswordResetPage />} />
         <Route
           path="/"
           element={

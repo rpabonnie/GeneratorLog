@@ -63,6 +63,11 @@ export function LoginPage() {
         </form>
 
         <p style={{ textAlign: 'center', marginTop: '1.5rem', color: '#00cc00' }}>
+          <Link to="/reset-password" style={{ color: '#00ff00', fontWeight: 500 }}>
+            Forgot password?
+          </Link>
+        </p>
+        <p style={{ textAlign: 'center', marginTop: '0.75rem', color: '#00cc00' }}>
           No account yet?{' '}
           <Link to="/enroll" style={{ color: '#00ff00', fontWeight: 500 }}>
             Create one

@@ -6,7 +6,7 @@
 
 .navbar {
   background: #000000;
-  border-bottom: 1px solid #00ff00;
+  border-bottom: 1px solid #66ac92;
   box-shadow: none;
 }
 
@@ -20,17 +20,31 @@
 }
 
 .nav-logo {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #00ff00;
+  display: flex;
+  align-items: center;
   text-decoration: none;
-  transition: color 0.2s;
+  transition: opacity 0.2s;
   border-bottom: none;
+  padding: 0;
+  background: transparent !important;
+  margin: 0 1.5em 0 0;
+  line-height: 1;
 }
 
 .nav-logo:hover {
-  color: #00ff00;
-  background-color: #00ff0033;
+  opacity: 0.8;
+}
+
+.logo-image {
+  height: 118px;
+  width: auto;
+  object-fit: contain;
+  background: transparent !important;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: none;
+  max-width: 100%;
 }
 
 .nav-links {
@@ -39,7 +53,7 @@
 }
 
 .nav-link {
-  color: #00ff00;
+  color: #66ac92;
   text-decoration: none;
   font-weight: 500;
   padding: 0.5rem 1rem;
@@ -50,23 +64,23 @@
 }
 
 .nav-link:hover {
-  color: #00ff00;
-  background: #00ff0022;
-  border-color: #00ff00;
+  color: #66ac92;
+  background: #66ac9222;
+  border-color: #66ac92;
 }
 
 .nav-link.active {
   color: #000000;
-  background: #00ff00;
-  border-color: #00ff00;
+  background: #66ac92;
+  border-color: #66ac92;
 }
 
 .nav-logout {
   padding: 0.5rem 1rem;
   background: none;
-  border: 1px solid #00ff00;
+  border: 1px solid #66ac92;
   border-radius: 0;
-  color: #00ff00;
+  color: #66ac92;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;

@@ -75,6 +75,27 @@ class ApiClient {
     }
   }
 
+  async requestPasswordReset(email: string): Promise<void> {
+    return this.request<void>('/api/auth/password-reset/request', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  async confirmPasswordReset(token: string, password: string): Promise<void> {
+    return this.request<void>('/api/auth/password-reset/confirm', {
+      method: 'POST',
+      body: JSON.stringify({ token, password }),
+    });
+  }
+
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    return this.request<void>('/api/auth/password/change', {
+      method: 'POST',
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+  }
+
   async getCurrentUser(): Promise<User> {
     return this.request<User>('/api/auth/me');
   }

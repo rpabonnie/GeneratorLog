@@ -1,7 +1,7 @@
 .profile-page {
   min-height: 100vh;
   padding: 2rem;
-  background: #0a0a0a;
+  background: #0d1410;
 }
 
 @media (max-width: 1024px) {
@@ -29,7 +29,7 @@
 
 .profile-container h1 {
   margin: 0 0 2rem 0;
-  color: #00ff00;
+  color: #66ac92;
   font-size: 2.5rem;
 }
 
@@ -51,16 +51,16 @@
   text-align: center;
   padding: 3rem;
   font-size: 1.2rem;
-  color: #00cc00;
+  color: #4a8072;
 }
 
 .success-message {
   padding: 1rem;
   margin-bottom: 1.5rem;
   background: #001a00;
-  border: 1px solid #00ff00;
+  border: 1px solid #66ac92;
   border-radius: 0;
-  color: #00ff00;
+  color: #66ac92;
 }
 
 .error-message {
@@ -77,13 +77,13 @@
   padding: 2rem;
   border-radius: 0;
   box-shadow: none;
-  border: 1px solid #00ff00;
+  border: 1px solid #66ac92;
   margin-bottom: 2rem;
 }
 
 .profile-section h2 {
   margin: 0 0 1.5rem 0;
-  color: #00ff00;
+  color: #66ac92;
   font-size: 1.5rem;
 }
 
@@ -127,57 +127,57 @@
 
 .form-group label {
   font-weight: 500;
-  color: #00ff00;
+  color: #66ac92;
   font-size: 0.9rem;
 }
 
 .form-group input {
   padding: 0.75rem;
-  border: 1px solid #00ff00;
+  border: 1px solid #66ac92;
   border-radius: 0;
   font-size: 1rem;
   background: #000000;
-  color: #00ff00;
+  color: #66ac92;
   transition: all 0.2s;
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: #00ff00;
-  box-shadow: 0 0 8px rgba(0, 255, 0, 0.3);
+  border-color: #66ac92;
+  box-shadow: 0 0 8px rgba(102, 172, 146, 0.3);
 }
 
 .generator-stats {
   padding: 1rem;
-  background: #0a0a0a;
+  background: #0d1410;
   border-radius: 0;
-  border: 1px solid #00ff0055;
+  border: 1px solid #66ac9255;
   display: flex;
   gap: 2rem;
 }
 
 .generator-stats p {
   margin: 0;
-  color: #00cc00;
+  color: #4a8072;
 }
 
 .generator-stats strong {
-  color: #00ff00;
+  color: #66ac92;
 }
 
 .status-running {
-  color: #00ff00 !important;
+  color: #66ac92 !important;
 }
 
 .status-stopped {
-  color: #00cc00 !important;
+  color: #4a8072 !important;
 }
 
 .submit-button {
   padding: 0.875rem;
-  background: #00ff0033;
-  color: #00ff00;
-  border: 1px solid #00ff00;
+  background: #66ac9233;
+  color: #66ac92;
+  border: 1px solid #66ac92;
   border-radius: 0;
   font-size: 1rem;
   font-weight: 600;
@@ -186,7 +186,7 @@
 }
 
 .submit-button:hover {
-  background: #00ff00;
+  background: #66ac92;
   color: #000000;
 }
 

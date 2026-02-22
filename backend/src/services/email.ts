@@ -128,13 +128,13 @@ function createEmailTemplate(title: string, body: string): string {
 <body>
   <div class="container">
     <div class="header">
-      <h1>⚡ GeneratorLog</h1>
+      <h1>⚡ Generator Log</h1>
     </div>
     <div class="content">
       ${body}
     </div>
     <div class="footer">
-      <p><strong>GeneratorLog</strong> - Generator Usage Tracking</p>
+      <p><strong>Generator Log</strong> - Generator Usage Tracking</p>
       <p>This is an automated notification. Please do not reply to this email.</p>
     </div>
   </div>
@@ -328,7 +328,7 @@ export async function sendTestEmail(userEmail: string, userName: string): Promis
   const body = `
     <h2>✅ Email Configuration Test</h2>
     <p>Hello <strong>${userName}</strong>,</p>
-    <p>Congratulations! Your GeneratorLog email configuration is working correctly.</p>
+    <p>Congratulations! Your Generator Log email configuration is working correctly.</p>
 
     <div class="alert-box">
       <strong>✅ SMTP Connection Successful</strong><br>
@@ -362,7 +362,49 @@ export async function sendTestEmail(userEmail: string, userName: string): Promis
   await emailTransporter.sendMail({
     from: config.email.from,
     to: userEmail,
-    subject: '✅ GeneratorLog Email Test - Configuration Successful',
+    subject: '✅ Generator Log Email Test - Configuration Successful',
     html: createEmailTemplate('Email Test Successful', body),
+  });
+}
+
+export function createPasswordResetEmail(userName: string, resetUrl: string): { subject: string; html: string } {
+  const body = `
+    <h2>Password Reset Requested</h2>
+    <p>Hello <strong>${userName}</strong>,</p>
+    <p>We received a request to reset your Generator Log password. Use the button below to set a new password.</p>
+
+    <div class="alert-box">
+      <strong>🔐 Reset Link</strong><br>
+      <a href="${resetUrl}" style="display:inline-block;margin-top:10px;padding:10px 16px;background:#015c53;color:#ffffff;text-decoration:none;border-radius:4px;">Reset Password</a>
+    </div>
+
+    <p style="margin-top: 20px; color: #495057;">
+      If you did not request a reset, you can safely ignore this email.
+    </p>
+  `;
+
+  return {
+    subject: 'Reset your Generator Log password',
+    html: createEmailTemplate('Password Reset', body),
+  };
+}
+
+export async function sendPasswordResetEmail(
+  userEmail: string,
+  userName: string,
+  resetUrl: string
+): Promise<void> {
+  const emailTransporter = getEmailTransporter();
+  if (!emailTransporter) {
+    throw new Error('Email service not configured');
+  }
+
+  const { subject, html } = createPasswordResetEmail(userName, resetUrl);
+
+  await emailTransporter.sendMail({
+    from: config.email.from,
+    to: userEmail,
+    subject,
+    html,
   });
 }

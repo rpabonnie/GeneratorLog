@@ -1,7 +1,7 @@
 .dashboard-page {
   min-height: 100vh;
   padding: 2rem;
-  background: #0a0a0a;
+  background: #0d1410;
 }
 
 .dashboard-container {
@@ -11,12 +11,12 @@
 
 .dashboard-container h1 {
   margin: 0 0 0.25rem 0;
-  color: #00ff00;
+  color: #66ac92;
   font-size: 2.5rem;
 }
 
 .subtitle {
-  color: #00cc00;
+  color: #4a8072;
   margin: 0 0 2rem 0;
   font-size: 1.1rem;
 }
@@ -25,7 +25,7 @@
   text-align: center;
   padding: 3rem;
   font-size: 1.2rem;
-  color: #00cc00;
+  color: #4a8072;
 }
 
 .error-message {
@@ -43,21 +43,21 @@
   background: #000000;
   border-radius: 0;
   box-shadow: none;
-  border: 1px solid #00ff00;
-  color: #00cc00;
+  border: 1px solid #66ac92;
+  color: #4a8072;
 }
 
 .setup-link {
   display: inline-block;
   margin-top: 1rem;
-  color: #00ff00;
+  color: #66ac92;
   text-decoration: none;
   font-weight: 500;
-  border-bottom: 1px solid #00ff00;
+  border-bottom: 1px solid #66ac92;
 }
 
 .setup-link:hover {
-  background-color: #00ff0022;
+  background-color: #66ac9222;
 }
 
 .stat-cards {
@@ -72,14 +72,14 @@
   padding: 1.5rem;
   border-radius: 0;
   box-shadow: none;
-  border: 1px solid #00ff00;
+  border: 1px solid #66ac92;
 }
 
 .stat-card h2 {
   margin: 0 0 1rem 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #00ff00;
+  color: #66ac92;
   text-transform: uppercase;
   letter-spacing: .04em;
 }
@@ -98,10 +98,10 @@
   height: 10px;
   border-radius: 0;
   flex-shrink: 0;
-  border: 1px solid #00ff00;
+  border: 1px solid #66ac92;
 }
 
-.status-dot.running { background: #00ff00; box-shadow: 0 0 6px rgba(0,255,0,.8); }
+.status-dot.running { background: #66ac92; box-shadow: 0 0 6px rgba(102,172,146,.8); }
 .status-dot.stopped { background: #0a0a0a; }
 
 .status-badge {
@@ -111,16 +111,16 @@
   font-size: .95rem;
   font-weight: 700;
   margin-bottom: .75rem;
-  border: 1px solid #00ff00;
+  border: 1px solid #66ac92;
 }
 
-.badge-running { background: #00ff0033; color: #00ff00; }
-.badge-stopped { background: #0a0a0a; color: #00cc00; }
+.badge-running { background: #66ac9233; color: #66ac92; }
+.badge-stopped { background: #0a0a0a; color: #4a8072; }
 
 .stat-detail {
   margin: .25rem 0 0 0;
   font-size: .9rem;
-  color: #00cc00;
+  color: #4a8072;
 }
 
 .toggle-button {
@@ -128,7 +128,7 @@
   width: 100%;
   margin-top: 1rem;
   padding: .75rem 1rem;
-  border: 1px solid #00ff00;
+  border: 1px solid #66ac92;
   border-radius: 0;
   font-size: 1rem;
   font-weight: 700;
@@ -141,11 +141,11 @@
 .toggle-button:not(:disabled):active { transform: scale(.97); }
 
 .toggle-start {
-  background: #00ff0033;
-  color: #00ff00;
+  background: #66ac9233;
+  color: #66ac92;
 }
 
-.toggle-start:hover:not(:disabled) { background: #00ff00; color: #000000; }
+.toggle-start:hover:not(:disabled) { background: #66ac92; color: #000000; }
 
 .toggle-stop {
   background: #ff000033;
@@ -173,12 +173,12 @@
 .gauge-value-text {
   font-size: 22px;
   font-weight: 700;
-  fill: #00ff00;
+  fill: #66ac92;
 }
 
 .gauge-max-text {
   font-size: 11px;
-  fill: #00cc00;
+  fill: #4a8072;
 }
 
 .gauge-status-text {
@@ -188,7 +188,7 @@
 
 .gauge-label {
   font-size: .8rem;
-  color: #00cc00;
+  color: #4a8072;
   margin-top: .25rem;
 }
 
@@ -197,14 +197,14 @@
   padding: 1.5rem;
   border-radius: 0;
   box-shadow: none;
-  border: 1px solid #00ff00;
+  border: 1px solid #66ac92;
   margin-bottom: 1.5rem;
 }
 
 .dashboard-section h2 {
   margin: 0 0 1.25rem 0;
   font-size: 1.15rem;
-  color: #00ff00;
+  color: #66ac92;
 }
 
 .section-header {
@@ -231,27 +231,27 @@
 
 .chart-label {
   font-size: 9px;
-  fill: #00cc00;
+  fill: #4a8072;
 }
 
 .chart-bar-val {
   font-size: 8px;
-  fill: #00ff00;
+  fill: #66ac92;
 }
 
 .chart-empty {
-  color: #00cc00;
+  color: #4a8072;
   text-align: center;
   padding: 1.5rem 0;
   margin: 0;
 }
 
 .oil-change-form {
-  background: #0a0a0a;
+  background: #0d1410;
   padding: 1.25rem;
   border-radius: 0;
   margin-bottom: 1.25rem;
-  border: 1px solid #00ff0055;
+  border: 1px solid #66ac9255;
 }
 
 .oil-change-form .form-row {
@@ -270,22 +270,22 @@
 .form-group label {
   font-size: .875rem;
   font-weight: 500;
-  color: #00ff00;
+  color: #66ac92;
 }
 
 .form-group input {
   padding: .65rem .875rem;
-  border: 1px solid #00ff00;
+  border: 1px solid #66ac92;
   border-radius: 0;
   font-size: .95rem;
-  color: #00ff00;
+  color: #66ac92;
   background: #000000;
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: #00ff00;
-  box-shadow: 0 0 8px rgba(0,255,0,.3);
+  border-color: #66ac92;
+  box-shadow: 0 0 8px rgba(102,172,146,.3);
 }
 
 .form-actions {
@@ -295,9 +295,9 @@
 
 .primary-button {
   padding: .65rem 1.25rem;
-  background: #00ff0033;
-  color: #00ff00;
-  border: 1px solid #00ff00;
+  background: #66ac9233;
+  color: #66ac92;
+  border: 1px solid #66ac92;
   border-radius: 0;
   font-size: .95rem;
   font-weight: 600;
@@ -305,14 +305,14 @@
   transition: all 0.2s;
 }
 
-.primary-button:hover:not(:disabled) { background: #00ff00; color: #000000; }
+.primary-button:hover:not(:disabled) { background: #66ac92; color: #000000; }
 .primary-button:disabled { opacity: .6; cursor: not-allowed; }
 
 .cancel-button {
   padding: .65rem 1.25rem;
-  background: #0a0a0a;
-  color: #00cc00;
-  border: 1px solid #00cc00;
+  background: #0d1410;
+  color: #4a8072;
+  border: 1px solid #4a8072;
   border-radius: 0;
   font-size: .95rem;
   font-weight: 500;
@@ -320,7 +320,7 @@
   transition: all 0.2s;
 }
 
-.cancel-button:hover { background: #00cc0022; }
+.cancel-button:hover { background: #4a807222; }
 
 .oil-change-list {
   list-style: none;
@@ -336,9 +336,9 @@
   justify-content: space-between;
   align-items: center;
   padding: .875rem 1rem;
-  background: #0a0a0a;
+  background: #0d1410;
   border-radius: 0;
-  border: 1px solid #00ff0055;
+  border: 1px solid #66ac9255;
 }
 
 .oil-change-info {
@@ -348,23 +348,23 @@
   flex-wrap: wrap;
 }
 
-.oil-change-info strong { color: #00ff00; }
+.oil-change-info strong { color: #66ac92; }
 
 .oil-hours {
   font-size: .875rem;
-  color: #00cc00;
+  color: #4a8072;
 }
 
 .oil-notes {
   font-size: .875rem;
-  color: #00cc00;
+  color: #4a8072;
   font-style: italic;
 }
 
 .delete-oil-change-button {
   background: none;
   border: none;
-  color: #00cc00;
+  color: #4a8072;
   font-size: 1.25rem;
   line-height: 1;
   cursor: pointer;
@@ -377,7 +377,7 @@
 .delete-oil-change-button:hover { color: #ff0000; }
 
 .empty-list {
-  color: #00cc00;
+  color: #4a8072;
   margin: 0;
   font-size: .95rem;
 }
