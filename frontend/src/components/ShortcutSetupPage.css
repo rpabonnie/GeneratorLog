@@ -1,48 +1,49 @@
 .shortcut-setup-page {
   min-height: 100vh;
   padding: 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #0a0a0a;
 }
 
 .shortcut-setup-content {
   max-width: 800px;
   margin: 0 auto;
-  background: white;
-  border-radius: 12px;
+  background: #000000;
+  border-radius: 0;
   padding: 3rem;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: none;
+  border: 2px solid #00ff00;
 }
 
 .shortcut-setup-content h1 {
   margin: 0 0 0.5rem 0;
-  color: #1a1a1a;
+  color: #00ff00;
   font-size: 2rem;
 }
 
 .setup-subtitle {
-  color: #666;
+  color: #00cc00;
   margin: 0 0 2rem 0;
   font-size: 1.1rem;
 }
 
 .setup-info-box {
-  background: #f8f9fa;
+  background: #0a0a0a;
   padding: 1.5rem;
-  border-radius: 8px;
+  border-radius: 0;
   margin-bottom: 2rem;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid #00ff00;
 }
 
 .setup-info-box h2 {
   margin: 0 0 0.5rem 0;
   font-size: 1.25rem;
-  color: #1a1a1a;
+  color: #00ff00;
 }
 
 .setup-info-box .hint {
   margin: 0;
   font-family: 'Courier New', monospace;
-  color: #666;
+  color: #00cc00;
 }
 
 .setup-section {
@@ -50,7 +51,7 @@
 }
 
 .setup-section h3 {
-  color: #667eea;
+  color: #00ff00;
   margin: 0 0 1rem 0;
   font-size: 1.3rem;
 }
@@ -63,25 +64,27 @@
 .setup-section li {
   margin-bottom: 0.75rem;
   line-height: 1.6;
+  color: #00cc00;
 }
 
 .code-block {
-  background: #1e1e1e;
-  border-radius: 6px;
+  background: #000000;
+  border-radius: 0;
   padding: 1rem;
   margin: 1rem 0;
   position: relative;
   overflow-x: auto;
+  border: 1px solid #00ff00;
 }
 
 .code-block code {
-  color: #d4d4d4;
+  color: #00ff00;
   font-family: 'Courier New', monospace;
   font-size: 0.9rem;
 }
 
 .code-block pre {
-  color: #d4d4d4;
+  color: #00ff00;
   font-family: 'Courier New', monospace;
   font-size: 0.9rem;
   margin: 0;
@@ -93,27 +96,28 @@
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
-  background: #667eea;
-  color: white;
-  border: none;
+  background: #00ff0033;
+  color: #00ff00;
+  border: 1px solid #00ff00;
   padding: 0.4rem 0.8rem;
-  border-radius: 4px;
+  border-radius: 0;
   cursor: pointer;
   font-size: 0.85rem;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
 .copy-btn:hover {
-  background: #5568d3;
+  background: #00ff00;
+  color: #000000;
 }
 
 .warning-box {
-  background: #fff3cd;
-  border: 1px solid #ffc107;
-  border-radius: 6px;
+  background: #1a1a00;
+  border: 1px solid #ffff00;
+  border-radius: 0;
   padding: 1rem;
   margin: 1rem 0;
-  color: #856404;
+  color: #ffff00;
 }
 
 .warning-box strong {
@@ -126,70 +130,77 @@
   gap: 1rem;
   margin-top: 3rem;
   padding-top: 2rem;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid #00ff00;
 }
 
 .btn-primary,
 .btn-secondary {
   padding: 0.75rem 1.5rem;
-  border-radius: 6px;
+  border-radius: 0;
   border: none;
   cursor: pointer;
   font-size: 1rem;
   font-weight: 500;
   transition: all 0.2s;
+  border: 1px solid;
 }
 
 .btn-primary {
-  background: #667eea;
-  color: white;
+  background: #00ff0033;
+  color: #00ff00;
+  border-color: #00ff00;
   flex: 1;
 }
 
 .btn-primary:hover {
-  background: #5568d3;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  background: #00ff00;
+  color: #000000;
 }
 
 .btn-secondary {
-  background: white;
-  color: #667eea;
-  border: 2px solid #667eea;
+  background: #0a0a0a;
+  color: #00cc00;
+  border-color: #00cc00;
   flex: 1;
 }
 
 .btn-secondary:hover {
-  background: #f8f9fa;
+  background: #00cc0033;
 }
 
 .shortcut-setup-error,
 .shortcut-setup-loading {
   text-align: center;
   padding: 3rem;
-  background: white;
-  border-radius: 12px;
+  background: #000000;
+  border-radius: 0;
+  border: 1px solid #00ff00;
   max-width: 500px;
   margin: 0 auto;
 }
 
 .shortcut-setup-error h1 {
-  color: #dc3545;
+  color: #ff0000;
   margin-bottom: 1rem;
 }
 
 .shortcut-setup-error button {
   margin-top: 1.5rem;
   padding: 0.75rem 1.5rem;
-  background: #667eea;
-  color: white;
-  border: none;
-  border-radius: 6px;
+  background: #00ff0033;
+  color: #00ff00;
+  border: 1px solid #00ff00;
+  border-radius: 0;
   cursor: pointer;
   font-size: 1rem;
+  transition: all 0.2s;
 }
 
-/* Responsive */
+.shortcut-setup-error button:hover {
+  background: #00ff00;
+  color: #000000;
+}
+
 @media (max-width: 768px) {
   .shortcut-setup-page {
     padding: 1rem;
@@ -216,7 +227,6 @@
   }
 }
 
-/* Print styles */
 @media print {
   .shortcut-setup-page {
     background: white;

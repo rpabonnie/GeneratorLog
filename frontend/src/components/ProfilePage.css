@@ -1,7 +1,7 @@
 .profile-page {
   min-height: 100vh;
   padding: 2rem;
-  background: #f7fafc;
+  background: #0a0a0a;
 }
 
 @media (max-width: 1024px) {
@@ -29,7 +29,7 @@
 
 .profile-container h1 {
   margin: 0 0 2rem 0;
-  color: #1a202c;
+  color: #00ff00;
   font-size: 2.5rem;
 }
 
@@ -51,38 +51,39 @@
   text-align: center;
   padding: 3rem;
   font-size: 1.2rem;
-  color: #718096;
+  color: #00cc00;
 }
 
 .success-message {
   padding: 1rem;
   margin-bottom: 1.5rem;
-  background: #d4edda;
-  border: 1px solid #c3e6cb;
-  border-radius: 8px;
-  color: #155724;
+  background: #001a00;
+  border: 1px solid #00ff00;
+  border-radius: 0;
+  color: #00ff00;
 }
 
 .error-message {
   padding: 1rem;
   margin-bottom: 1.5rem;
-  background: #fee;
-  border: 1px solid #fcc;
-  border-radius: 8px;
-  color: #c53030;
+  background: #1a0000;
+  border: 1px solid #ff0000;
+  border-radius: 0;
+  color: #ff0000;
 }
 
 .profile-section {
-  background: white;
+  background: #000000;
   padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-radius: 0;
+  box-shadow: none;
+  border: 1px solid #00ff00;
   margin-bottom: 2rem;
 }
 
 .profile-section h2 {
   margin: 0 0 1.5rem 0;
-  color: #2d3748;
+  color: #00ff00;
   font-size: 1.5rem;
 }
 
@@ -126,63 +127,67 @@
 
 .form-group label {
   font-weight: 500;
-  color: #2d3748;
+  color: #00ff00;
   font-size: 0.9rem;
 }
 
 .form-group input {
   padding: 0.75rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
+  border: 1px solid #00ff00;
+  border-radius: 0;
   font-size: 1rem;
-  transition: border-color 0.2s;
+  background: #000000;
+  color: #00ff00;
+  transition: all 0.2s;
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #00ff00;
+  box-shadow: 0 0 8px rgba(0, 255, 0, 0.3);
 }
 
 .generator-stats {
   padding: 1rem;
-  background: #f7fafc;
-  border-radius: 6px;
+  background: #0a0a0a;
+  border-radius: 0;
+  border: 1px solid #00ff0055;
   display: flex;
   gap: 2rem;
 }
 
 .generator-stats p {
   margin: 0;
-  color: #4a5568;
+  color: #00cc00;
 }
 
 .generator-stats strong {
-  color: #1a202c;
+  color: #00ff00;
 }
 
 .status-running {
-  color: #38a169 !important;
+  color: #00ff00 !important;
 }
 
 .status-stopped {
-  color: #718096 !important;
+  color: #00cc00 !important;
 }
 
 .submit-button {
   padding: 0.875rem;
-  background: #667eea;
-  color: white;
-  border: none;
-  border-radius: 6px;
+  background: #00ff0033;
+  color: #00ff00;
+  border: 1px solid #00ff00;
+  border-radius: 0;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
 .submit-button:hover {
-  background: #5568d3;
+  background: #00ff00;
+  color: #000000;
 }
 
 @media (max-width: 640px) {
@@ -199,49 +204,5 @@
 @media (max-width: 768px) and (min-width: 641px) {
   .form-row {
     grid-template-columns: 1fr;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .profile-page {
-    background: #1a202c;
-  }
-
-  .profile-container h1 {
-    color: #f7fafc;
-  }
-
-  .profile-section {
-    background: #2d3748;
-  }
-
-  .profile-section h2 {
-    color: #e2e8f0;
-  }
-
-  .form-group label {
-    color: #e2e8f0;
-  }
-
-  .form-group input {
-    background: #1a202c;
-    border-color: #4a5568;
-    color: #f7fafc;
-  }
-
-  .generator-stats {
-    background: #1a202c;
-  }
-
-  .generator-stats p {
-    color: #cbd5e0;
-  }
-
-  .generator-stats strong {
-    color: #f7fafc;
-  }
-
-  .loading {
-    color: #cbd5e0;
   }
 }
