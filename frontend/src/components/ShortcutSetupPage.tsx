@@ -79,7 +79,7 @@ export function ShortcutSetupPage() {
           <h3>Quick Import (Recommended)</h3>
           <p>
             Tap the button below on your iPhone to import a pre-configured Shortcut directly into the Shortcuts app.
-            You'll be asked to enter your API key once during import.
+            Your API key is already included in the shortcut.
           </p>
           <div className="import-actions">
             <a

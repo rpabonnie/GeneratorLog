@@ -16,6 +16,11 @@ export function ProfilePage() {
   const [oilChangeMonths, setOilChangeMonths] = useState('6');
   const [oilChangeHours, setOilChangeHours] = useState('100');
   const [installedAt, setInstalledAt] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState('');
 
   useEffect(() => {
     loadProfile();
@@ -93,6 +98,33 @@ export function ProfilePage() {
     }
   };
 
+  const handlePasswordChange = async (e: FormEvent) => {
+    e.preventDefault();
+    setPasswordError('');
+    setPasswordSuccess('');
+
+    if (newPassword.length < 8) {
+      setPasswordError('New password must be at least 8 characters.');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Passwords do not match.');
+      return;
+    }
+
+    try {
+      await api.changePassword(currentPassword, newPassword);
+      setPasswordSuccess('Password updated successfully.');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setTimeout(() => setPasswordSuccess(''), 3000);
+    } catch (err) {
+      setPasswordError(err instanceof Error ? err.message : 'Failed to update password');
+    }
+  };
+
   if (loading) {
     return <div className="profile-page"><div className="loading">Loading...</div></div>;
   }
@@ -133,6 +165,51 @@ export function ProfilePage() {
 
             <button type="submit" className="submit-button">
               Update Profile
+            </button>
+          </form>
+        </section>
+
+        <section className="profile-section">
+          <h2>Security</h2>
+          <form onSubmit={handlePasswordChange} className="profile-form">
+            <div className="form-group">
+              <label htmlFor="currentPassword">Current Password</label>
+              <input
+                type="password"
+                id="currentPassword"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="newPassword">New Password</label>
+              <input
+                type="password"
+                id="newPassword"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="confirmPassword">Confirm New Password</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            {passwordSuccess && <div className="success-message">{passwordSuccess}</div>}
+            {passwordError && <div className="error-message">{passwordError}</div>}
+
+            <button type="submit" className="submit-button">
+              Update Password
             </button>
           </form>
         </section>

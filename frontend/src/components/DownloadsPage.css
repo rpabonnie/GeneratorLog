@@ -1,7 +1,7 @@
 .downloads-page {
   min-height: 100vh;
   padding: 2rem;
-  background: #0a0a0a;
+  background: #0d1410;
 }
 
 .downloads-container {
@@ -11,12 +11,12 @@
 
 .downloads-container h1 {
   margin: 0 0 0.25rem 0;
-  color: #00ff00;
+  color: #66ac92;
   font-size: 2.5rem;
 }
 
 .subtitle {
-  color: #00cc00;
+  color: #4a8072;
   margin: 0 0 2rem 0;
 }
 
@@ -33,9 +33,9 @@
   padding: 1rem;
   margin-bottom: 1.5rem;
   background: #001a00;
-  border: 1px solid #00ff00;
+  border: 1px solid #66ac92;
   border-radius: 0;
-  color: #00ff00;
+  color: #66ac92;
 }
 
 .download-card {
@@ -46,7 +46,7 @@
   padding: 1.5rem;
   border-radius: 0;
   box-shadow: none;
-  border: 1px solid #00ff00;
+  border: 1px solid #66ac92;
   margin-bottom: 1rem;
 }
 
@@ -62,20 +62,20 @@
 .download-card-info h2 {
   margin: 0 0 0.25rem 0;
   font-size: 1.1rem;
-  color: #00ff00;
+  color: #66ac92;
 }
 
 .download-card-info p {
   margin: 0;
   font-size: 0.9rem;
-  color: #00cc00;
+  color: #4a8072;
 }
 
 .download-button {
   padding: .65rem 1.25rem;
-  background: #00ff0033;
-  color: #00ff00;
-  border: 1px solid #00ff00;
+  background: #66ac9233;
+  color: #66ac92;
+  border: 1px solid #66ac92;
   border-radius: 0;
   font-size: .95rem;
   font-weight: 600;
@@ -86,7 +86,7 @@
 }
 
 .download-button:hover:not(:disabled) {
-  background: #00ff00;
+  background: #66ac92;
   color: #000000;
 }
 .download-button:disabled { opacity: .6; cursor: not-allowed; }

@@ -1,6 +1,7 @@
 import { type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { api } from '../utils/api';
+import logo from '../assets/generatorLogLogo.png';
 import './Layout.css';
 
 interface LayoutProps {
@@ -28,7 +29,7 @@ export function Layout({ children }: LayoutProps) {
       <nav className="navbar">
         <div className="nav-container">
           <Link to="/" className="nav-logo">
-            GeneratorLog
+            <img src={logo} alt="Generator Log" className="logo-image" />
           </Link>
           <div className="nav-links">
             <Link to="/" className={`nav-link ${isActive('/')}`}>

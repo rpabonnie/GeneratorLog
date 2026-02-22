@@ -1,7 +1,7 @@
 .logs-page {
   min-height: 100vh;
   padding: 2rem;
-  background: #0a0a0a;
+  background: #0d1410;
 }
 
 .logs-container {
@@ -11,12 +11,12 @@
 
 .logs-container h1 {
   margin: 0 0 0.5rem 0;
-  color: #00ff00;
+  color: #66ac92;
   font-size: 2.5rem;
 }
 
 .subtitle {
-  color: #00cc00;
+  color: #4a8072;
   margin: 0 0 2rem 0;
 }
 
@@ -24,7 +24,7 @@
   text-align: center;
   padding: 3rem;
   font-size: 1.2rem;
-  color: #00cc00;
+  color: #4a8072;
 }
 
 .error-message {
@@ -41,13 +41,13 @@
   padding: 1.5rem;
   border-radius: 0;
   box-shadow: none;
-  border: 1px solid #00ff00;
+  border: 1px solid #66ac92;
   margin-bottom: 2rem;
 }
 
 .log-form-section h2 {
   margin: 0 0 1.25rem 0;
-  color: #00ff00;
+  color: #66ac92;
   font-size: 1.3rem;
 }
 
@@ -67,22 +67,22 @@
 .form-group label {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #00ff00;
+  color: #66ac92;
 }
 
 .form-group input[type="datetime-local"] {
   padding: 0.75rem;
-  border: 1px solid #00ff00;
+  border: 1px solid #66ac92;
   border-radius: 0;
   font-size: 0.95rem;
-  color: #00ff00;
+  color: #66ac92;
   background: #000000;
 }
 
 .form-group input[type="datetime-local"]:focus {
   outline: none;
-  border-color: #00ff00;
-  box-shadow: 0 0 8px rgba(0, 255, 0, 0.3);
+  border-color: #66ac92;
+  box-shadow: 0 0 8px rgba(102, 172, 146, 0.3);
 }
 
 .form-actions {
@@ -92,9 +92,9 @@
 
 .submit-button {
   padding: 0.75rem 1.5rem;
-  background: #00ff0033;
-  color: #00ff00;
-  border: 1px solid #00ff00;
+  background: #66ac9233;
+  color: #66ac92;
+  border: 1px solid #66ac92;
   border-radius: 0;
   font-size: 1rem;
   font-weight: 600;
@@ -103,15 +103,15 @@
 }
 
 .submit-button:hover {
-  background: #00ff00;
+  background: #66ac92;
   color: #000000;
 }
 
 .cancel-button {
   padding: 0.75rem 1.25rem;
-  background: #0a0a0a;
-  color: #00cc00;
-  border: 1px solid #00cc00;
+  background: #0d1410;
+  color: #4a8072;
+  border: 1px solid #4a8072;
   border-radius: 0;
   font-size: 1rem;
   font-weight: 500;
@@ -120,7 +120,7 @@
 }
 
 .cancel-button:hover {
-  background: #00cc0033;
+  background: #4a807233;
 }
 
 .empty-state {
@@ -129,15 +129,15 @@
   background: #000000;
   border-radius: 0;
   box-shadow: none;
-  border: 1px solid #00ff00;
-  color: #00cc00;
+  border: 1px solid #66ac92;
+  color: #4a8072;
 }
 
 .logs-table-wrapper {
   background: #000000;
   border-radius: 0;
   box-shadow: none;
-  border: 1px solid #00ff00;
+  border: 1px solid #66ac92;
   overflow: hidden;
 }
 
@@ -147,8 +147,8 @@
 }
 
 .logs-table thead {
-  background: #0a0a0a;
-  border-bottom: 2px solid #00ff00;
+  background: #0d1410;
+  border-bottom: 2px solid #66ac92;
 }
 
 .logs-table th {
@@ -156,15 +156,15 @@
   text-align: left;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #00ff00;
+  color: #66ac92;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .log-row td {
   padding: 1rem;
-  border-bottom: 1px solid #00ff0033;
-  color: #00cc00;
+  border-bottom: 1px solid #66ac9233;
+  color: #4a8072;
   font-size: 0.95rem;
 }
 
@@ -189,13 +189,13 @@
 }
 
 .edit-log-button {
-  background: #00ff0033;
-  color: #00ff00;
-  border-color: #00ff00;
+  background: #66ac9233;
+  color: #66ac92;
+  border-color: #66ac92;
 }
 
 .edit-log-button:hover {
-  background: #00ff00;
+  background: #66ac92;
   color: #000000;
 }
 

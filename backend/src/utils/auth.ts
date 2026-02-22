@@ -1,5 +1,16 @@
-import { scrypt, randomBytes, createHash, timingSafeEqual, type BinaryLike, type ScryptOptions } from 'node:crypto';
+import {
+  scrypt,
+  randomBytes,
+  createHash,
+  timingSafeEqual,
+  createCipheriv,
+  createDecipheriv,
+  createHmac,
+  type BinaryLike,
+  type ScryptOptions,
+} from 'node:crypto';
 import { promisify } from 'node:util';
+import config from '../config.js';
 
 const scryptAsync = promisify(scrypt) as unknown as (
   password: BinaryLike,
@@ -41,6 +52,55 @@ export function validateApiKey(provided: string, storedHash: string): boolean {
   const providedHash = createHash('sha256').update(provided).digest();
   const stored = Buffer.from(storedHash, 'hex');
   return timingSafeEqual(providedHash, stored);
+}
+
+function deriveEncryptionKey(): Buffer {
+  return createHash('sha256').update(config.session.secret).digest();
+}
+
+export function encryptApiKey(raw: string): string {
+  const key = deriveEncryptionKey();
+  const iv = randomBytes(12);
+  const cipher = createCipheriv('aes-256-gcm', key, iv);
+  const ciphertext = Buffer.concat([cipher.update(raw, 'utf8'), cipher.final()]);
+  const tag = cipher.getAuthTag();
+  return `${iv.toString('base64')}:${tag.toString('base64')}:${ciphertext.toString('base64')}`;
+}
+
+export function decryptApiKey(encrypted: string): string {
+  const [ivB64, tagB64, dataB64] = encrypted.split(':');
+  if (!ivB64 || !tagB64 || !dataB64) {
+    throw new Error('Invalid encrypted API key format');
+  }
+  const key = deriveEncryptionKey();
+  const iv = Buffer.from(ivB64, 'base64');
+  const tag = Buffer.from(tagB64, 'base64');
+  const data = Buffer.from(dataB64, 'base64');
+  const decipher = createDecipheriv('aes-256-gcm', key, iv);
+  decipher.setAuthTag(tag);
+  const plaintext = Buffer.concat([decipher.update(data), decipher.final()]);
+  return plaintext.toString('utf8');
+}
+
+export function createShortcutToken(keyId: number, expiresAtMs: number): string {
+  const payload = `${keyId}.${expiresAtMs}`;
+  const signature = createHmac('sha256', deriveEncryptionKey())
+    .update(payload)
+    .digest('base64url');
+  return `${expiresAtMs}.${signature}`;
+}
+
+export function verifyShortcutToken(keyId: number, token: string): boolean {
+  const [expiresRaw, signature] = token.split('.');
+  if (!expiresRaw || !signature) return false;
+  const expiresAtMs = Number(expiresRaw);
+  if (!Number.isFinite(expiresAtMs) || Date.now() > expiresAtMs) return false;
+  const payload = `${keyId}.${expiresAtMs}`;
+  const expected = createHmac('sha256', deriveEncryptionKey())
+    .update(payload)
+    .digest('base64url');
+  if (signature.length !== expected.length) return false;
+  return timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
 }
 
 // Sessions

@@ -41,9 +41,19 @@ export const apiKeys = pgTable('api_keys', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').notNull().references(() => users.id),
   keyHash: varchar('key_hash', { length: 64 }).notNull().unique(),
+  encryptedKey: varchar('encrypted_key', { length: 512 }),
   hint: varchar('hint', { length: 4 }).notNull(),
   name: varchar('name', { length: 255 }),
   lastUsedAt: timestamp('last_used_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const passwordResetTokens = pgTable('password_reset_tokens', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  tokenHash: varchar('token_hash', { length: 64 }).notNull().unique(),
+  expiresAt: timestamp('expires_at').notNull(),
+  usedAt: timestamp('used_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 

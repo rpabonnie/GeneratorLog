@@ -5,9 +5,10 @@ import './DashboardPage.css';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function monthsSince(iso: string | null): number {
-  if (!iso) return 999;
-  const d = new Date(iso);
+function monthsSince(iso: string | null, fallbackIso?: string | null): number {
+  const target = iso ?? fallbackIso ?? null;
+  if (!target) return 999;
+  const d = new Date(target);
   const now = new Date();
   return (now.getFullYear() - d.getFullYear()) * 12 + (now.getMonth() - d.getMonth());
 }
@@ -245,7 +246,7 @@ export function DashboardPage() {
   }
 
   const hoursSince = generator.totalHours - (generator.lastOilChangeHours ?? 0);
-  const monthsSinceOil = monthsSince(generator.lastOilChangeDate);
+  const monthsSinceOil = monthsSince(generator.lastOilChangeDate, generator.installedAt);
   const clampedMonths = Math.min(monthsSinceOil, generator.oilChangeMonths);
 
   return (

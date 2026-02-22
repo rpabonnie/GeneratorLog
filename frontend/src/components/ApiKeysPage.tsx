@@ -193,7 +193,7 @@ export function ApiKeysPage() {
               {qrCode && (
                 <div className="qr-section">
                   <h3>Import iOS Shortcut</h3>
-                  <p>Scan with your iPhone to import a pre-configured Shortcut in one tap. You'll be asked for your API key once on import — paste the key copied above.</p>
+                  <p>Scan with your iPhone to import a pre-configured Shortcut in one tap. The API key is already embedded.</p>
                   <img src={qrCode} alt="QR Code for Shortcut import" className="qr-code-img" />
                   <button onClick={() => selectedKeyId && handleViewInstructions(selectedKeyId)} className="link-button">
                     Manual Setup Instructions
@@ -212,7 +212,7 @@ export function ApiKeysPage() {
           <div className="modal-overlay" onClick={() => setShowQrModal(false)}>
             <div className="modal" onClick={(e) => e.stopPropagation()}>
               <h2>Import iOS Shortcut</h2>
-              <p>Scan with your iPhone to import a pre-configured Shortcut directly into the Shortcuts app. You'll be asked for your API key once on import.</p>
+              <p>Scan with your iPhone to import a pre-configured Shortcut directly into the Shortcuts app. The API key is already embedded.</p>
               {qrCode && <img src={qrCode} alt="QR Code for Shortcut import" className="qr-code-img" />}
               <div className="qr-actions">
                 <a href={shortcutFileUrl} download className="link-button">
