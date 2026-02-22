@@ -48,7 +48,7 @@ export async function authRoutes(app: FastifyInstance) {
       return reply
         .status(201)
         .header('Set-Cookie', sessionCookie(sessionId))
-        .send({ id: newUser.id, email: newUser.email, name: newUser.name, createdAt: newUser.createdAt });
+        .send({ token: sessionId, id: newUser.id, email: newUser.email, name: newUser.name, createdAt: newUser.createdAt });
     } catch (error) {
       app.log.error(error);
       return reply.status(500).send({ error: 'Internal server error' });
@@ -78,7 +78,7 @@ export async function authRoutes(app: FastifyInstance) {
       const sessionId = await createSession(user.id);
       return reply
         .header('Set-Cookie', sessionCookie(sessionId))
-        .send({ id: user.id, email: user.email, name: user.name, createdAt: user.createdAt });
+        .send({ token: sessionId, id: user.id, email: user.email, name: user.name, createdAt: user.createdAt });
     } catch (error) {
       app.log.error(error);
       return reply.status(500).send({ error: 'Internal server error' });
