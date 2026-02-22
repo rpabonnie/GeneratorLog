@@ -1,7 +1,7 @@
 .downloads-page {
   min-height: 100vh;
   padding: 2rem;
-  background: #f7fafc;
+  background: #0a0a0a;
 }
 
 .downloads-container {
@@ -11,41 +11,42 @@
 
 .downloads-container h1 {
   margin: 0 0 0.25rem 0;
-  color: #1a202c;
+  color: #00ff00;
   font-size: 2.5rem;
 }
 
 .subtitle {
-  color: #718096;
+  color: #00cc00;
   margin: 0 0 2rem 0;
 }
 
 .error-message {
   padding: 1rem;
   margin-bottom: 1.5rem;
-  background: #fee;
-  border: 1px solid #fcc;
-  border-radius: 8px;
-  color: #c53030;
+  background: #1a0000;
+  border: 1px solid #ff0000;
+  border-radius: 0;
+  color: #ff0000;
 }
 
 .success-message {
   padding: 1rem;
   margin-bottom: 1.5rem;
-  background: #f0fff4;
-  border: 1px solid #9ae6b4;
-  border-radius: 8px;
-  color: #276749;
+  background: #001a00;
+  border: 1px solid #00ff00;
+  border-radius: 0;
+  color: #00ff00;
 }
 
 .download-card {
   display: flex;
   align-items: center;
   gap: 1.25rem;
-  background: white;
+  background: #000000;
   padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.05);
+  border-radius: 0;
+  box-shadow: none;
+  border: 1px solid #00ff00;
   margin-bottom: 1rem;
 }
 
@@ -61,30 +62,33 @@
 .download-card-info h2 {
   margin: 0 0 0.25rem 0;
   font-size: 1.1rem;
-  color: #1a202c;
+  color: #00ff00;
 }
 
 .download-card-info p {
   margin: 0;
   font-size: 0.9rem;
-  color: #718096;
+  color: #00cc00;
 }
 
 .download-button {
   padding: .65rem 1.25rem;
-  background: #667eea;
-  color: white;
-  border: none;
-  border-radius: 6px;
+  background: #00ff0033;
+  color: #00ff00;
+  border: 1px solid #00ff00;
+  border-radius: 0;
   font-size: .95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background .2s;
+  transition: all .2s;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
-.download-button:hover:not(:disabled) { background: #5568d3; }
+.download-button:hover:not(:disabled) {
+  background: #00ff00;
+  color: #000000;
+}
 .download-button:disabled { opacity: .6; cursor: not-allowed; }
 
 @media (max-width: 560px) {
@@ -93,18 +97,4 @@
     text-align: center;
   }
   .download-button { width: 100%; }
-}
-
-@media (prefers-color-scheme: dark) {
-  .downloads-page { background: #1a202c; }
-
-  .downloads-container h1 { color: #f7fafc; }
-
-  .subtitle { color: #cbd5e0; }
-
-  .download-card { background: #2d3748; }
-
-  .download-card-info h2 { color: #f7fafc; }
-
-  .download-card-info p { color: #a0aec0; }
 }

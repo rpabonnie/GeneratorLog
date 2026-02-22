@@ -1,7 +1,7 @@
 .apikeys-page {
   min-height: 100vh;
   padding: 2rem;
-  background: #f7fafc;
+  background: #0a0a0a;
 }
 
 @media (max-width: 1024px) {
@@ -29,7 +29,7 @@
 
 .apikeys-container h1 {
   margin: 0 0 0.5rem 0;
-  color: #1a202c;
+  color: #00ff00;
   font-size: 2.5rem;
 }
 
@@ -46,7 +46,7 @@
 }
 
 .subtitle {
-  color: #718096;
+  color: #00cc00;
   margin: 0 0 2rem 0;
 }
 
@@ -54,16 +54,16 @@
   text-align: center;
   padding: 3rem;
   font-size: 1.2rem;
-  color: #718096;
+  color: #00cc00;
 }
 
 .error-message {
   padding: 1rem;
   margin-bottom: 1.5rem;
-  background: #fee;
-  border: 1px solid #fcc;
-  border-radius: 8px;
-  color: #c53030;
+  background: #1a0000;
+  border: 1px solid #ff0000;
+  border-radius: 0;
+  color: #ff0000;
 }
 
 .create-key-section {
@@ -75,41 +75,45 @@
 .key-name-input {
   flex: 1;
   padding: 0.875rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
+  border: 1px solid #00ff00;
+  border-radius: 0;
   font-size: 1rem;
+  background: #000000;
+  color: #00ff00;
 }
 
 .key-name-input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #00ff00;
+  box-shadow: 0 0 8px rgba(0, 255, 0, 0.3);
 }
 
 .create-button {
   padding: 0.875rem 1.5rem;
-  background: #667eea;
-  color: white;
-  border: none;
-  border-radius: 6px;
+  background: #00ff0033;
+  color: #00ff00;
+  border: 1px solid #00ff00;
+  border-radius: 0;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s;
   white-space: nowrap;
 }
 
 .create-button:hover {
-  background: #5568d3;
+  background: #00ff00;
+  color: #000000;
 }
 
 .empty-state {
   text-align: center;
   padding: 3rem;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  color: #718096;
+  background: #000000;
+  border-radius: 0;
+  box-shadow: none;
+  border: 1px solid #00ff00;
+  color: #00cc00;
 }
 
 .keys-list {
@@ -119,10 +123,11 @@
 }
 
 .key-card {
-  background: white;
+  background: #000000;
   padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-radius: 0;
+  box-shadow: none;
+  border: 1px solid #00ff00;
 }
 
 @media (max-width: 768px) {
@@ -146,32 +151,33 @@
 
 .key-header h3 {
   margin: 0;
-  color: #1a202c;
+  color: #00ff00;
   font-size: 1.2rem;
 }
 
 .key-id {
-  color: #718096;
+  color: #00cc00;
   font-size: 0.875rem;
 }
 
 .key-preview {
-  background: #f7fafc;
+  background: #0a0a0a;
   padding: 1rem;
-  border-radius: 6px;
+  border-radius: 0;
   margin-bottom: 1rem;
+  border: 1px solid #00ff0055;
 }
 
 .key-preview code {
   font-family: 'Courier New', monospace;
-  color: #2d3748;
+  color: #00ff00;
   font-size: 0.9rem;
 }
 
 .key-meta {
   display: flex;
   gap: 1.5rem;
-  color: #718096;
+  color: #00cc00;
   font-size: 0.875rem;
   margin-bottom: 1rem;
 }
@@ -188,48 +194,55 @@
 .delete-button {
   padding: 0.5rem 1rem;
   border: none;
-  border-radius: 6px;
+  border-radius: 0;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
+  border: 1px solid;
 }
 
 .qr-button {
-  background: #667eea;
-  color: white;
+  background: #00ff0033;
+  color: #00ff00;
+  border-color: #00ff00;
 }
 
 .qr-button:hover {
-  background: #5568d3;
+  background: #00ff00;
+  color: #000000;
 }
 
 .instructions-button {
-  background: #48bb78;
-  color: white;
+  background: #00ff0033;
+  color: #00ff00;
+  border-color: #00ff00;
 }
 
 .instructions-button:hover {
-  background: #38a169;
+  background: #00ff00;
+  color: #000000;
 }
 
 .reset-button {
-  background: #edf2f7;
-  color: #2d3748;
+  background: #0a0a0a;
+  color: #00cc00;
+  border-color: #00cc00;
 }
 
 .reset-button:hover {
-  background: #e2e8f0;
+  background: #00cc0033;
 }
 
 .delete-button {
-  background: #fed7d7;
-  color: #c53030;
+  background: #ff000033;
+  color: #ff0000;
+  border-color: #ff0000;
 }
 
 .delete-button:hover {
-  background: #fc8181;
-  color: white;
+  background: #ff0000;
+  color: #000000;
 }
 
 .modal-overlay {
@@ -238,7 +251,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.9);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -246,25 +259,26 @@
 }
 
 .modal {
-  background: white;
+  background: #000000;
   padding: 2rem;
-  border-radius: 12px;
+  border-radius: 0;
   max-width: 600px;
   width: 90%;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: none;
+  border: 2px solid #00ff00;
 }
 
 .modal h2 {
   margin: 0 0 1rem 0;
-  color: #1a202c;
+  color: #00ff00;
 }
 
 .modal-warning {
-  background: #fef5e7;
-  border: 1px solid #f39c12;
+  background: #1a1a00;
+  border: 1px solid #ffff00;
   padding: 0.75rem;
-  border-radius: 6px;
-  color: #c56a00;
+  border-radius: 0;
+  color: #ffff00;
   margin-bottom: 1rem;
 }
 
@@ -277,32 +291,34 @@
 
 .key-display code {
   flex: 1;
-  background: #f7fafc;
+  background: #0a0a0a;
   padding: 1rem;
-  border-radius: 6px;
+  border-radius: 0;
   font-family: 'Courier New', monospace;
   font-size: 0.9rem;
   word-break: break-all;
-  color: #2d3748;
+  color: #00ff00;
+  border: 1px solid #00ff0055;
 }
 
 .copy-button {
   padding: 0.75rem 1.25rem;
-  background: #667eea;
-  color: white;
-  border: none;
-  border-radius: 6px;
+  background: #00ff0033;
+  color: #00ff00;
+  border: 1px solid #00ff00;
+  border-radius: 0;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
 .copy-button:hover {
-  background: #5568d3;
+  background: #00ff00;
+  color: #000000;
 }
 
 .key-name-display {
-  color: #718096;
+  color: #00cc00;
   font-size: 0.9rem;
   margin-bottom: 1rem;
 }
@@ -310,18 +326,19 @@
 .close-button {
   width: 100%;
   padding: 0.875rem;
-  background: #48bb78;
-  color: white;
-  border: none;
-  border-radius: 6px;
+  background: #00ff0033;
+  color: #00ff00;
+  border: 1px solid #00ff00;
+  border-radius: 0;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
 .close-button:hover {
-  background: #38a169;
+  background: #00ff00;
+  color: #000000;
 }
 
 @media (max-width: 640px) {
@@ -362,92 +379,20 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  .apikeys-page {
-    background: #1a202c;
-  }
-
-  .apikeys-container h1 {
-    color: #f7fafc;
-  }
-
-  .subtitle {
-    color: #cbd5e0;
-  }
-
-  .key-name-input {
-    background: #2d3748;
-    border-color: #4a5568;
-    color: #f7fafc;
-  }
-
-  .empty-state,
-  .key-card {
-    background: #2d3748;
-    color: #cbd5e0;
-  }
-
-  .key-header h3 {
-    color: #f7fafc;
-  }
-
-  .key-id {
-    color: #cbd5e0;
-  }
-
-  .key-preview {
-    background: #1a202c;
-  }
-
-  .key-preview code {
-    color: #e2e8f0;
-  }
-
-  .key-meta {
-    color: #cbd5e0;
-  }
-
-  .reset-button {
-    background: #4a5568;
-    color: #e2e8f0;
-  }
-
-  .reset-button:hover {
-    background: #718096;
-  }
-
-  .modal {
-    background: #2d3748;
-  }
-
-  .modal h2 {
-    color: #f7fafc;
-  }
-
-  .key-display code {
-    background: #1a202c;
-    color: #e2e8f0;
-  }
-
-  .loading {
-    color: #cbd5e0;
-  }
-}
-
 .qr-section {
   margin-top: 1.5rem;
   padding-top: 1.5rem;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid #00ff00;
 }
 
 .qr-section h3 {
   margin: 0 0 0.5rem 0;
-  color: #1a202c;
+  color: #00ff00;
   font-size: 1.1rem;
 }
 
 .qr-section p {
-  color: #718096;
+  color: #00cc00;
   margin: 0 0 1rem 0;
 }
 
@@ -456,18 +401,18 @@
   max-width: 300px;
   width: 100%;
   margin: 1rem auto;
-  border: 2px solid #e2e8f0;
-  border-radius: 8px;
+  border: 2px solid #00ff00;
+  border-radius: 0;
 }
 
 .link-button {
   display: block;
   width: 100%;
   padding: 0.75rem 1.25rem;
-  background: white;
-  color: #667eea;
-  border: 2px solid #667eea;
-  border-radius: 6px;
+  background: #0a0a0a;
+  color: #00ff00;
+  border: 2px solid #00ff00;
+  border-radius: 0;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
@@ -476,8 +421,8 @@
 }
 
 .link-button:hover {
-  background: #667eea;
-  color: white;
+  background: #00ff00;
+  color: #000000;
 }
 
 .qr-actions {
@@ -485,33 +430,4 @@
   flex-direction: column;
   gap: 0.75rem;
   margin-bottom: 1rem;
-}
-
-@media (prefers-color-scheme: dark) {
-  .qr-section {
-    border-top-color: #4a5568;
-  }
-
-  .qr-section h3 {
-    color: #f7fafc;
-  }
-
-  .qr-section p {
-    color: #cbd5e0;
-  }
-
-  .qr-code-img {
-    border-color: #4a5568;
-  }
-
-  .link-button {
-    background: #2d3748;
-    color: #667eea;
-    border-color: #667eea;
-  }
-
-  .link-button:hover {
-    background: #667eea;
-    color: white;
-  }
 }

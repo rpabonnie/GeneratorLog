@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #0a0a0a;
 }
 
 @media (max-width: 768px) {
@@ -20,10 +20,11 @@
 }
 
 .enrollment-container {
-  background: white;
+  background: #000000;
   padding: 3rem;
-  border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  border-radius: 0;
+  box-shadow: none;
+  border: 2px solid #00ff00;
   max-width: 450px;
   width: 100%;
 }
@@ -42,7 +43,7 @@
 
 .enrollment-container h1 {
   margin: 0 0 0.5rem 0;
-  color: #1a202c;
+  color: #00ff00;
   font-size: 2rem;
 }
 
@@ -53,7 +54,7 @@
 }
 
 .subtitle {
-  color: #718096;
+  color: #00cc00;
   margin: 0 0 2rem 0;
 }
 
@@ -71,83 +72,60 @@
 
 .form-group label {
   font-weight: 500;
-  color: #2d3748;
+  color: #00ff00;
   font-size: 0.9rem;
 }
 
 .form-group input {
   padding: 0.75rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
+  border: 1px solid #00ff00;
+  border-radius: 0;
   font-size: 1rem;
-  transition: border-color 0.2s;
+  background: #0a0a0a;
+  color: #00ff00;
+  transition: all 0.2s;
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #00ff00;
+  box-shadow: 0 0 8px rgba(0, 255, 0, 0.3);
 }
 
 .form-group input:disabled {
-  background: #f7fafc;
+  background: #0a0a0a;
   cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .error-message {
   padding: 0.75rem;
-  background: #fee;
-  border: 1px solid #fcc;
-  border-radius: 6px;
-  color: #c53030;
+  background: #1a0000;
+  border: 1px solid #ff0000;
+  border-radius: 0;
+  color: #ff0000;
   font-size: 0.9rem;
 }
 
 .submit-button {
   padding: 0.875rem;
-  background: #667eea;
-  color: white;
-  border: none;
-  border-radius: 6px;
+  background: #00ff0033;
+  color: #00ff00;
+  border: 1px solid #00ff00;
+  border-radius: 0;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
 .submit-button:hover:not(:disabled) {
-  background: #5568d3;
+  background: #00ff00;
+  color: #000000;
 }
 
 .submit-button:disabled {
-  background: #a0aec0;
+  background: #0a0a0a;
   cursor: not-allowed;
-}
-
-@media (prefers-color-scheme: dark) {
-  .enrollment-container {
-    background: #2d3748;
-  }
-
-  .enrollment-container h1 {
-    color: #f7fafc;
-  }
-
-  .subtitle {
-    color: #cbd5e0;
-  }
-
-  .form-group label {
-    color: #e2e8f0;
-  }
-
-  .form-group input {
-    background: #1a202c;
-    border-color: #4a5568;
-    color: #f7fafc;
-  }
-
-  .form-group input:disabled {
-    background: #2d3748;
-  }
+  opacity: 0.5;
 }
