@@ -106,10 +106,15 @@ export async function authRoutes(app: FastifyInstance) {
   });
 
   app.post('/api/auth/logout', async (request, reply) => {
-    const cookieHeader = request.headers['cookie'];
-    if (cookieHeader) {
-      const sessionId = parseCookies(cookieHeader)[config.session.cookieName];
-      if (sessionId) await deleteSession(sessionId);
+    const authHeader = request.headers['authorization'];
+    if (authHeader?.startsWith('Bearer ')) {
+      await deleteSession(authHeader.slice(7));
+    } else {
+      const cookieHeader = request.headers['cookie'];
+      if (cookieHeader) {
+        const sessionId = parseCookies(cookieHeader)[config.session.cookieName];
+        if (sessionId) await deleteSession(sessionId);
+      }
     }
     return reply.header('Set-Cookie', clearSessionCookie()).status(204).send();
   });
