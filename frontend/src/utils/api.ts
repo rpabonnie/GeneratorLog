@@ -1,14 +1,29 @@
 import type { User, Generator, ApiKey, UsageLog, OilChangeEntry, ToggleResult, ApiError } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+const TOKEN_KEY = 'gl_session';
 
 class ApiClient {
+  private getToken(): string | null {
+    return localStorage.getItem(TOKEN_KEY);
+  }
+
+  private setToken(token: string): void {
+    localStorage.setItem(TOKEN_KEY, token);
+  }
+
+  private clearToken(): void {
+    localStorage.removeItem(TOKEN_KEY);
+  }
+
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
+    const token = this.getToken();
     const headers: Record<string, string> = {
       ...(options.body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
       ...options.headers as Record<string, string>,
     };
 
@@ -33,21 +48,31 @@ class ApiClient {
   }
 
   async enrollUser(email: string, password: string, name?: string): Promise<User> {
-    return this.request<User>('/api/auth/enroll', {
+    const data = await this.request<User & { token?: string }>('/api/auth/enroll', {
       method: 'POST',
       body: JSON.stringify({ email, password, name }),
     });
+    if (data.token) this.setToken(data.token);
+    const { token: _token, ...user } = data;
+    return user as User;
   }
 
   async loginUser(email: string, password: string): Promise<User> {
-    return this.request<User>('/api/auth/login', {
+    const data = await this.request<User & { token?: string }>('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
+    if (data.token) this.setToken(data.token);
+    const { token: _token, ...user } = data;
+    return user as User;
   }
 
   async logout(): Promise<void> {
-    return this.request<void>('/api/auth/logout', { method: 'POST' });
+    try {
+      await this.request<void>('/api/auth/logout', { method: 'POST' });
+    } finally {
+      this.clearToken();
+    }
   }
 
   async getCurrentUser(): Promise<User> {

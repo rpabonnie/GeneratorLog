@@ -28,7 +28,7 @@ server.addHook('onRequest', async (request, reply) => {
   const allowedOrigin = (config.nodeEnv !== 'production' && isLocalOrigin) ? origin : config.corsOrigin;
   reply.header('Access-Control-Allow-Origin', allowedOrigin);
   reply.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  reply.header('Access-Control-Allow-Headers', 'Content-Type, x-api-key');
+  reply.header('Access-Control-Allow-Headers', 'Content-Type, x-api-key, Authorization');
   reply.header('Access-Control-Allow-Credentials', 'true');
   if (request.method === 'OPTIONS') {
     return reply.status(204).send();
@@ -57,13 +57,8 @@ server.get('/health', async () => {
   };
 });
 
-// Root endpoint
 server.get('/', async () => {
-  return {
-    name: 'GeneratorLog API',
-    version: '1.0.0',
-    status: 'running',
-  };
+  return { name: 'GeneratorLog API', version: '1.0.0', status: 'running' };
 });
 
 const start = async () => {

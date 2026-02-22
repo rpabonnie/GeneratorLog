@@ -29,7 +29,8 @@
     "/^node --version$/": {
       "approve": true,
       "matchCommandLine": true
-    }
+    },
+    "az": true
   },
   "terminal.integrated.defaultProfile.linux": "zsh",
   "terminal.integrated.profiles.linux": {

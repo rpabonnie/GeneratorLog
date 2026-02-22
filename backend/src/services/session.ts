@@ -16,13 +16,17 @@ export function parseCookies(header: string): Record<string, string> {
 
 export function sessionCookie(id: string): string {
   const maxAgeSeconds = Math.floor(config.session.maxAge / 1000);
-  const secure = config.nodeEnv === 'production' ? '; Secure' : '';
-  return `${config.session.cookieName}=${id}; HttpOnly${secure}; SameSite=Strict; Path=/; Max-Age=${maxAgeSeconds}`;
+  const isProduction = config.nodeEnv === 'production';
+  const sameSite = isProduction ? 'None' : 'Lax';
+  const secure = isProduction ? '; Secure' : '';
+  return `${config.session.cookieName}=${id}; HttpOnly${secure}; SameSite=${sameSite}; Path=/; Max-Age=${maxAgeSeconds}`;
 }
 
 export function clearSessionCookie(): string {
-  const secure = config.nodeEnv === 'production' ? '; Secure' : '';
-  return `${config.session.cookieName}=; HttpOnly${secure}; SameSite=Strict; Path=/; Max-Age=0`;
+  const isProduction = config.nodeEnv === 'production';
+  const sameSite = isProduction ? 'None' : 'Lax';
+  const secure = isProduction ? '; Secure' : '';
+  return `${config.session.cookieName}=; HttpOnly${secure}; SameSite=${sameSite}; Path=/; Max-Age=0`;
 }
 
 export async function createSession(userId: number): Promise<string> {
@@ -53,9 +57,18 @@ export async function deleteSession(sessionId: string): Promise<void> {
 export function registerSessionMiddleware(app: FastifyInstance): void {
   app.decorateRequest('sessionUser', null);
   app.addHook('onRequest', async (request) => {
-    const cookieHeader = request.headers['cookie'];
-    if (!cookieHeader) return;
-    const sessionId = parseCookies(cookieHeader)[config.session.cookieName];
+    let sessionId: string | undefined;
+
+    const authHeader = request.headers['authorization'];
+    if (authHeader?.startsWith('Bearer ')) {
+      sessionId = authHeader.slice(7);
+    } else {
+      const cookieHeader = request.headers['cookie'];
+      if (cookieHeader) {
+        sessionId = parseCookies(cookieHeader)[config.session.cookieName];
+      }
+    }
+
     if (!sessionId) return;
     (request as any).sessionUser = await getSessionUser(sessionId);
   });

@@ -94,6 +94,46 @@ This is a new repository with minimal structure. As the project develops, this f
 - Development workflow and conventions
 - Key entry points and module structure
 
+## Security Guidelines
+
+### Secrets Handling — CRITICAL
+
+**NEVER expose secrets in any output, code, or files.**
+
+Secrets include: database connection strings, API keys, SMTP passwords, session secrets, OAuth credentials, deployment tokens, and any value stored in `.env` or Azure Key Vault.
+
+#### Rules for AI Agents
+
+1. **Do not print secrets to output.** When running `az keyvault secret show`, `az webapp config appsettings list`, or any command that may return secret values, pipe through redaction or use `--query` to select only non-secret fields. If a secret appears in output, do not repeat it in your response.
+
+2. **Do not hardcode secrets in code.** All secrets must come from environment variables. The config pattern in `backend/src/config.ts` is the correct pattern — `process.env.SECRET_NAME`.
+
+3. **Do not commit `.env` files.** The `.gitignore` excludes `.env`. Never stage or commit `.env`, `.env.local`, `.env.production`, or any file containing real credentials.
+
+4. **Use variables when passing secrets in shell commands.** Assign to a shell variable first, then pass the variable. This avoids secrets appearing in process lists or logs:
+   ```bash
+   # CORRECT
+   DB_URL='postgresql://user:password@host/db'
+   az keyvault secret set --vault-name generatorlog-kv --name DatabaseURL --value "$DB_URL"
+
+   # WRONG — secret visible in shell history and process list
+   az keyvault secret set --vault-name generatorlog-kv --name DatabaseURL --value "postgresql://user:password@host/db"
+   ```
+
+5. **Azure deployments use Key Vault.** Secrets are never set as plain-text app settings. All secrets referenced in App Service use `@Microsoft.KeyVault(SecretUri=...)` references. See `docs/deployment/cloud-deployment.md` for the full setup.
+
+6. **Warn before running commands that expose secrets.** If a requested command would print a secret value to stdout (e.g., `az keyvault secret show --name DatabaseURL`), warn the user and suggest a safer alternative before running it.
+
+#### Secret Locations in This Repository
+
+| Secret | Storage | Never in |
+|---|---|---|
+| `DATABASE_URL` | Azure Key Vault → `DatabaseURL` | Code, `.env` committed to git |
+| `SESSION_SECRET` | Azure Key Vault → `SessionSecret` | Code, app settings plain text |
+| `SMTP_USER` / `SMTP_PASSWORD` | Azure Key Vault → `SmtpUser`, `SmtpPassword` | Code, logs |
+| `OAUTH_CLIENT_ID/SECRET` | Azure Key Vault → `OauthClientId`, `OauthClientSecret` | Code, logs |
+| SWA deployment token | Single-use env var only | Code, committed files |
+
 ## Coding Guidelines
 
 ### Dependency Philosophy
