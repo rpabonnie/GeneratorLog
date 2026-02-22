@@ -99,9 +99,9 @@ export function EnrollmentPage() {
           </button>
         </form>
 
-        <p style={{ textAlign: 'center', marginTop: '1.5rem', color: '#718096' }}>
+        <p style={{ textAlign: 'center', marginTop: '1.5rem', color: '#00cc00' }}>
           Already have an account?{' '}
-          <Link to="/login" style={{ color: '#667eea', fontWeight: 500 }}>
+          <Link to="/login" style={{ color: '#00ff00', fontWeight: 500 }}>
             Sign in
           </Link>
         </p>

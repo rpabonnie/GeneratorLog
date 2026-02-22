@@ -62,9 +62,9 @@ export function LoginPage() {
           </button>
         </form>
 
-        <p style={{ textAlign: 'center', marginTop: '1.5rem', color: '#718096' }}>
+        <p style={{ textAlign: 'center', marginTop: '1.5rem', color: '#00cc00' }}>
           No account yet?{' '}
-          <Link to="/enroll" style={{ color: '#667eea', fontWeight: 500 }}>
+          <Link to="/enroll" style={{ color: '#00ff00', fontWeight: 500 }}>
             Create one
           </Link>
         </p>
