@@ -20,6 +20,16 @@ export function getEmailTransporter(): Transporter | null {
         pass: config.email.password,
       },
     });
+
+    // Verify the transporter at startup so production auth/login issues are logged early.
+    // Do NOT log secret values; only surface non-sensitive connection info and the error message.
+    transporter.verify().then(() => {
+      // eslint-disable-next-line no-console
+      console.info('SMTP transporter verified', { host: config.email.host, port: config.email.port, secure: config.email.secure });
+    }).catch((err: Error) => {
+      // eslint-disable-next-line no-console
+      console.error('SMTP transporter verification failed', { host: config.email.host, port: config.email.port, secure: config.email.secure, message: err && err.message });
+    });
   }
 
   return transporter;
@@ -292,12 +302,19 @@ export async function sendStopConfirmationEmail(
 
   const { subject, html } = createStopConfirmationEmail(data);
 
-  await emailTransporter.sendMail({
-    from: config.email.from,
-    to: userEmail,
-    subject,
-    html,
-  });
+  try {
+    await emailTransporter.sendMail({
+      from: config.email.from,
+      to: userEmail,
+      subject,
+      html,
+    });
+  } catch (err) {
+    // Log non-sensitive context to help diagnose production issues (do not log passwords).
+    // eslint-disable-next-line no-console
+    console.error('Failed to send stop confirmation email', { to: userEmail, host: config.email.host, port: config.email.port, secure: config.email.secure, message: err && (err as Error).message });
+    throw err;
+  }
 }
 
 export async function sendMaintenanceReminderEmail(
@@ -311,12 +328,18 @@ export async function sendMaintenanceReminderEmail(
 
   const { subject, html } = createMaintenanceReminderEmail(data);
 
-  await emailTransporter.sendMail({
-    from: config.email.from,
-    to: userEmail,
-    subject,
-    html,
-  });
+  try {
+    await emailTransporter.sendMail({
+      from: config.email.from,
+      to: userEmail,
+      subject,
+      html,
+    });
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Failed to send maintenance reminder email', { to: userEmail, host: config.email.host, port: config.email.port, secure: config.email.secure, message: err && (err as Error).message });
+    throw err;
+  }
 }
 
 export async function sendTestEmail(userEmail: string, userName: string): Promise<void> {
@@ -359,12 +382,18 @@ export async function sendTestEmail(userEmail: string, userName: string): Promis
     </ul>
   `;
 
-  await emailTransporter.sendMail({
-    from: config.email.from,
-    to: userEmail,
-    subject: '✅ Generator Log Email Test - Configuration Successful',
-    html: createEmailTemplate('Email Test Successful', body),
-  });
+  try {
+    await emailTransporter.sendMail({
+      from: config.email.from,
+      to: userEmail,
+      subject: '✅ Generator Log Email Test - Configuration Successful',
+      html: createEmailTemplate('Email Test Successful', body),
+    });
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Failed to send test email', { to: userEmail, host: config.email.host, port: config.email.port, secure: config.email.secure, message: err && (err as Error).message });
+    throw err;
+  }
 }
 
 export function createPasswordResetEmail(userName: string, resetUrl: string): { subject: string; html: string } {
