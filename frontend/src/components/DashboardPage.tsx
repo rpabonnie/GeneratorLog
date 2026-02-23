@@ -90,7 +90,7 @@ function RunBarChart({ logs }: { logs: UsageLog[] }) {
 
   return (
     <div className="run-chart-wrap">
-      <svg viewBox={`0 0 ${totalW} ${chartH + 28}`} className="run-chart-svg"
+      <svg viewBox={`0 -20 ${totalW} ${chartH + 68}`} className="run-chart-svg"
         role="img" aria-label="Recent runs bar chart">
         {completed.map((log, i) => {
           const h = (log.durationHours! / maxH) * chartH;
@@ -107,7 +107,7 @@ function RunBarChart({ logs }: { logs: UsageLog[] }) {
                 fill={parseFloat(hrs) > 0 ? '#667eea' : '#cbd5e0'} />
               <text x={x + barW / 2} y={chartH + 10} textAnchor="middle"
                 className="chart-label">{label}</text>
-              <text x={x + barW / 2} y={y - 4} textAnchor="middle"
+              <text x={x + barW / 2} y={y - 10} textAnchor="middle"
                 className="chart-bar-val">{hrs}h</text>
             </g>
           );
