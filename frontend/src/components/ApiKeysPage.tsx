@@ -215,7 +215,7 @@ export function ApiKeysPage() {
               <p>Scan with your iPhone to import a pre-configured Shortcut directly into the Shortcuts app. The API key is already embedded.</p>
               {qrCode && <img src={qrCode} alt="QR Code for Shortcut import" className="qr-code-img" />}
               <div className="qr-actions">
-                <a href={shortcutFileUrl} download className="link-button">
+                      <a href={shortcutFileUrl} download className="link-button" style={{width:'555px'}}>
                   Download Shortcut File
                 </a>
                 <button onClick={() => handleViewInstructions(selectedKeyId)} className="link-button">

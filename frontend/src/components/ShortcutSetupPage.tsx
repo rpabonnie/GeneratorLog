@@ -81,6 +81,7 @@ export function ShortcutSetupPage() {
             Tap the button below on your iPhone to import a pre-configured Shortcut directly into the Shortcuts app.
             Your API key is already included in the shortcut.
           </p>
+          <p><strong>Note:</strong> Apple blocks importing shortcuts created by third party apps. I've leaved the functionality as a concept demo.</p>
           <div className="import-actions">
             <a
               href={`shortcuts://import-workflow?url=${encodeURIComponent(info.shortcutFileUrl)}`}
@@ -148,14 +149,29 @@ export function ShortcutSetupPage() {
         </div>
 
         <div className="setup-section">
-          <h3>Step 4: Add Show Result Action</h3>
+          <h3>Step 4: Add Get dictionary Action</h3>
           <ol>
-            <li>Search for <strong>"Show Result"</strong> and add it</li>
+            <li>Search for <strong>"Get dictionary from"</strong> and add it</li>
+            <li>This will display the response from the API</li>
+            <li>Ensure the variable Contents of URL is selected</li>
+          </ol>
+        </div>
+        <div className="setup-section">
+          <h3>Step 5: Add Get Dictionary Value Action</h3>
+          <ol>
+            <li>Search for <strong>"Get Dictionary Value"</strong> and add it</li>
+            <li>This will display the dictionary variable as value</li>
+            <li>on the key write <strong>"status"</strong> to get the status of the generator</li>
+          </ol>
+        </div>
+         <div className="setup-section">
+          <h3>Step 6: Add Show Content Action</h3>
+          <ol>
+            <li>Search for <strong>"Show Content"</strong> and add it</li>
             <li>This will display the response from the API</li>
             <li>You'll see either "started" or "stopped" status</li>
           </ol>
         </div>
-
         <div className="setup-section">
           <h3>Step 5: Name and Save</h3>
           <ol>
@@ -172,21 +188,11 @@ export function ShortcutSetupPage() {
             <li>You should see a result like:</li>
           </ol>
           <div className="code-block">
-            <pre>{`{
-  "status": "started",
-  "isRunning": true,
-  "startTime": "2026-02-21T...",
-  "totalHours": 125.5
-}`}</pre>
+            <pre>{`"started"`}</pre>
           </div>
           <p>Or when stopping:</p>
           <div className="code-block">
-            <pre>{`{
-  "status": "stopped",
-  "isRunning": false,
-  "durationHours": 2.5,
-  "totalHours": 128.0
-}`}</pre>
+            <pre>{`"stopped"`}</pre>
           </div>
         </div>
 
