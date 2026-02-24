@@ -11,7 +11,9 @@ export function registerGeneratorRoutes(app: FastifyInstance) {
       return reply.code(401).send({ error: 'API key required' });
     }
 
-    const clientId = request.ip;
+    // Rate limiting uses API key + IP combination to allow multiple users concurrently
+    // while still protecting against brute force attacks from a single source
+    const clientId = `${apiKey}:${request.ip}`;
     const rateLimiter = (app as any).rateLimiter;
     if (rateLimiter) {
       const limitCheck = rateLimiter.checkLimit(clientId);

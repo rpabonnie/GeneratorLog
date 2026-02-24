@@ -18,7 +18,7 @@ Choose your deployment method:
 
 ## Technology Stack
 
-- **Backend**: TypeScript + Node.js 26.1.1 + Fastify
+- **Backend**: TypeScript + Node.js 25.6.1 + Fastify
 - **Frontend**: React + TypeScript + Vite
 - **Database**: PostgreSQL 16 (cloud or self-hosted)
 - **ORM**: Drizzle ORM + Zod validation
@@ -33,11 +33,11 @@ Choose your deployment method:
 ## Features
 
 - ✅ API endpoint for starting/stopping generator tracking (API key authenticated)
-- ✅ iOS Shortcuts integration for quick access via iPhone
+- ✅ iOS Shortcuts integration for quick access via iPhone (see [iOS Shortcuts limitations](#ios-shortcuts-limitations))
 - ✅ Web dashboard for configuration and usage tracking
 - ✅ Multi-user support (multiple users, each with their own generator)
 - ✅ Automated email maintenance reminders
-- ✅ Rate limiting (1 req/sec)
+- ✅ Rate limiting (1 req/sec per API key/IP) - protects against brute force while allowing concurrent multi-user access
 - ✅ OWASP Top 10 security compliance
 - ✅ Cloud deployment (Azure) or self-hosted options
 
@@ -72,7 +72,7 @@ Run on your own hardware with Docker:
 ## Prerequisites
 
 ### For Development
-- **Node.js 26.1.1** (use nvm: `nvm install 26.1.1`)
+- **Node.js 25.6.1** (use nvm: `nvm install 25.6.1`)
 - **Docker** and **docker-compose**
 - **Git**
 
@@ -259,7 +259,13 @@ For production, use a managed PostgreSQL service:
 POST /api/generator/toggle
 ```
 
-Start or stop generator tracking. Requires API key authentication and respects rate limiting (1 req/sec).
+Start or stop generator tracking. Requires API key authentication and respects rate limiting (1 req/sec per API key/IP combination).
+
+**Rate Limiting:**
+- Applied per API key/IP combination (not globally)
+- Protects against brute force attacks
+- Allows multiple users to access the system concurrently
+- Each unique API key + IP address gets its own rate limit quota
 
 **Headers:**
 - `x-api-key`: Your API key (required)
@@ -316,6 +322,27 @@ Response:
 
 For detailed API documentation, see [backend/README.md](backend/README.md).
 
+---
+
+## iOS Shortcuts Limitations
+
+**Important Note on iOS Shortcuts Integration:**
+
+Importing unsigned shortcut files into the iPhone's Shortcuts app is blocked by Apple's security policies. Apple requires shortcuts to be shared via iCloud links to ensure code signing and verification.
+
+Our implementation currently embeds the API key directly in the shortcut file for user convenience, bypassing the need for manual configuration. However, properly signing these files would require implementing this application as a native iOS app with Apple Developer Program enrollment.
+
+**Current Status:**
+- ✅ Shortcut file generation works
+- ✅ API integration is functional
+- ⚠️ **Limitation**: Users must manually trust unsigned shortcuts or use iCloud-shared shortcuts
+- 📋 **Future**: May be revisited if native iOS app implementation becomes feasible
+
+**Workaround:**
+Users can manually create shortcuts in the Shortcuts app using the "Get Contents of URL" action pointing to `/api/generator/toggle` with their API key in the `x-api-key` header.
+
+---
+
 ## Environment Variables
 
 ### Backend Configuration
@@ -327,7 +354,9 @@ Create `backend/.env` from `backend/.env.example`:
   - Format: `postgresql://user:password@host:5432/dbname?sslmode=prefer`
 - `NODE_ENV`: Environment (`development` or `production`)
 - `SESSION_SECRET`: Random secret for sessions (generate with `openssl rand -base64 32`)
-- `API_RATE_LIMIT`: API rate limit in requests per second (default: `1`)
+- `API_RATE_LIMIT`: API rate limit in requests per second per client (default: `1`)
+  - Rate limiting is applied per API key/IP combination to prevent brute force attacks
+  - Allows multiple users to use the system concurrently without interference
 
 **Optional**:
 - `PORT`: Server port (default: `3000`)
