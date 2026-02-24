@@ -45,6 +45,11 @@ function hashResetToken(token: string): string {
 
 export async function authRoutes(app: FastifyInstance) {
   app.post('/api/auth/enroll', async (request, reply) => {
+    const rateLimiter = (app as any).rateLimiter;
+    if (rateLimiter && !applyRateLimit(request, reply, rateLimiter)) {
+      return;
+    }
+
     const validation = enrollSchema.safeParse(request.body);
     if (!validation.success) {
       return reply.status(400).send({ error: 'Invalid request', details: validation.error.issues });
@@ -179,6 +184,11 @@ export async function authRoutes(app: FastifyInstance) {
   });
 
   app.post('/api/auth/password-reset/request', async (request, reply) => {
+    const rateLimiter = (app as any).rateLimiter;
+    if (rateLimiter && !applyRateLimit(request, reply, rateLimiter)) {
+      return;
+    }
+
     const validation = requestResetSchema.safeParse(request.body);
     if (!validation.success) {
       return reply.status(400).send({ error: 'Invalid request', details: validation.error.issues });
@@ -217,6 +227,11 @@ export async function authRoutes(app: FastifyInstance) {
   });
 
   app.post('/api/auth/password-reset/confirm', async (request, reply) => {
+    const rateLimiter = (app as any).rateLimiter;
+    if (rateLimiter && !applyRateLimit(request, reply, rateLimiter)) {
+      return;
+    }
+
     const validation = confirmResetSchema.safeParse(request.body);
     if (!validation.success) {
       return reply.status(400).send({ error: 'Invalid request', details: validation.error.issues });

@@ -35,6 +35,11 @@ function buildShortcutFileUrl(request: any, keyId: number): string {
 
 export async function apiKeyRoutes(app: FastifyInstance) {
   app.post('/api/api-keys', async (request, reply) => {
+    const rateLimiter = (app as any).rateLimiter;
+    if (rateLimiter && !applyRateLimit(request, reply, rateLimiter)) {
+      return;
+    }
+
     const userId = (request as any).sessionUser?.id;
     if (!userId) return reply.status(401).send({ error: 'Not authenticated' });
 
@@ -95,6 +100,11 @@ export async function apiKeyRoutes(app: FastifyInstance) {
   });
 
   app.delete('/api/api-keys/:id', async (request, reply) => {
+    const rateLimiter = (app as any).rateLimiter;
+    if (rateLimiter && !applyRateLimit(request, reply, rateLimiter)) {
+      return;
+    }
+
     const userId = (request as any).sessionUser?.id;
     if (!userId) return reply.status(401).send({ error: 'Not authenticated' });
 
@@ -122,6 +132,11 @@ export async function apiKeyRoutes(app: FastifyInstance) {
   });
 
   app.post('/api/api-keys/:id/reset', async (request, reply) => {
+    const rateLimiter = (app as any).rateLimiter;
+    if (rateLimiter && !applyRateLimit(request, reply, rateLimiter)) {
+      return;
+    }
+
     const userId = (request as any).sessionUser?.id;
     if (!userId) return reply.status(401).send({ error: 'Not authenticated' });
 
@@ -220,6 +235,11 @@ export async function apiKeyRoutes(app: FastifyInstance) {
   // Returns a QR code whose deep link opens iOS Shortcuts and immediately imports the
   // pre-configured shortcut. The shortcut asks for the API key once on import.
   app.get('/api/api-keys/:id/qrcode', async (request, reply) => {
+    const rateLimiter = (app as any).rateLimiter;
+    if (rateLimiter && !applyRateLimit(request, reply, rateLimiter)) {
+      return;
+    }
+
     const userId = (request as any).sessionUser?.id;
     if (!userId) return reply.status(401).send({ error: 'Not authenticated' });
 
@@ -259,6 +279,11 @@ export async function apiKeyRoutes(app: FastifyInstance) {
   });
 
   app.get('/api/api-keys/:id/shortcut-info', async (request, reply) => {
+    const rateLimiter = (app as any).rateLimiter;
+    if (rateLimiter && !applyRateLimit(request, reply, rateLimiter)) {
+      return;
+    }
+
     const userId = (request as any).sessionUser?.id;
     if (!userId) return reply.status(401).send({ error: 'Not authenticated' });
 
