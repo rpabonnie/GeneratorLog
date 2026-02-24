@@ -6,6 +6,7 @@ import { registerSessionMiddleware } from '../src/services/session.js';
 import { getDb } from '../src/db/index.js';
 import * as schema from '../src/db/schema.js';
 import * as emailService from '../src/services/email.js';
+import { eq } from 'drizzle-orm';
 
 const TEST_PASSWORD = 'TestPass123!';
 
@@ -263,6 +264,46 @@ describe('Generator Configuration Routes', () => {
       });
 
       expect(response.statusCode).toBe(401);
+    });
+
+    it('should send maintenance alert when updating settings triggers threshold', async () => {
+      // Mock email transporter to enable maintenance checks
+      vi.spyOn(emailService, 'getEmailTransporter').mockReturnValue({} as any);
+      const spy = vi.spyOn(emailService, 'sendMaintenanceAlertIfNeeded').mockResolvedValue();
+
+      // Create generator with high hours but no install date
+      const createResponse = await app.inject({
+        method: 'POST',
+        url: '/api/generators',
+        headers: { cookie: testCookie },
+        payload: { name: 'Test Generator', oilChangeMonths: 6, totalHours: 0 },
+      });
+      const generator = JSON.parse(createResponse.body);
+
+      // Update totalHours directly in DB to simulate usage
+      const db = getDb();
+      await db
+        .update(schema.generators)
+        .set({ totalHours: 150 })
+        .where(eq(schema.generators.id, generator.id));
+
+      // Now update installedAt to 7 months ago - this should trigger alert since 7 > 6 months threshold
+      const sevenMonthsAgo = new Date();
+      sevenMonthsAgo.setMonth(sevenMonthsAgo.getMonth() - 7);
+
+      await app.inject({
+        method: 'PUT',
+        url: `/api/generators/${generator.id}`,
+        headers: { cookie: testCookie },
+        payload: { installedAt: sevenMonthsAgo.toISOString() },
+      });
+
+      // Allow fire-and-forget alert to complete
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      expect(spy).toHaveBeenCalledOnce();
+      expect(spy.mock.calls[0][0]).toBe('generator@example.com');
+      expect(spy.mock.calls[0][1].generatorName).toBe('Test Generator');
     });
   });
 
