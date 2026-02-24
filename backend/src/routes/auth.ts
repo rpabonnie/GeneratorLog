@@ -7,6 +7,7 @@ import { and, eq, gt, isNull } from 'drizzle-orm';
 import { hashPassword, verifyPassword } from '../utils/auth.js';
 import { sendPasswordResetEmail, sendMaintenanceAlertIfNeeded, getEmailTransporter } from '../services/email.js';
 import { createSession, deleteSession, sessionCookie, clearSessionCookie, parseCookies } from '../services/session.js';
+import { applyRateLimit } from '../middleware/rate-limiter.js';
 import config from '../config.js';
 
 const enrollSchema = z.object({
@@ -76,6 +77,11 @@ export async function authRoutes(app: FastifyInstance) {
   });
 
   app.post('/api/auth/login', async (request, reply) => {
+    const rateLimiter = (app as any).rateLimiter;
+    if (rateLimiter && !applyRateLimit(request, reply, rateLimiter)) {
+      return;
+    }
+
     const validation = loginSchema.safeParse(request.body);
     if (!validation.success) {
       return reply.status(400).send({ error: 'Invalid request', details: validation.error.issues });
@@ -140,6 +146,11 @@ export async function authRoutes(app: FastifyInstance) {
   });
 
   app.post('/api/auth/password/change', async (request, reply) => {
+    const rateLimiter = (app as any).rateLimiter;
+    if (rateLimiter && !applyRateLimit(request, reply, rateLimiter)) {
+      return;
+    }
+
     const userId = (request as any).sessionUser?.id;
     if (!userId) return reply.status(401).send({ error: 'Not authenticated' });
 

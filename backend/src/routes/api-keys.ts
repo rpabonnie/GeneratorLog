@@ -5,6 +5,7 @@ import * as schema from '../db/schema.js';
 import { eq, and } from 'drizzle-orm';
 import { createShortcutToken, decryptApiKey, encryptApiKey, generateApiKey, verifyShortcutToken } from '../utils/auth.js';
 import { generateToggleShortcut } from '../utils/shortcut.js';
+import { applyRateLimit } from '../middleware/rate-limiter.js';
 import QRCode from 'qrcode';
 import config from '../config.js';
 
@@ -165,6 +166,11 @@ export async function apiKeyRoutes(app: FastifyInstance) {
   // Serves a ready-to-import .shortcut file. Requires either a valid session for the
   // owning user or a short-lived token embedded in the URL.
   app.get('/api/api-keys/:id/shortcut-file', async (request, reply) => {
+    const rateLimiter = (app as any).rateLimiter;
+    if (rateLimiter && !applyRateLimit(request, reply, rateLimiter)) {
+      return;
+    }
+
     const userId = (request as any).sessionUser?.id ?? null;
     const params = request.params as { id: string };
     const keyId = parseInt(params.id, 10);

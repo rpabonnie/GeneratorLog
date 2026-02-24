@@ -1,3 +1,5 @@
+import type { FastifyRequest, FastifyReply } from 'fastify';
+
 interface RateLimitResult {
   allowed: boolean;
   remaining: number;
@@ -69,4 +71,18 @@ export class RateLimiter {
     clearInterval(this.cleanupInterval);
     this.clients.clear();
   }
+}
+
+// Helper to apply rate limiting to an endpoint (for auth and sensitive operations)
+export function applyRateLimit(request: FastifyRequest, reply: FastifyReply, rateLimiter: RateLimiter): boolean {
+  const clientId = request.ip;
+  const limitCheck = rateLimiter.checkLimit(clientId);
+  if (!limitCheck.allowed) {
+    reply.code(429).send({
+      error: 'Too many requests - rate limit exceeded',
+      retryAfter: limitCheck.retryAfter,
+    });
+    return false;
+  }
+  return true;
 }

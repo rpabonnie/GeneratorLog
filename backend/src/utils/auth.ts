@@ -35,21 +35,25 @@ export async function verifyPassword(password: string, stored: string): Promise<
   return timingSafeEqual(candidate, Buffer.from(hash, 'hex'));
 }
 
-// API keys — SHA-256 only; keys are 256-bit random, brute-forcing their hash is computationally infeasible
+// API keys — HMAC-SHA256; keys are 256-bit random values, using HMAC for additional security
+function deriveApiKeySecret(): Buffer {
+  return createHash('sha256').update(config.session.secret + ':api-keys').digest();
+}
+
 export function generateApiKey(): { raw: string; hash: string; hint: string } {
   const secret = randomBytes(32).toString('base64url');
   const raw = `gl_${secret}`;
-  const hash = createHash('sha256').update(raw).digest('hex');
+  const hash = createHmac('sha256', deriveApiKeySecret()).update(raw).digest('hex');
   const hint = raw.slice(-4);
   return { raw, hash, hint };
 }
 
 export function hashApiKey(raw: string): string {
-  return createHash('sha256').update(raw).digest('hex');
+  return createHmac('sha256', deriveApiKeySecret()).update(raw).digest('hex');
 }
 
 export function validateApiKey(provided: string, storedHash: string): boolean {
-  const providedHash = createHash('sha256').update(provided).digest();
+  const providedHash = createHmac('sha256', deriveApiKeySecret()).update(provided).digest();
   const stored = Buffer.from(storedHash, 'hex');
   return timingSafeEqual(providedHash, stored);
 }
