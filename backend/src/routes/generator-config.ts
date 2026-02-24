@@ -261,10 +261,10 @@ export async function generatorConfigRoutes(app: FastifyInstance) {
               lastOilChangeDate: updatedGenerator.lastOilChangeDate,
               oilChangeMonths: updatedGenerator.oilChangeMonths,
               installedAt: updatedGenerator.installedAt,
-            }).catch(err => app.log.error('Failed to send maintenance alert after settings update:', err));
+            }).catch(err => app.log.error({ err }, 'Failed to send maintenance alert after settings update'));
           }
         } catch (err) {
-          app.log.error('Error checking maintenance after settings update:', err);
+          app.log.error({ err }, 'Error checking maintenance after settings update');
         }
       }
 
