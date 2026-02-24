@@ -317,16 +317,25 @@ export async function generatorConfigRoutes(app: FastifyInstance) {
             .limit(1);
 
           if (user) {
-            await sendGeneratorStopEmails(user.email, {
-              generatorName: generator.name,
-              durationHours: result.durationHours,
-              totalHours: result.totalHours,
-              lastOilChangeHours: generator.lastOilChangeHours,
-              oilChangeHours: generator.oilChangeHours,
-              lastOilChangeDate: generator.lastOilChangeDate,
-              oilChangeMonths: generator.oilChangeMonths,
-              installedAt: generator.installedAt,
-            });
+            // Fetch fresh generator data after toggle to ensure email uses updated lastOilChangeHours/Date
+            const [freshGenerator] = await db
+              .select()
+              .from(schema.generators)
+              .where(eq(schema.generators.id, generatorId))
+              .limit(1);
+
+            if (freshGenerator) {
+              await sendGeneratorStopEmails(user.email, {
+                generatorName: freshGenerator.name,
+                durationHours: result.durationHours,
+                totalHours: result.totalHours,
+                lastOilChangeHours: freshGenerator.lastOilChangeHours,
+                oilChangeHours: freshGenerator.oilChangeHours,
+                lastOilChangeDate: freshGenerator.lastOilChangeDate,
+                oilChangeMonths: freshGenerator.oilChangeMonths,
+                installedAt: freshGenerator.installedAt,
+              });
+            }
           }
         } catch (emailError) {
           app.log.error(emailError);
