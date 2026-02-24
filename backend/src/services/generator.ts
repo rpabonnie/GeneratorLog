@@ -88,7 +88,7 @@ export async function toggleGenerator(generatorId: number): Promise<ToggleResult
 
 export async function getGeneratorByApiKey(apiKey: string) {
   const db = getDb();
-  const keyHash = hashApiKey(apiKey);
+  const keyHash = await hashApiKey(apiKey);
 
   const [apiKeyRecord] = await db
     .select()
