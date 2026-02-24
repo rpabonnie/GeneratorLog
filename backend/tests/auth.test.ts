@@ -303,6 +303,8 @@ describe('Auth Routes', () => {
 
   describe('Maintenance alert on login', () => {
     it('sends maintenance alert on login when a generator exceeds oil change threshold', async () => {
+      // Mock email transporter to enable the maintenance check
+      vi.spyOn(emailService, 'getEmailTransporter').mockReturnValue({} as any);
       const spy = vi.spyOn(emailService, 'sendMaintenanceAlertIfNeeded').mockResolvedValue();
 
       const enrollResp = await app.inject({

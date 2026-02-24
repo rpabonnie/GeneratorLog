@@ -4,7 +4,7 @@ import { getDb } from '../db/index.js';
 import * as schema from '../db/schema.js';
 import { eq, and } from 'drizzle-orm';
 import { toggleGenerator } from '../services/generator.js';
-import { sendGeneratorStopEmails } from '../services/email.js';
+import { sendGeneratorStopEmails, sendMaintenanceAlertIfNeeded } from '../services/email.js';
 
 const createGeneratorSchema = z.object({
   name: z.string().min(1),
@@ -240,6 +240,33 @@ export async function generatorConfigRoutes(app: FastifyInstance) {
         .set(updateData)
         .where(eq(schema.generators.id, generatorId))
         .returning();
+
+      // Check if maintenance alert is needed after updating settings
+      // (especially if installedAt was updated, which affects time-based maintenance calculations)
+      if (installedAt !== undefined || oilChangeMonths !== undefined || oilChangeHours !== undefined) {
+        try {
+          const [user] = await db
+            .select()
+            .from(schema.users)
+            .where(eq(schema.users.id, userId))
+            .limit(1);
+
+          if (user) {
+            // Fire-and-forget: send alert if threshold is exceeded
+            sendMaintenanceAlertIfNeeded(user.email, {
+              generatorName: updatedGenerator.name,
+              totalHours: updatedGenerator.totalHours,
+              lastOilChangeHours: updatedGenerator.lastOilChangeHours,
+              oilChangeHours: updatedGenerator.oilChangeHours,
+              lastOilChangeDate: updatedGenerator.lastOilChangeDate,
+              oilChangeMonths: updatedGenerator.oilChangeMonths,
+              installedAt: updatedGenerator.installedAt,
+            }).catch(err => app.log.error('Failed to send maintenance alert after settings update:', err));
+          }
+        } catch (err) {
+          app.log.error('Error checking maintenance after settings update:', err);
+        }
+      }
 
       return reply.send({
         id: updatedGenerator.id,
