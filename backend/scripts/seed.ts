@@ -2,16 +2,9 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
 import pkg from 'pg';
 const { Pool } = pkg;
-import crypto from 'crypto';
 import config from '../src/config.js';
+import { generateApiKey } from '../src/utils/auth.js';
 import * as schema from '../src/db/schema.js';
-
-/**
- * Generate a cryptographically secure 64-character hex API key
- */
-function generateApiKey(): string {
-  return crypto.randomBytes(32).toString('hex');
-}
 
 /**
  * Delete existing test data (idempotent cleanup)
@@ -80,10 +73,12 @@ async function createSeedData(db: ReturnType<typeof drizzle>) {
   }).returning();
 
   // 3. Generate API key
-  const apiKeyValue = generateApiKey();
+  const { raw, hash, hint } = generateApiKey();
   const [apiKey] = await db.insert(schema.apiKeys).values({
     userId: user.id,
-    key: apiKeyValue,
+    keyHash: hash,
+    encryptedKey: null,
+    hint,
     name: 'Test API Key - Postman',
   }).returning();
 
@@ -138,18 +133,22 @@ async function createSeedData(db: ReturnType<typeof drizzle>) {
   console.log(`  Is Running: ${generator.isRunning}\n`);
 
   console.log('API Key Generated:');
-  console.log(`  Key: ${apiKeyValue}`);
-  console.log(`  Name: ${apiKey.name}\n`);
+  console.log(`  ID: ${apiKey.id}`);
+  console.log(`  Name: ${apiKey.name}`);
+  console.log(`  Hint: gl_...${apiKey.hint}\n`);
 
-  console.log('📋 Copy this API key for Postman testing:');
-  console.log(`  ${apiKeyValue}\n`);
+  console.log('📋 Copy this API key for testing (shown once):');
+  console.log(`  ${raw}\n`);
+
+  console.log('⚠️  IMPORTANT: API keys are sensitive. Store securely.');
+  console.log('   This key will not be shown again.\n');
 
   console.log(`Historical Usage Logs Created: ${usageLogsData.length} entries\n`);
 
   console.log('Next steps:');
   console.log('  1. Start the server: pnpm --filter generatorlog-backend dev');
   console.log('  2. Import the Postman collection from docs/postman/');
-  console.log('  3. Update the apiKey variable in Postman with the key above');
+  console.log('  3. Use the API key shown above for testing');
   console.log('  4. Test the toggle endpoint!\n');
 }
 
