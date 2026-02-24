@@ -4,6 +4,7 @@ import { getDb } from '../db/index.js';
 import * as schema from '../db/schema.js';
 import { eq, and } from 'drizzle-orm';
 import { toggleGenerator } from '../services/generator.js';
+import { sendGeneratorStopEmails } from '../services/email.js';
 
 const createGeneratorSchema = z.object({
   name: z.string().min(1),
@@ -279,6 +280,32 @@ export async function generatorConfigRoutes(app: FastifyInstance) {
 
     try {
       const result = await toggleGenerator(generatorId);
+
+      if (result.status === 'stopped') {
+        try {
+          const [user] = await db
+            .select()
+            .from(schema.users)
+            .where(eq(schema.users.id, userId))
+            .limit(1);
+
+          if (user) {
+            await sendGeneratorStopEmails(user.email, {
+              generatorName: generator.name,
+              durationHours: result.durationHours,
+              totalHours: result.totalHours,
+              lastOilChangeHours: generator.lastOilChangeHours,
+              oilChangeHours: generator.oilChangeHours,
+              lastOilChangeDate: generator.lastOilChangeDate,
+              oilChangeMonths: generator.oilChangeMonths,
+              installedAt: generator.installedAt,
+            });
+          }
+        } catch (emailError) {
+          app.log.error(emailError);
+        }
+      }
+
       return reply.send(result);
     } catch (error) {
       app.log.error(error);

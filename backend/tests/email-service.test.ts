@@ -4,12 +4,18 @@ import {
   createMaintenanceReminderEmail,
   getEmailTransporter,
 } from '../src/services/email.js';
+import config from '../src/config.js';
 
 describe('Email Service', () => {
   describe('getEmailTransporter', () => {
     it('returns null when email configuration is missing', () => {
-      const transporter = getEmailTransporter();
-      expect(transporter).toBeNull();
+      // .env may provide SMTP credentials; temporarily clear host to test unconfigured path
+      const emailConfig = config.email as { host: string };
+      const origHost = emailConfig.host;
+      emailConfig.host = '';
+      const result = getEmailTransporter();
+      emailConfig.host = origHost;
+      expect(result).toBeNull();
     });
   });
 
@@ -31,7 +37,7 @@ describe('Email Service', () => {
       expect(html).toContain('Test Generator');
       expect(html).toContain('2h 30m');
       expect(html).toContain('50.00 hours');
-      expect(html).toContain('GeneratorLog');
+      expect(html).toContain('Generator Log');
     });
 
     it('shows maintenance warning when hours threshold is reached', () => {

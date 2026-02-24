@@ -1,9 +1,10 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import Fastify, { FastifyInstance } from 'fastify';
 import { authRoutes } from '../src/routes/auth.js';
 import { registerSessionMiddleware } from '../src/services/session.js';
 import { getDb } from '../src/db/index.js';
 import * as schema from '../src/db/schema.js';
+import * as emailService from '../src/services/email.js';
 
 const TEST_PASSWORD = 'TestPass123!';
 
@@ -30,6 +31,7 @@ describe('Auth Routes', () => {
   });
 
   afterEach(async () => {
+    vi.restoreAllMocks();
     await app.close();
   });
 
@@ -296,6 +298,73 @@ describe('Auth Routes', () => {
       expect(response.statusCode).toBe(200);
       const body = JSON.parse(response.body);
       expect(body.email).toBe('me2@example.com');
+    });
+  });
+
+  describe('Maintenance alert on login', () => {
+    it('sends maintenance alert on login when a generator exceeds oil change threshold', async () => {
+      const spy = vi.spyOn(emailService, 'sendMaintenanceAlertIfNeeded').mockResolvedValue();
+
+      const enrollResp = await app.inject({
+        method: 'POST',
+        url: '/api/auth/enroll',
+        payload: { email: 'maint@example.com', name: 'Maint User', password: TEST_PASSWORD },
+      });
+      const userId = JSON.parse(enrollResp.body).id;
+
+      // Insert a generator whose totalHours already exceeds the 100h default threshold
+      const db = getDb();
+      await db.insert(schema.generators).values({
+        userId,
+        name: 'Overdue Generator',
+        oilChangeHours: 100,
+        oilChangeMonths: 6,
+        totalHours: 150,
+      });
+
+      await app.inject({
+        method: 'POST',
+        url: '/api/auth/login',
+        payload: { email: 'maint@example.com', password: TEST_PASSWORD },
+      });
+
+      // Allow fire-and-forget maintenance check to complete
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      expect(spy).toHaveBeenCalledOnce();
+      expect(spy.mock.calls[0][0]).toBe('maint@example.com');
+      expect(spy.mock.calls[0][1].generatorName).toBe('Overdue Generator');
+    });
+
+    it('skips maintenance check on login when email service is not configured', async () => {
+      vi.spyOn(emailService, 'getEmailTransporter').mockReturnValue(null);
+      const alertSpy = vi.spyOn(emailService, 'sendMaintenanceAlertIfNeeded').mockResolvedValue();
+
+      const enrollResp = await app.inject({
+        method: 'POST',
+        url: '/api/auth/enroll',
+        payload: { email: 'nosmtp@example.com', password: TEST_PASSWORD },
+      });
+      const userId = JSON.parse(enrollResp.body).id;
+
+      const db = getDb();
+      await db.insert(schema.generators).values({
+        userId,
+        name: 'Any Generator',
+        oilChangeHours: 100,
+        oilChangeMonths: 6,
+        totalHours: 150,
+      });
+
+      await app.inject({
+        method: 'POST',
+        url: '/api/auth/login',
+        payload: { email: 'nosmtp@example.com', password: TEST_PASSWORD },
+      });
+
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      expect(alertSpy).not.toHaveBeenCalled();
     });
   });
 });

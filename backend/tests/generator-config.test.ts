@@ -1,10 +1,11 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import Fastify, { FastifyInstance } from 'fastify';
 import { generatorConfigRoutes } from '../src/routes/generator-config.js';
 import { authRoutes } from '../src/routes/auth.js';
 import { registerSessionMiddleware } from '../src/services/session.js';
 import { getDb } from '../src/db/index.js';
 import * as schema from '../src/db/schema.js';
+import * as emailService from '../src/services/email.js';
 
 const TEST_PASSWORD = 'TestPass123!';
 
@@ -49,6 +50,7 @@ describe('Generator Configuration Routes', () => {
   });
 
   afterEach(async () => {
+    vi.restoreAllMocks();
     await app.close();
   });
 
@@ -350,6 +352,57 @@ describe('Generator Configuration Routes', () => {
         headers: { cookie: otherCookie },
       });
       expect(response.statusCode).toBe(404);
+    });
+
+    it('should send stop notification email when generator is stopped', async () => {
+      const spy = vi.spyOn(emailService, 'sendGeneratorStopEmails').mockResolvedValue();
+
+      await app.inject({
+        method: 'POST',
+        url: `/api/generators/${generatorId}/toggle`,
+        headers: { cookie: testCookie },
+      });
+      await app.inject({
+        method: 'POST',
+        url: `/api/generators/${generatorId}/toggle`,
+        headers: { cookie: testCookie },
+      });
+
+      expect(spy).toHaveBeenCalledOnce();
+      const [email, params] = spy.mock.calls[0];
+      expect(email).toBe('generator@example.com');
+      expect(params.generatorName).toBe('Toggle Generator');
+      expect(params).toHaveProperty('installedAt');
+    });
+
+    it('should not send email when generator is started', async () => {
+      const spy = vi.spyOn(emailService, 'sendGeneratorStopEmails').mockResolvedValue();
+
+      await app.inject({
+        method: 'POST',
+        url: `/api/generators/${generatorId}/toggle`,
+        headers: { cookie: testCookie },
+      });
+
+      expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('should still return 200 when email sending fails', async () => {
+      vi.spyOn(emailService, 'sendGeneratorStopEmails').mockRejectedValue(new Error('SMTP error'));
+
+      await app.inject({
+        method: 'POST',
+        url: `/api/generators/${generatorId}/toggle`,
+        headers: { cookie: testCookie },
+      });
+      const response = await app.inject({
+        method: 'POST',
+        url: `/api/generators/${generatorId}/toggle`,
+        headers: { cookie: testCookie },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(JSON.parse(response.body).status).toBe('stopped');
     });
   });
 });

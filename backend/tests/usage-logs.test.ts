@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import Fastify, { FastifyInstance } from 'fastify';
 import { usageLogsRoutes } from '../src/routes/usage-logs.js';
 import { generatorConfigRoutes } from '../src/routes/generator-config.js';
@@ -6,6 +6,7 @@ import { authRoutes } from '../src/routes/auth.js';
 import { registerSessionMiddleware } from '../src/services/session.js';
 import { getDb } from '../src/db/index.js';
 import * as schema from '../src/db/schema.js';
+import * as emailService from '../src/services/email.js';
 
 const TEST_PASSWORD = 'TestPass123!';
 
@@ -60,6 +61,7 @@ describe('Usage Logs Routes', () => {
   });
 
   afterEach(async () => {
+    vi.restoreAllMocks();
     await app.close();
   });
 
@@ -419,6 +421,87 @@ describe('Usage Logs Routes', () => {
       });
 
       expect(response.statusCode).toBe(404);
+    });
+  });
+
+  describe('Maintenance alert triggers', () => {
+    it('sends alert when creating a log that pushes totalHours over the oil change threshold', async () => {
+      const spy = vi.spyOn(emailService, 'sendMaintenanceAlertIfNeeded').mockResolvedValue();
+      // Generator has default oilChangeHours: 100; create a 101-hour session to exceed it
+      const startTime = new Date(Date.UTC(2026, 0, 1, 0, 0, 0)).toISOString();
+      const endTime = new Date(Date.UTC(2026, 0, 5, 5, 0, 0)).toISOString(); // 101 hours
+
+      await app.inject({
+        method: 'POST',
+        url: `/api/generators/${generatorId}/logs`,
+        headers: { cookie: testCookie },
+        payload: { startTime, endTime },
+      });
+
+      expect(spy).toHaveBeenCalledOnce();
+      expect(spy.mock.calls[0][0]).toBe('logs@example.com');
+    });
+
+    it('calls sendMaintenanceAlertIfNeeded with the correct totalHours after creating a log', async () => {
+      const spy = vi.spyOn(emailService, 'sendMaintenanceAlertIfNeeded').mockResolvedValue();
+
+      const startTime = new Date(Date.UTC(2026, 0, 1, 10, 0, 0)).toISOString();
+      const endTime = new Date(Date.UTC(2026, 0, 1, 12, 0, 0)).toISOString(); // 2 hours
+
+      await app.inject({
+        method: 'POST',
+        url: `/api/generators/${generatorId}/logs`,
+        headers: { cookie: testCookie },
+        payload: { startTime, endTime },
+      });
+
+      expect(spy).toHaveBeenCalledOnce();
+      // Verify the recalculated totalHours is passed so the function can make the right decision
+      expect(spy.mock.calls[0][1].totalHours).toBeCloseTo(2, 1);
+    });
+
+    it('sends alert when editing a log to exceed the oil change threshold', async () => {
+      // Create a short log first (2 hours — below threshold)
+      const shortStart = new Date(Date.UTC(2026, 0, 1, 10, 0, 0)).toISOString();
+      const shortEnd = new Date(Date.UTC(2026, 0, 1, 12, 0, 0)).toISOString();
+      const logResp = await app.inject({
+        method: 'POST',
+        url: `/api/generators/${generatorId}/logs`,
+        headers: { cookie: testCookie },
+        payload: { startTime: shortStart, endTime: shortEnd },
+      });
+      const logId = JSON.parse(logResp.body).id;
+
+      const spy = vi.spyOn(emailService, 'sendMaintenanceAlertIfNeeded').mockResolvedValue();
+
+      // Edit to 101 hours — now exceeds threshold
+      const newStart = new Date(Date.UTC(2026, 0, 1, 0, 0, 0)).toISOString();
+      const newEnd = new Date(Date.UTC(2026, 0, 5, 5, 0, 0)).toISOString();
+      await app.inject({
+        method: 'PUT',
+        url: `/api/generators/${generatorId}/logs/${logId}`,
+        headers: { cookie: testCookie },
+        payload: { startTime: newStart, endTime: newEnd },
+      });
+
+      expect(spy).toHaveBeenCalledOnce();
+      expect(spy.mock.calls[0][0]).toBe('logs@example.com');
+    });
+
+    it('does not fail the request when alert sending throws', async () => {
+      vi.spyOn(emailService, 'sendMaintenanceAlertIfNeeded').mockRejectedValue(new Error('SMTP error'));
+
+      const startTime = new Date(Date.UTC(2026, 0, 1, 0, 0, 0)).toISOString();
+      const endTime = new Date(Date.UTC(2026, 0, 5, 5, 0, 0)).toISOString(); // 101 hours
+
+      const response = await app.inject({
+        method: 'POST',
+        url: `/api/generators/${generatorId}/logs`,
+        headers: { cookie: testCookie },
+        payload: { startTime, endTime },
+      });
+
+      expect(response.statusCode).toBe(201);
     });
   });
 });

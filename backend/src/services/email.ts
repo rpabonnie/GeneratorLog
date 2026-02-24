@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 import type { Transporter } from 'nodemailer';
 import config from '../config.js';
-import { calculateHoursSinceOilChange, calculateMonthsSinceOilChange } from './maintenance.js';
+import { calculateHoursSinceOilChange, calculateMonthsSinceOilChange, shouldSendMaintenanceReminder } from './maintenance.js';
 
 let transporter: Transporter | null = null;
 
@@ -161,11 +161,12 @@ interface GeneratorStopData {
   oilChangeHours: number;
   lastOilChangeDate: Date | null;
   oilChangeMonths: number;
+  installedAt?: Date | null;
 }
 
 export function createStopConfirmationEmail(data: GeneratorStopData): { subject: string; html: string } {
   const hoursSinceOilChange = calculateHoursSinceOilChange(data.totalHours, data.lastOilChangeHours);
-  const monthsSinceOilChange = calculateMonthsSinceOilChange(data.lastOilChangeDate);
+  const monthsSinceOilChange = calculateMonthsSinceOilChange(data.lastOilChangeDate, new Date(), data.installedAt ?? null);
 
   const hoursRemaining = Math.max(0, data.oilChangeHours - hoursSinceOilChange);
   const monthsRemaining = Math.max(0, data.oilChangeMonths - monthsSinceOilChange);
@@ -229,11 +230,12 @@ interface MaintenanceReminderData {
   oilChangeHours: number;
   lastOilChangeDate: Date | null;
   oilChangeMonths: number;
+  installedAt?: Date | null;
 }
 
 export function createMaintenanceReminderEmail(data: MaintenanceReminderData): { subject: string; html: string } {
   const hoursSinceOilChange = calculateHoursSinceOilChange(data.totalHours, data.lastOilChangeHours);
-  const monthsSinceOilChange = calculateMonthsSinceOilChange(data.lastOilChangeDate);
+  const monthsSinceOilChange = calculateMonthsSinceOilChange(data.lastOilChangeDate, new Date(), data.installedAt ?? null);
 
   const hoursOverdue = Math.max(0, hoursSinceOilChange - data.oilChangeHours);
   const monthsOverdue = Math.max(0, monthsSinceOilChange - data.oilChangeMonths);
@@ -339,6 +341,71 @@ export async function sendMaintenanceReminderEmail(
     // eslint-disable-next-line no-console
     console.error('Failed to send maintenance reminder email', { to: userEmail, host: config.email.host, port: config.email.port, secure: config.email.secure, message: err && (err as Error).message });
     throw err;
+  }
+}
+
+// Consolidates maintenance check and email selection for both toggle endpoints.
+// Returns without sending if email service is not configured.
+export async function sendGeneratorStopEmails(
+  userEmail: string,
+  params: {
+    generatorName: string;
+    durationHours: number;
+    totalHours: number;
+    lastOilChangeHours: number | null;
+    oilChangeHours: number;
+    lastOilChangeDate: Date | null;
+    oilChangeMonths: number;
+    installedAt: Date | null;
+  }
+): Promise<void> {
+  if (!getEmailTransporter()) return;
+
+  const needsMaintenance = shouldSendMaintenanceReminder(
+    params.totalHours,
+    params.lastOilChangeHours,
+    params.oilChangeHours,
+    params.lastOilChangeDate,
+    params.oilChangeMonths,
+    new Date(),
+    params.installedAt
+  );
+
+  if (needsMaintenance) {
+    await sendMaintenanceReminderEmail(userEmail, params);
+  } else {
+    await sendStopConfirmationEmail(userEmail, params);
+  }
+}
+
+// Sends a maintenance reminder only if a threshold is exceeded and email is configured.
+// Used for non-stop events (log edits, login checks) where stop confirmation is not appropriate.
+export async function sendMaintenanceAlertIfNeeded(
+  userEmail: string,
+  params: {
+    generatorName: string;
+    totalHours: number;
+    lastOilChangeHours: number | null;
+    oilChangeHours: number;
+    lastOilChangeDate: Date | null;
+    oilChangeMonths: number;
+    installedAt: Date | null;
+  }
+): Promise<void> {
+  if (!getEmailTransporter()) return;
+
+  const needsMaintenance = shouldSendMaintenanceReminder(
+    params.totalHours,
+    params.lastOilChangeHours,
+    params.oilChangeHours,
+    params.lastOilChangeDate,
+    params.oilChangeMonths,
+    new Date(),
+    params.installedAt
+  );
+
+  if (needsMaintenance) {
+    await sendMaintenanceReminderEmail(userEmail, params);
   }
 }
 

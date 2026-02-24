@@ -5,7 +5,7 @@ import { getDb } from '../db/index.js';
 import * as schema from '../db/schema.js';
 import { and, eq, gt, isNull } from 'drizzle-orm';
 import { hashPassword, verifyPassword } from '../utils/auth.js';
-import { sendPasswordResetEmail } from '../services/email.js';
+import { sendPasswordResetEmail, sendMaintenanceAlertIfNeeded, getEmailTransporter } from '../services/email.js';
 import { createSession, deleteSession, sessionCookie, clearSessionCookie, parseCookies } from '../services/session.js';
 import config from '../config.js';
 
@@ -96,6 +96,26 @@ export async function authRoutes(app: FastifyInstance) {
       }
 
       const sessionId = await createSession(user.id);
+
+      // Fire-and-forget: check if any months threshold is overdue — completes after response is sent
+      if (getEmailTransporter()) {
+        db.select().from(schema.generators).where(eq(schema.generators.userId, user.id))
+          .then(generators =>
+            Promise.all(generators.map(gen =>
+              sendMaintenanceAlertIfNeeded(user.email, {
+                generatorName: gen.name,
+                totalHours: gen.totalHours,
+                lastOilChangeHours: gen.lastOilChangeHours,
+                oilChangeHours: gen.oilChangeHours,
+                lastOilChangeDate: gen.lastOilChangeDate,
+                oilChangeMonths: gen.oilChangeMonths,
+                installedAt: gen.installedAt,
+              })
+            ))
+          )
+          .catch(err => app.log.error(err));
+      }
+
       return reply
         .header('Set-Cookie', sessionCookie(sessionId))
         .send({ token: sessionId, id: user.id, email: user.email, name: user.name, createdAt: user.createdAt });
