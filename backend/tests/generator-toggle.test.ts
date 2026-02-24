@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach, afterEach } from 'vitest';
+import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
 import Fastify, { FastifyInstance } from 'fastify';
 import { registerGeneratorRoutes } from '../src/routes/generator.js';
 import { authRoutes } from '../src/routes/auth.js';

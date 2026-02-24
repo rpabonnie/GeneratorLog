@@ -10,7 +10,8 @@ function monthsSince(iso: string | null, fallbackIso?: string | null): number {
   if (!target) return 999;
   const d = new Date(target);
   const now = new Date();
-  return (now.getFullYear() - d.getFullYear()) * 12 + (now.getMonth() - d.getMonth());
+  // Use UTC methods to match backend calculation (maintenance.ts)
+  return (now.getUTCFullYear() - d.getUTCFullYear()) * 12 + (now.getUTCMonth() - d.getUTCMonth());
 }
 
 function gaugeColor(percent: number): string {
