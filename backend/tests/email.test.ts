@@ -29,6 +29,7 @@ describe('Email Routes', () => {
     await app.ready();
 
     const db = getDb();
+    await db.delete(schema.usageLogs).execute();
     await db.delete(schema.generators).execute();
     await db.delete(schema.sessions).execute();
     await db.delete(schema.users).execute();

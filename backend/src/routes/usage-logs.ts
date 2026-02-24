@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { getDb } from '../db/index.js';
 import * as schema from '../db/schema.js';
 import { eq, and, sum } from 'drizzle-orm';
+import { sendMaintenanceAlertIfNeeded } from '../services/email.js';
 
 const createLogSchema = z.object({
   startTime: z.string().datetime(),
@@ -29,7 +30,7 @@ function getUserId(request: any): number | null {
   return (request.sessionUser?.id) ?? null;
 }
 
-async function recalculateTotalHours(db: ReturnType<typeof getDb>, generatorId: number): Promise<void> {
+async function recalculateTotalHours(db: ReturnType<typeof getDb>, generatorId: number): Promise<number> {
   const result = await db
     .select({ total: sum(schema.usageLogs.durationHours) })
     .from(schema.usageLogs)
@@ -41,6 +42,33 @@ async function recalculateTotalHours(db: ReturnType<typeof getDb>, generatorId: 
     .update(schema.generators)
     .set({ totalHours, updatedAt: new Date() })
     .where(eq(schema.generators.id, generatorId));
+
+  return totalHours;
+}
+
+async function checkAndAlertMaintenance(
+  db: ReturnType<typeof getDb>,
+  generator: typeof schema.generators.$inferSelect,
+  newTotalHours: number,
+  userId: number,
+  logger: { error: (e: unknown) => void }
+): Promise<void> {
+  try {
+    const [user] = await db.select().from(schema.users).where(eq(schema.users.id, userId)).limit(1);
+    if (user) {
+      await sendMaintenanceAlertIfNeeded(user.email, {
+        generatorName: generator.name,
+        totalHours: newTotalHours,
+        lastOilChangeHours: generator.lastOilChangeHours,
+        oilChangeHours: generator.oilChangeHours,
+        lastOilChangeDate: generator.lastOilChangeDate,
+        oilChangeMonths: generator.oilChangeMonths,
+        installedAt: generator.installedAt,
+      });
+    }
+  } catch (err) {
+    logger.error(err);
+  }
 }
 
 async function resolveOwnerGenerator(
@@ -128,7 +156,8 @@ export async function usageLogsRoutes(app: FastifyInstance) {
         })
         .returning();
 
-      await recalculateTotalHours(db, generatorId);
+      const newTotalHoursPost = await recalculateTotalHours(db, generatorId);
+      await checkAndAlertMaintenance(db, generator, newTotalHoursPost, userId, app.log);
 
       return reply.status(201).send({
         id: log.id,
@@ -203,7 +232,8 @@ export async function usageLogsRoutes(app: FastifyInstance) {
         .where(eq(schema.usageLogs.id, logId))
         .returning();
 
-      await recalculateTotalHours(db, generatorId);
+      const newTotalHoursPut = await recalculateTotalHours(db, generatorId);
+      await checkAndAlertMaintenance(db, generator, newTotalHoursPut, userId, app.log);
 
       return reply.send({
         id: updated.id,
