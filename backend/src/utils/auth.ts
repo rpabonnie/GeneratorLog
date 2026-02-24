@@ -35,27 +35,36 @@ export async function verifyPassword(password: string, stored: string): Promise<
   return timingSafeEqual(candidate, Buffer.from(hash, 'hex'));
 }
 
-// API keys — HMAC-SHA256; keys are 256-bit random values, using HMAC for additional security
-function deriveApiKeySecret(): Buffer {
-  return createHash('sha256').update(config.session.secret + ':api-keys').digest();
+// API keys — scrypt with derived pepper for computational cost
+// Keys are 256-bit random, scrypt ensures consistent computational effort
+const API_KEY_SCRYPT_PARAMS = { N: 16384, r: 8, p: 1, maxmem: 64 * 1024 * 1024 }; // Lower N for API performance
+
+function deriveApiKeySalt(): string {
+  // Fixed salt (pepper) derived from SESSION_SECRET - consistent across all API keys
+  return createHash('sha256').update(config.session.secret + ':api-key-pepper').digest('hex').slice(0, 32);
 }
 
-export function generateApiKey(): { raw: string; hash: string; hint: string } {
+export async function generateApiKey(): Promise<{ raw: string; hash: string; hint: string }> {
   const secret = randomBytes(32).toString('base64url');
   const raw = `gl_${secret}`;
-  const hash = createHmac('sha256', deriveApiKeySecret()).update(raw).digest('hex');
+  const salt = deriveApiKeySalt();
+  const derivedKey = (await scryptAsync(raw, salt, 64, API_KEY_SCRYPT_PARAMS)) as Buffer;
+  const hash = derivedKey.toString('hex');
   const hint = raw.slice(-4);
   return { raw, hash, hint };
 }
 
-export function hashApiKey(raw: string): string {
-  return createHmac('sha256', deriveApiKeySecret()).update(raw).digest('hex');
+export async function hashApiKey(raw: string): Promise<string> {
+  const salt = deriveApiKeySalt();
+  const derivedKey = (await scryptAsync(raw, salt, 64, API_KEY_SCRYPT_PARAMS)) as Buffer;
+  return derivedKey.toString('hex');
 }
 
-export function validateApiKey(provided: string, storedHash: string): boolean {
-  const providedHash = createHmac('sha256', deriveApiKeySecret()).update(provided).digest();
+export async function validateApiKey(provided: string, storedHash: string): Promise<boolean> {
+  const salt = deriveApiKeySalt();
+  const providedKey = (await scryptAsync(provided, salt, 64, API_KEY_SCRYPT_PARAMS)) as Buffer;
   const stored = Buffer.from(storedHash, 'hex');
-  return timingSafeEqual(providedHash, stored);
+  return timingSafeEqual(providedKey, stored);
 }
 
 function deriveEncryptionKey(): Buffer {

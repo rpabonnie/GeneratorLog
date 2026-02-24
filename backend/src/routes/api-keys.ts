@@ -47,7 +47,7 @@ export async function apiKeyRoutes(app: FastifyInstance) {
     const db = getDb();
 
     try {
-      const { raw, hash, hint } = generateApiKey();
+      const { raw, hash, hint } = await generateApiKey();
       const encryptedKey = encryptApiKey(raw);
 
       const [newApiKey] = await db
@@ -140,7 +140,7 @@ export async function apiKeyRoutes(app: FastifyInstance) {
 
       if (!existing) return reply.status(404).send({ error: 'API key not found' });
 
-      const { raw, hash, hint } = generateApiKey();
+      const { raw, hash, hint } = await generateApiKey();
       const encryptedKey = encryptApiKey(raw);
 
       const [updated] = await db
