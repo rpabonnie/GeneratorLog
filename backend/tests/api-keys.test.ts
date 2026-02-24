@@ -3,6 +3,7 @@ import Fastify, { FastifyInstance } from 'fastify';
 import { apiKeyRoutes } from '../src/routes/api-keys.js';
 import { authRoutes } from '../src/routes/auth.js';
 import { registerSessionMiddleware } from '../src/services/session.js';
+import { RateLimiter } from '../src/middleware/rate-limiter.js';
 import { getDb } from '../src/db/index.js';
 import * as schema from '../src/db/schema.js';
 
@@ -24,10 +25,14 @@ async function loginAs(app: FastifyInstance, email: string): Promise<string> {
 
 describe('API Key Routes', () => {
   let app: FastifyInstance;
+  let rateLimiter: RateLimiter;
   let testCookie: string;
 
   beforeEach(async () => {
     app = Fastify();
+    rateLimiter = new RateLimiter(1);
+    app.decorate('rateLimiter', rateLimiter);
+
     registerSessionMiddleware(app);
     await authRoutes(app);
     await apiKeyRoutes(app);
@@ -50,6 +55,7 @@ describe('API Key Routes', () => {
   });
 
   afterEach(async () => {
+    rateLimiter.destroy();
     await app.close();
   });
 
@@ -325,6 +331,34 @@ describe('API Key Routes', () => {
         url: '/api/api-keys/1/qrcode',
       });
       expect(response.statusCode).toBe(401);
+    });
+
+    it('should enforce rate limiting on QR code generation', async () => {
+      const createResponse = await app.inject({
+        method: 'POST',
+        url: '/api/api-keys',
+        headers: { cookie: testCookie },
+        payload: { name: 'Rate Limit Test Key' },
+      });
+      const apiKey = JSON.parse(createResponse.body);
+
+      // First request should succeed
+      const response1 = await app.inject({
+        method: 'GET',
+        url: `/api/api-keys/${apiKey.id}/qrcode`,
+        headers: { cookie: testCookie },
+      });
+      expect(response1.statusCode).toBe(200);
+
+      // Second request should be rate limited
+      const response2 = await app.inject({
+        method: 'GET',
+        url: `/api/api-keys/${apiKey.id}/qrcode`,
+        headers: { cookie: testCookie },
+      });
+      expect(response2.statusCode).toBe(429);
+      const body = JSON.parse(response2.body);
+      expect(body.error).toContain('rate limit');
     });
   });
 
