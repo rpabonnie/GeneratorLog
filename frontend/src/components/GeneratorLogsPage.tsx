@@ -27,10 +27,6 @@ export function GeneratorLogsPage() {
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
   const loadData = async () => {
     try {
       setLoading(true);
@@ -49,6 +45,9 @@ export function GeneratorLogsPage() {
       setLoading(false);
     }
   };
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- async data fetch; setState only after awaits
+  useEffect(() => { loadData(); }, []);
 
   const resetForm = () => {
     setEditingLog(null);

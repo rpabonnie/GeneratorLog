@@ -22,10 +22,6 @@ export function ProfilePage() {
   const [passwordError, setPasswordError] = useState('');
   const [passwordSuccess, setPasswordSuccess] = useState('');
 
-  useEffect(() => {
-    loadProfile();
-  }, []);
-
   const loadProfile = async () => {
     try {
       setLoading(true);
@@ -51,6 +47,9 @@ export function ProfilePage() {
       setLoading(false);
     }
   };
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- async data fetch; setState only after awaits
+  useEffect(() => { loadProfile(); }, []);
 
   const handleProfileUpdate = async (e: FormEvent) => {
     e.preventDefault();
