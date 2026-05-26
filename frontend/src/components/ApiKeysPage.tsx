@@ -17,10 +17,6 @@ export function ApiKeysPage() {
   const [showQrModal, setShowQrModal] = useState(false);
   const [selectedKeyId, setSelectedKeyId] = useState<number | null>(null);
 
-  useEffect(() => {
-    loadApiKeys();
-  }, []);
-
   const loadApiKeys = async () => {
     try {
       setLoading(true);
@@ -32,6 +28,9 @@ export function ApiKeysPage() {
       setLoading(false);
     }
   };
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- async data fetch; setState only after awaits
+  useEffect(() => { loadApiKeys(); }, []);
 
   const handleCreateKey = async () => {
     setError('');

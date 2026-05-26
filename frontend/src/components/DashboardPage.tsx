@@ -124,14 +124,14 @@ function useLiveElapsed(startTime: string | null, isRunning: boolean) {
   const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {
-    if (!isRunning || !startTime) { setElapsed(0); return; }
+    if (!isRunning || !startTime) return;
     const tick = () => setElapsed(Date.now() - new Date(startTime).getTime());
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, [startTime, isRunning]);
 
-  return elapsed;
+  return isRunning && startTime ? elapsed : 0;
 }
 
 // ── Main Component ────────────────────────────────────────────────────────────
@@ -171,6 +171,7 @@ export function DashboardPage() {
     }
   }, []);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- loadData is async; all setState calls happen after awaits
   useEffect(() => { loadData(); }, [loadData]);
 
   const handleToggle = async () => {
