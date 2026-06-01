@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, type FormEvent } from 'react';
 import { api } from '../utils/api';
+import { formatHours } from '../utils/format';
 import type { Generator, UsageLog, OilChangeEntry } from '../types';
 import './DashboardPage.css';
 
@@ -57,14 +58,14 @@ function Gauge({ value, max, label, unit }: {
           fill="none" stroke={color} strokeWidth="16" strokeLinecap="round"
           strokeDasharray={`${fillLen} ${arcLen}`} />
         <text x="100" y="84" textAnchor="middle" className="gauge-value-text">
-          {value.toFixed(1)}
+          {unit === 'h' ? formatHours(value) : value.toFixed(1)}
         </text>
         <text x="100" y="100" textAnchor="middle" className="gauge-max-text">
-          / {max} {unit}
+          / {unit === 'h' ? formatHours(max) : `${max} ${unit}`}
         </text>
         <text x="100" y="113" textAnchor="middle" className="gauge-status-text"
           style={{ fill: color }}>
-          {overdue ? 'OVERDUE' : `${(max - value).toFixed(1)} left`}
+          {overdue ? 'OVERDUE' : unit === 'h' ? `${formatHours(max - value)} left` : `${(max - value).toFixed(1)} left`}
         </text>
       </svg>
       <div className="gauge-label">{label}</div>
@@ -100,16 +101,16 @@ function RunBarChart({ logs }: { logs: UsageLog[] }) {
           const label = new Date(log.startTime).toLocaleDateString(undefined, {
             month: 'short', day: 'numeric',
           });
-          const hrs = log.durationHours!.toFixed(1);
+          const fmtHrs = formatHours(log.durationHours!);
           return (
             <g key={log.id}>
-              <title>{label} — {hrs}h</title>
+              <title>{label} — {fmtHrs}</title>
               <rect x={x} y={y} width={barW} height={h} rx="3"
-                fill={parseFloat(hrs) > 0 ? '#667eea' : '#cbd5e0'} />
+                fill={log.durationHours! > 0 ? '#667eea' : '#cbd5e0'} />
               <text x={x + barW / 2} y={chartH + 10} textAnchor="middle"
                 className="chart-label">{label}</text>
               <text x={x + barW / 2} y={y - 10} textAnchor="middle"
-                className="chart-bar-val">{hrs}h</text>
+                className="chart-bar-val">{fmtHrs}</text>
             </g>
           );
         })}
@@ -273,7 +274,7 @@ export function DashboardPage() {
             {generator.isRunning && elapsed > 0 && (
               <p className="stat-detail">Current session: <strong>{formatElapsed(elapsed)}</strong></p>
             )}
-            <p className="stat-detail">Total lifetime: <strong>{generator.totalHours.toFixed(1)} h</strong></p>
+            <p className="stat-detail">Total lifetime: <strong>{formatHours(generator.totalHours)}</strong></p>
             <button
               className={`toggle-button ${generator.isRunning ? 'toggle-stop' : 'toggle-start'}`}
               onClick={handleToggle}
@@ -368,7 +369,7 @@ export function DashboardPage() {
                 <li key={entry.id} className="oil-change-entry">
                   <div className="oil-change-info">
                     <strong>{formatDate(entry.performedAt)}</strong>
-                    <span className="oil-hours">at {entry.hoursAtChange.toFixed(1)} h</span>
+                    <span className="oil-hours">at {formatHours(entry.hoursAtChange)}</span>
                     {entry.notes && <span className="oil-notes">{entry.notes}</span>}
                   </div>
                   <button

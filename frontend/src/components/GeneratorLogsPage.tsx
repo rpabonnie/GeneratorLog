@@ -1,5 +1,6 @@
 import { useState, useEffect, type FormEvent } from 'react';
 import { api } from '../utils/api';
+import { formatHours } from '../utils/format';
 import type { Generator, UsageLog } from '../types';
 import './GeneratorLogsPage.css';
 
@@ -14,8 +15,7 @@ function formatDateTime(iso: string | null): string {
 }
 
 function formatDuration(hours: number | null): string {
-  if (hours === null) return '—';
-  return hours.toFixed(2) + ' h';
+  return formatHours(hours);
 }
 
 export function GeneratorLogsPage() {
@@ -122,7 +122,7 @@ export function GeneratorLogsPage() {
       <div className="logs-container">
         <h1>Generator Run Log</h1>
         {generator && (
-          <p className="subtitle">{generator.name} — {generator.totalHours.toFixed(2)} total hours</p>
+          <p className="subtitle">{generator.name} — {formatHours(generator.totalHours)} total</p>
         )}
 
         {error && <div className="error-message">{error}</div>}
