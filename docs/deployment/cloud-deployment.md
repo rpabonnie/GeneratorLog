@@ -31,6 +31,33 @@ This guide covers deploying GeneratorLog to Microsoft Azure using the free tier 
 
 ---
 
+## Publishing Sequence (Quick Reference)
+
+Condensed checklist for routine re-deploys once infrastructure exists. Full details: backend in
+[Step 4](#step-4-deploy-backend-to-generatorlog-api), frontend in [Step 5](#step-5-deploy-frontend-to-generatorlog).
+
+**Backend** (`generatorlog-api`):
+1. `CI=true pnpm install` (repo root)
+2. Build: `backend/node_modules/.bin/tsc -p backend/tsconfig.json` → `backend/dist/`
+3. Stage flat deps: copy `backend/package.json` + `backend/dist/` to a clean staging dir, add `.npmrc` with `node-linker=hoisted`, run `CI=true pnpm install --prod --dir <staging>` (pnpm symlinks break on Azure otherwise)
+4. Zip `dist/ node_modules/ package.json` (exclude `*.map`)
+5. `az webapp deploy --resource-group generatorlog-rg --name generatorlog-api --src-path <zip> --type zip`
+6. Verify: `curl https://generatorlog-api.azurewebsites.net/health` → `{"status":"ok",...}`
+
+**Frontend** (`generatorlog`):
+1. Build with the backend URL baked in: `VITE_API_URL=https://generatorlog-api.azurewebsites.net pnpm --dir frontend run build`
+2. Stage `dist/` + minimal `package.json` (with `serve` dependency) + hoisted install
+3. Zip `dist/ node_modules/ package.json`
+4. `az webapp deploy --resource-group generatorlog-rg --name generatorlog --src-path <zip> --type zip`
+5. Verify: `https://generatorlog.azurewebsites.net/` returns 200 and shows the login page
+
+**Notes**:
+- Deploy backend before frontend when an API change is involved.
+- F1 tier has no Always-On: the first request after idle cold-starts (~10–30 s) — a slow first `curl` is normal.
+- No CI/CD pipeline exists yet (`.github/workflows/` is empty); this manual sequence is the publishing process. Automating it via GitHub Actions is documented future work.
+
+---
+
 ## Option 1: Beta Deployment (Free Tier) - $0/month
 
 ### Step 1: Create Neon PostgreSQL Database (Free)
@@ -518,6 +545,52 @@ az keyvault secret set \
 
 az webapp restart --name generatorlog-api --resource-group generatorlog-rg
 ```
+
+---
+
+## MCP Endpoint + OAuth Configuration (WorkOS AuthKit)
+
+The `/mcp` endpoint ([ADR 0004](../adr/0004-mcp-server-alongside-rest-api.md)) authenticates AI
+agents exclusively via OAuth 2.1 through WorkOS AuthKit ([ADR 0005](../adr/0005-mcp-oauth-only-workos-authkit.md)).
+The `gl_` API key is used only by iOS Shortcuts on the REST endpoint. Perform this setup once,
+before deploying the MCP-enabled backend.
+
+### WorkOS Dashboard Setup
+
+1. Create a free WorkOS account at [workos.com](https://workos.com) (AuthKit is free up to 1M monthly active users)
+2. In the dashboard, enable **AuthKit** and note the issuer URL (`https://<tenant>.authkit.app`)
+3. Under AuthKit → Connected apps / MCP settings:
+   - Enable **Client ID Metadata Documents (CIMD)** — preferred registration method for Claude
+   - Enable **Dynamic Client Registration (DCR)** for backward compatibility with older MCP clients
+   - Register the resource indicator: `https://generatorlog-api.azurewebsites.net/mcp`
+4. Create your user account in AuthKit (email + password or social login) — this is the identity agents act as
+
+### App Service Settings
+
+These values are identifiers, **not secrets** — set them as plain app settings (no Key Vault reference needed):
+
+```bash
+az webapp config appsettings set \
+  --resource-group generatorlog-rg \
+  --name generatorlog-api \
+  --settings \
+    AUTHKIT_ISSUER=https://<tenant>.authkit.app \
+    MCP_RESOURCE_URL=https://generatorlog-api.azurewebsites.net/mcp
+```
+
+Per the CLAUDE.md secrets rules: never set actual secrets as plain app settings; AuthKit
+integration requires none (JWT verification uses the public JWKS endpoint).
+
+### Connecting Claude Surfaces (one-time interactive sign-in each)
+
+| Surface | How |
+|---------|-----|
+| claude.ai / Claude mobile | Settings → Connectors → Add custom connector → `https://generatorlog-api.azurewebsites.net/mcp` → complete AuthKit sign-in |
+| Claude Code | `claude mcp add --transport http generatorlog https://generatorlog-api.azurewebsites.net/mcp`, then `/mcp` → authenticate on first 401 |
+| Cloud Routine | Grant the already-authenticated `generatorlog` MCP server when creating the Routine ([ADR 0006](../adr/0006-scheduled-monitoring-claude-routine.md)) |
+
+**Token refresh**: Claude refreshes OAuth tokens automatically (including for headless Routines).
+If a refresh ever fails, re-authenticate once interactively on any surface.
 
 ---
 
