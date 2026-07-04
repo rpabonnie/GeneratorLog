@@ -5,7 +5,7 @@ import { getDb } from '../db/index.js';
 import * as schema from '../db/schema.js';
 import { and, eq, gt, isNull } from 'drizzle-orm';
 import { hashPassword, verifyPassword } from '../utils/auth.js';
-import { sendPasswordResetEmail, sendMaintenanceAlertIfNeeded, getEmailTransporter } from '../services/email.js';
+import { sendPasswordResetEmail, sendMaintenanceAlertIfNeeded, sendEnrollmentAlertEmail, getEmailTransporter } from '../services/email.js';
 import { createSession, deleteSession, sessionCookie, clearSessionCookie, parseCookies } from '../services/session.js';
 import { applyRateLimit } from '../middleware/rate-limiter.js';
 import config from '../config.js';
@@ -70,6 +70,11 @@ export async function authRoutes(app: FastifyInstance) {
         .values({ email, name: name || null, passwordHash })
         .returning();
 
+      app.log.info({ security: 'enrollment', ip: request.ip, email }, 'New user enrolled');
+
+      // Fire-and-forget owner notification — must not block or fail enrollment
+      sendEnrollmentAlertEmail(newUser.email, newUser.name).catch(err => app.log.error(err));
+
       const sessionId = await createSession(newUser.id);
       return reply
         .status(201)
@@ -103,6 +108,10 @@ export async function authRoutes(app: FastifyInstance) {
       const isValid = await verifyPassword(password, passwordToCheck);
 
       if (!user || !isValid) {
+        app.log.warn(
+          { security: 'failed_login', ip: request.ip, email },
+          'Rejected login with invalid credentials'
+        );
         return reply.status(401).send({ error: 'Invalid email or password' });
       }
 

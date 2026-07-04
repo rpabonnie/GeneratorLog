@@ -344,6 +344,45 @@ export async function sendMaintenanceReminderEmail(
   }
 }
 
+// Escapes enrollee-supplied strings before HTML interpolation — unlike other
+// templates (users emailing themselves), this content comes from strangers.
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// Notifies the service owner when a new user enrolls. No-op unless both SMTP
+// and OWNER_EMAIL are configured; skips the owner's own enrollment.
+export async function sendEnrollmentAlertEmail(newUserEmail: string, newUserName: string | null): Promise<void> {
+  const emailTransporter = getEmailTransporter();
+  if (!emailTransporter || !config.ownerEmail) return;
+  if (newUserEmail.toLowerCase() === config.ownerEmail.toLowerCase()) return;
+
+  const html = createEmailTemplate(
+    'New User Enrollment',
+    `<p>A new user enrolled in GeneratorLog:</p>
+     <p><strong>Email:</strong> ${escapeHtml(newUserEmail)}<br>
+     <strong>Name:</strong> ${newUserName ? escapeHtml(newUserName) : '(not provided)'}<br>
+     <strong>Enrolled at:</strong> ${new Date().toISOString()}</p>`
+  );
+
+  try {
+    await emailTransporter.sendMail({
+      from: config.email.from,
+      to: config.ownerEmail,
+      subject: `GeneratorLog: new user enrolled (${newUserEmail})`,
+      html,
+    });
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Failed to send enrollment alert email', { host: config.email.host, port: config.email.port, message: err && (err as Error).message });
+  }
+}
+
 // Consolidates maintenance check and email selection for both toggle endpoints.
 // Returns without sending if email service is not configured.
 export async function sendGeneratorStopEmails(

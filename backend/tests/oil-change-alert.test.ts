@@ -19,6 +19,16 @@ function extractCookie(setCookieHeader: string | string[] | undefined): string {
   return header ? header.split(';')[0] : '';
 }
 
+// Rate limiting is per source IP, but app.inject defaults every request to
+// 127.0.0.1 — on fast machines back-to-back requests trip the 1 req/s limit.
+// Default each injected request to a unique IP.
+let ipSeq = 0;
+const nextTestIp = () => `10.99.${Math.floor(ipSeq / 250)}.${(ipSeq++ % 250) + 1}`;
+function useUniqueClientIps(app: FastifyInstance): void {
+  const injectRaw = app.inject.bind(app);
+  (app as any).inject = (opts: any) => injectRaw({ remoteAddress: nextTestIp(), ...opts });
+}
+
 describe('Oil Change Alert with Fresh Data', () => {
   let app: FastifyInstance;
   let rateLimiter: RateLimiter;
@@ -38,6 +48,7 @@ describe('Oil Change Alert with Fresh Data', () => {
     await oilChangeHistoryRoutes(app);
     registerGeneratorRoutes(app);
     await app.ready();
+    useUniqueClientIps(app);
 
     const db = getDb();
     await db.delete(schema.oilChangeHistory).execute();

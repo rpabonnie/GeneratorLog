@@ -119,12 +119,16 @@ describe('Email Service', () => {
     });
 
     it('shows hours overdue when hours threshold is exceeded', () => {
+      // Relative date: the template computes months-overdue against the real
+      // clock, so a fixed past date eventually trips BOTH thresholds and the
+      // message becomes "exceeded both ..." (this test rotted in Feb 2026).
+      const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
       const data = {
         generatorName: 'Test Generator',
         totalHours: 130,
         lastOilChangeHours: 20,
         oilChangeHours: 100,
-        lastOilChangeDate: new Date('2025-08-01'),
+        lastOilChangeDate: oneMonthAgo,
         oilChangeMonths: 6,
       };
 

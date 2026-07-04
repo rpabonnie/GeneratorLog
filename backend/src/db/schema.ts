@@ -40,7 +40,8 @@ export const usageLogs = pgTable('usage_logs', {
 export const apiKeys = pgTable('api_keys', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').notNull().references(() => users.id),
-  keyHash: varchar('key_hash', { length: 64 }).notNull().unique(),
+  // scrypt-derived hash: 64 bytes hex-encoded = 128 chars (see utils/auth.ts)
+  keyHash: varchar('key_hash', { length: 128 }).notNull().unique(),
   encryptedKey: varchar('encrypted_key', { length: 512 }),
   hint: varchar('hint', { length: 4 }).notNull(),
   name: varchar('name', { length: 255 }),

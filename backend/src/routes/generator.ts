@@ -28,6 +28,11 @@ export function registerGeneratorRoutes(app: FastifyInstance) {
     try {
       const generator = await getGeneratorByApiKey(apiKey);
       if (!generator) {
+        // Security log (OWASP): never log the attempted key itself, only a hint
+        app.log.warn(
+          { security: 'invalid_api_key', ip: request.ip, keyHint: apiKey.slice(-4), url: request.url },
+          'Rejected request with invalid API key'
+        );
         return reply.code(401).send({ error: 'Invalid API key' });
       }
 

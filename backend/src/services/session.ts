@@ -61,7 +61,10 @@ export function registerSessionMiddleware(app: FastifyInstance): void {
 
     const authHeader = request.headers['authorization'];
     if (authHeader?.startsWith('Bearer ')) {
-      sessionId = authHeader.slice(7);
+      // Session IDs are exactly 64 hex chars (randomBytes(32).hex). Anything else
+      // (e.g. an OAuth JWT for /mcp) is not a session and must not hit the DB.
+      const bearer = authHeader.slice(7);
+      if (/^[0-9a-f]{64}$/.test(bearer)) sessionId = bearer;
     } else {
       const cookieHeader = request.headers['cookie'];
       if (cookieHeader) {

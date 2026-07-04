@@ -14,6 +14,17 @@ function extractCookie(setCookieHeader: string | string[] | undefined): string {
   return header ? header.split(';')[0] : '';
 }
 
+// Rate limiting is per source IP, but app.inject defaults every request to
+// 127.0.0.1 — on fast machines back-to-back requests trip the 1 req/s limit.
+// Default each injected request to a unique IP; tests that assert 429s pass an
+// explicit fixed remoteAddress instead.
+let ipSeq = 0;
+const nextTestIp = () => `10.99.${Math.floor(ipSeq / 250)}.${(ipSeq++ % 250) + 1}`;
+function useUniqueClientIps(app: FastifyInstance): void {
+  const injectRaw = app.inject.bind(app);
+  (app as any).inject = (opts: any) => injectRaw({ remoteAddress: nextTestIp(), ...opts });
+}
+
 async function loginAs(app: FastifyInstance, email: string): Promise<string> {
   const resp = await app.inject({
     method: 'POST',
@@ -37,6 +48,7 @@ describe('API Key Routes', () => {
     await authRoutes(app);
     await apiKeyRoutes(app);
     await app.ready();
+    useUniqueClientIps(app);
 
     const db = getDb();
     await db.delete(schema.usageLogs).execute();
@@ -342,11 +354,12 @@ describe('API Key Routes', () => {
       });
       const apiKey = JSON.parse(createResponse.body);
 
-      // First request should succeed
+      // First request should succeed — fixed IP so both requests share a window
       const response1 = await app.inject({
         method: 'GET',
         url: `/api/api-keys/${apiKey.id}/qrcode`,
         headers: { cookie: testCookie },
+        remoteAddress: '10.200.0.1',
       });
       expect(response1.statusCode).toBe(200);
 
@@ -355,6 +368,7 @@ describe('API Key Routes', () => {
         method: 'GET',
         url: `/api/api-keys/${apiKey.id}/qrcode`,
         headers: { cookie: testCookie },
+        remoteAddress: '10.200.0.1',
       });
       expect(response2.statusCode).toBe(429);
       const body = JSON.parse(response2.body);
