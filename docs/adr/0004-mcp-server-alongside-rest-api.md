@@ -1,9 +1,9 @@
 # ADR 0004: Add MCP Server Alongside Existing REST API
 
-**Date**: 2026-06-29
-**Status**: Proposed — iOS 27 verified (June 2026)
+**Date**: 2026-06-29 (auth section revised 2026-07-04)
+**Status**: Accepted — iOS 27 verified (June 2026); authentication superseded by [ADR 0005](./0005-mcp-oauth-only-workos-authkit.md)
 **Deciders**: Ray Pabonnie, Claude Code
-**Related Research**: [`docs/research/0003-mcp-server-research.md`](../research/0003-mcp-server-research.md)
+**Related Research**: [`docs/research/0003-mcp-server-research.md`](../research/0003-mcp-server-research.md), [`docs/research/0005-mcp-oauth-and-scheduled-agent-research.md`](../research/0005-mcp-oauth-and-scheduled-agent-research.md)
 
 ---
 
@@ -121,12 +121,18 @@ server.register(streamableHttp, {
 
 ### 3. Tool definition (`backend/src/mcp/tools.ts`)
 
+Tools take **no credentials** — authentication happens at the transport level before any tool
+runs (see § 4). The authenticated user's generator is resolved from the request context.
+
+> **Revision 2026-07-04**: an earlier sketch passed `api_key` as a tool input parameter. That was
+> wrong — the key would sit in every agent conversation context. Never accept credentials as tool
+> arguments.
+
 ```typescript
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { getGeneratorByApiKey, toggleGenerator } from '../services/generator.js';
-import { z } from 'zod';
+import { toggleGenerator, getGeneratorForUser } from '../services/generator.js';
 
-export function createMcpServer() {
+export function createMcpServer(userId: number) {
   const server = new McpServer({ name: 'generatorlog', version: '1.0.0' });
 
   server.registerTool(
@@ -135,19 +141,26 @@ export function createMcpServer() {
       title: 'Toggle Generator',
       description:
         'Start or stop generator tracking. ' +
-        'When stopped, automatically sends an email summary with runtime hours. ' +
         'Responds with current status (running/stopped), duration, and total hours.',
-      inputSchema: z.object({
-        api_key: z.string().describe('GeneratorLog API key (starts with gl_)'),
-      }),
     },
-    async ({ api_key }) => {
-      const generator = await getGeneratorByApiKey(api_key);
-      if (!generator) {
-        return { content: [{ type: 'text', text: 'Invalid API key' }], isError: true };
-      }
+    async () => {
+      const generator = await getGeneratorForUser(userId);
       const result = await toggleGenerator(generator.id);
       return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    }
+  );
+
+  server.registerTool(
+    'get_generator_health',
+    {
+      title: 'Get Generator Health',
+      description:
+        'Read-only pre-computed health assessment: maintenance status, urgency, ' +
+        'recommended action, and a natural-language summary.',
+    },
+    async () => {
+      const health = await getGeneratorHealth(userId); // same logic as generator://health resource
+      return { content: [{ type: 'text', text: JSON.stringify(health) }] };
     }
   );
 
@@ -155,32 +168,38 @@ export function createMcpServer() {
 }
 ```
 
+**Why `get_generator_health` as a tool when `generator://health` exists as a resource**: agent
+surfaces invoke Tools far more reliably than Resources (resources are user-attached in Claude
+clients). Mirroring the health resource as a read-only tool lets any agent — including the
+scheduled Routine (ADR 0006) — query health without resource support.
+
 ### 4. Authentication
 
-Add an `onRequest` hook on the `/mcp` path that validates a Bearer token against the
-existing API key store (same SHA-256 lookup as the REST endpoint). Reject connections
-with no or invalid `Authorization: Bearer <api-key>` header before the MCP handshake completes.
+> **Superseded by [ADR 0005](./0005-mcp-oauth-only-workos-authkit.md)** (2026-07-04):
+> `/mcp` is **OAuth-only** via WorkOS AuthKit — an `onRequest` hook validates AuthKit-issued
+> JWTs against the AuthKit JWKS and returns `401` (with RFC 9728 resource metadata) otherwise.
+> There is no API-key path on `/mcp`. The `gl_` API key + `x-api-key` header remains exclusively
+> on the iOS Shortcuts REST endpoint (ADR 0003, unchanged).
 
 ### 5. Rate Limiting
 
-Apply the existing `RateLimiter` to the `/mcp` path using the Bearer token as the client ID.
+Apply the existing `RateLimiter` to the `/mcp` path using the OAuth token subject as the client ID.
 
 ---
 
 ## Configuration for AI Clients
 
-### Claude Desktop / Claude Code
-```json
-{
-  "mcpServers": {
-    "generatorlog": {
-      "url": "https://<your-app>.azurewebsites.net/mcp",
-      "headers": {
-        "Authorization": "Bearer gl_<your-api-key>"
-      }
-    }
-  }
-}
+All Claude surfaces (claude.ai/mobile custom connectors, Claude Code, cloud Routines)
+authenticate via the OAuth flow — no headers or keys to configure (ADR 0005).
+
+### claude.ai / Claude mobile
+Settings → Connectors → Add custom connector → URL `https://generatorlog-api.azurewebsites.net/mcp`
+→ complete the AuthKit sign-in when prompted.
+
+### Claude Code
+```bash
+claude mcp add --transport http generatorlog https://generatorlog-api.azurewebsites.net/mcp
+# First use returns 401 → run /mcp and complete the browser sign-in once
 ```
 
 ### iOS Shortcuts (unchanged)
@@ -228,7 +247,9 @@ Headers: x-api-key = gl_<your-api-key>
 ## References
 
 - [Research Document](../research/0003-mcp-server-research.md)
-- [MCP Specification 2025-06-18](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports.md)
+- [ADR 0005 — MCP OAuth via WorkOS AuthKit](./0005-mcp-oauth-only-workos-authkit.md)
+- [ADR 0006 — Scheduled monitoring via Claude Routine](./0006-scheduled-monitoring-claude-routine.md)
+- [MCP Specification 2025-11-25 (current — use this for implementation)](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports)
 - [MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk)
 - [fastify-mcp on npm](https://www.npmjs.com/package/fastify-mcp)
 - [ADR 0003 — Security (API key auth)](./0003-security-hashing-and-authentication.md)
