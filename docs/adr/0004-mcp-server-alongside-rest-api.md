@@ -168,6 +168,11 @@ export function createMcpServer(userId: number) {
 }
 ```
 
+> **Owner tooling (added 2026-07-04)**: the implementation must also include a read-only
+> `list_enrollments` tool (owner-scoped) returning registered users (id, email, name, createdAt)
+> so the owner can review sign-ups via MCP. Complements the enrollment alert email
+> (`OWNER_EMAIL`) added to the enroll route.
+
 **Why `get_generator_health` as a tool when `generator://health` exists as a resource**: agent
 surfaces invoke Tools far more reliably than Resources (resources are user-attached in Claude
 clients). Mirroring the health resource as a read-only tool lets any agent — including the

@@ -21,6 +21,16 @@ const server = Fastify({
 const rateLimiter = new RateLimiter(config.apiRateLimit);
 server.decorate('rateLimiter', rateLimiter);
 
+// Security headers (OWASP)
+server.addHook('onRequest', async (_request, reply) => {
+  reply.header('X-Content-Type-Options', 'nosniff');
+  reply.header('X-Frame-Options', 'DENY');
+  reply.header('Referrer-Policy', 'no-referrer');
+  if (config.nodeEnv === 'production') {
+    reply.header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  }
+});
+
 // CORS — reflect localhost/LAN origins in development, enforce configured origin in production
 server.addHook('onRequest', async (request, reply) => {
   const origin = request.headers['origin'] ?? '';

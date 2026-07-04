@@ -30,6 +30,7 @@ interface Config {
     from: string;
     secure: boolean;
   };
+  ownerEmail: string;
   logLevel: string;
 }
 
@@ -63,6 +64,7 @@ const config: Config = {
     from: process.env.SMTP_FROM || 'GeneratorLog <noreply@generatorlog.com>',
     secure: process.env.SMTP_SECURE === 'true',
   },
+  ownerEmail: process.env.OWNER_EMAIL || '',
   logLevel: process.env.LOG_LEVEL || 'info',
 };
 
