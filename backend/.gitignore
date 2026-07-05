@@ -29,6 +29,3 @@ Thumbs.db
 
 # TypeScript
 *.tsbuildinfo
-
-# Drizzle metadata (snapshots are auto-generated, but journal must be committed)
-drizzle/meta/*_snapshot.json

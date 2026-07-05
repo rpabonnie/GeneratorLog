@@ -1,7 +1,7 @@
 CREATE TABLE "api_keys" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"user_id" integer NOT NULL,
-	"key_hash" varchar(64) NOT NULL,
+	"key_hash" varchar(128) NOT NULL,
 	"encrypted_key" varchar(512),
 	"hint" varchar(4) NOT NULL,
 	"name" varchar(255),
