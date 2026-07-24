@@ -65,6 +65,9 @@ It is not yet cut as a numbered release.
   `brace-expansion`. One advisory remains and is **not applicable**: React Router "RSC Mode CSRF"
   (fixed only in react-router 8.3.0, which is incompatible with the pinned react-router-dom 7.x) —
   the app is a client-only SPA with no React Server Components, so the RSC code path is never used.
+- Dev/build-tooling advisories cleared via pnpm `overrides` (`esbuild`, `postcss`, `@babel/core`)
+  so `pnpm audit` is clean apart from the non-applicable React Router advisory above. These packages
+  (vite, tsx, drizzle-kit, eslint) are not part of the deployed production artifact.
 - Security hardening from a prior audit: verify database TLS certificates (dropped
   `rejectUnauthorized:false`; `sslmode` in the URL governs); security response headers
   (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, HSTS in production) on the API and
