@@ -1,7 +1,7 @@
 # ADR 0004: Add MCP Server Alongside Existing REST API
 
 **Date**: 2026-06-29 (auth section revised 2026-07-04)
-**Status**: Accepted — iOS 27 verified (June 2026); authentication superseded by [ADR 0005](./0005-mcp-oauth-only-workos-authkit.md)
+**Status**: **Superseded by [ADR 0008](./0008-abandon-mcp-integration.md)** — MCP feature abandoned 2026-07-24 (WorkOS AuthKit OAuth could not be completed without a custom domain). Original: Accepted — iOS 27 verified (June 2026); authentication superseded by [ADR 0005](./0005-mcp-oauth-only-workos-authkit.md)
 **Deciders**: Ray Pabonnie, Claude Code
 **Related Research**: [`docs/research/0003-mcp-server-research.md`](../research/0003-mcp-server-research.md), [`docs/research/0005-mcp-oauth-and-scheduled-agent-research.md`](../research/0005-mcp-oauth-and-scheduled-agent-research.md)
 
