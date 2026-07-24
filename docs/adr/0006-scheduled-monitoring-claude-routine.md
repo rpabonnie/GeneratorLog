@@ -1,7 +1,7 @@
 # ADR 0006: Scheduled Generator Monitoring via Claude Code Cloud Routine
 
 **Date**: 2026-07-04
-**Status**: Accepted
+**Status**: **Superseded by [ADR 0008](./0008-abandon-mcp-integration.md)** — depends on the abandoned MCP endpoint; moot as of 2026-07-24. Original: Accepted
 **Deciders**: Ray Pabonnie, Claude Code
 **Related Research**: [`docs/research/0005-mcp-oauth-and-scheduled-agent-research.md`](../research/0005-mcp-oauth-and-scheduled-agent-research.md)
 **Related ADRs**: [ADR 0004 (MCP endpoint)](./0004-mcp-server-alongside-rest-api.md), [ADR 0005 (MCP OAuth)](./0005-mcp-oauth-only-workos-authkit.md), [ADR 0007 (email reduction)](./0007-reduce-email-to-critical-only.md)

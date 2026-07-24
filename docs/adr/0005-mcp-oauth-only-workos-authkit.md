@@ -1,7 +1,7 @@
 # ADR 0005: OAuth-Only Authentication for the MCP Endpoint via WorkOS AuthKit
 
 **Date**: 2026-07-04
-**Status**: Accepted
+**Status**: **Superseded by [ADR 0008](./0008-abandon-mcp-integration.md)** — the AuthKit default (non-custom-domain) issuer never served the OAuth/OIDC discovery metadata Claude's clients require; feature abandoned 2026-07-24. Original: Accepted
 **Deciders**: Ray Pabonnie, Claude Code
 **Related Research**: [`docs/research/0005-mcp-oauth-and-scheduled-agent-research.md`](../research/0005-mcp-oauth-and-scheduled-agent-research.md)
 **Related ADRs**: [ADR 0003 (API-key auth)](./0003-security-hashing-and-authentication.md), [ADR 0004 (MCP alongside REST)](./0004-mcp-server-alongside-rest-api.md)

@@ -22,10 +22,9 @@
   "author": "Ray Pabonnie",
   "license": "MIT",
   "dependencies": {
-    "@fastify/static": "^9.1.3",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
-    "fastify": "^5.8.5",
+    "fastify": "^5.10.0",
     "nodemailer": "^9.0.1",
     "pg": "^8.21.0",
     "qrcode": "^1.5.4",

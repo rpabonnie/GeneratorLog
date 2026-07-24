@@ -1,7 +1,7 @@
 # ADR 0007: Keep SMTP, Reduce Email Notifications to Maintenance-Critical Only
 
 **Date**: 2026-07-04
-**Status**: Accepted
+**Status**: **Superseded by [ADR 0008](./0008-abandon-mcp-integration.md)** — justified by the abandoned MCP/Routine monitoring; email on `main` is unchanged as of 2026-07-24. Original: Accepted
 **Deciders**: Ray Pabonnie, Claude Code
 **Related Research**: [`docs/research/0005-mcp-oauth-and-scheduled-agent-research.md`](../research/0005-mcp-oauth-and-scheduled-agent-research.md), [`docs/research/0004-mcp-metrics-and-agent-alerts.md`](../research/0004-mcp-metrics-and-agent-alerts.md)
 **Related ADRs**: [ADR 0006 (Routine monitoring)](./0006-scheduled-monitoring-claude-routine.md)
